@@ -1,0 +1,28 @@
+{
+  "name": "scripts",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "script set for boj",
+  "main": "index.js",
+  "author": "RanolP <public.ranolp@gmail.com>",
+  "license": "Unlicense",
+  "private": true,
+  "scripts": {
+    "ts-node": "ts-node"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^6.5.0",
+    "@types/node": "^13.11.0",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^2.0.4",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "inquirer": "^7.1.0"
+  }
+}
