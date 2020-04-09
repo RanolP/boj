@@ -7,6 +7,8 @@ import {
   readlink as readlinkCallback,
   PathLike,
   constants,
+  readFile as readFileCallback,
+  writeFile as writeFileCallback,
 } from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
@@ -33,3 +35,5 @@ export const exists = async (
 
 export const unlink = promisify(unlinkCallback);
 export const readlink = promisify(readlinkCallback);
+export const readFile = promisify(readFileCallback);
+export const writeFile = promisify(writeFileCallback);

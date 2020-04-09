@@ -1,18 +1,8 @@
 import { symlink, exists, unlink, lstat, readlink } from '../src/better-fs';
 import { getProblemList } from '../src/problem';
 import { ROOT } from '../src/constants';
-import { join, parse, normalize, resolve } from 'path';
-import {
-  blue,
-  green,
-  yellow,
-  bgBlue,
-  white,
-  bgGreen,
-  bgYellow,
-  underline,
-  gray,
-} from 'chalk';
+import { join, parse } from 'path';
+import { blue, green, yellow, underline, gray } from 'chalk';
 import { prompt } from 'inquirer';
 
 (async () => {

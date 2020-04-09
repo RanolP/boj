@@ -1,10 +1,15 @@
-import { lstat, readdir } from './better-fs';
+import { lstat, readdir, readFile } from './better-fs';
 import { join, basename, parse } from 'path';
 import { ROOT } from './constants';
 
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 
+let problems: Problem[] | null = null;
+
 export async function getProblemList(): Promise<Problem[]> {
+  if (problems) {
+    return problems;
+  }
   const result = [];
   const fileList = await readdir(ROOT);
   for (const file of fileList) {
@@ -14,14 +19,34 @@ export async function getProblemList(): Promise<Problem[]> {
     }
     const folderBasename = basename(file);
     if (PROBLEM_NUMBER_REGEX.test(folderBasename)) {
-      result.push(new Problem(Number(folderBasename)));
+      const problem = new Problem(Number(folderBasename));
+      await problem.initialize();
+      result.push(problem);
     }
   }
+  problems = result;
   return result;
 }
 
+interface ProblemMeta {
+  date: string;
+  lastUpdate: string;
+  status: 'solved' | 'in-progress' | 'dropped' | 'solved-timeout' | 'timeout';
+  order: number;
+}
+
 export class Problem {
+  private _meta: ProblemMeta | null = null;
   constructor(public readonly id: number) {}
+
+  async initialize() {
+    this._meta = JSON.parse(
+      await readFile(join(ROOT, this.id.toString(), 'meta.json'), {
+        encoding: 'utf-8',
+      })
+    ) as ProblemMeta;
+    return this._meta;
+  }
 
   async getSolutions(): Promise<string[]> {
     const result = [];
@@ -38,5 +63,9 @@ export class Problem {
       result.push(file);
     }
     return result;
+  }
+
+  get meta(): ProblemMeta {
+    return this._meta!;
   }
 }

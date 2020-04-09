@@ -10,8 +10,13 @@
     "ts-node": "ts-node"
   },
   "devDependencies": {
+    "@types/dedent": "^0.7.0",
+    "@types/eslint": "^6.8.0",
+    "@types/eslint-plugin-prettier": "^2.2.0",
     "@types/inquirer": "^6.5.0",
     "@types/node": "^13.11.0",
+    "@types/node-fetch": "^2.5.5",
+    "@types/prettier": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "eslint": "^6.8.0",
@@ -23,6 +28,8 @@
   },
   "dependencies": {
     "chalk": "^4.0.0",
-    "inquirer": "^7.1.0"
+    "dedent": "^0.7.0",
+    "inquirer": "^7.1.0",
+    "node-fetch": "^2.6.0"
   }
 }
