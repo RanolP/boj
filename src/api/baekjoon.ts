@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const TITLE_REGEX = /<span id="problem_title" class="">([^<]+)<\/span>/;
+const TITLE_REGEX = /<span id="problem_title">([^<]+)<\/span>/;
 
 // TODO: Cache logic
 export async function fetchProblemTitle(id: number): Promise<string> {
@@ -10,6 +10,6 @@ export async function fetchProblemTitle(id: number): Promise<string> {
   if (match) {
     return match[1].trim();
   } else {
-    return '\\<No Title Provided\\>';
+    return '&lt;Title Fetch Failed&rt;';
   }
 }

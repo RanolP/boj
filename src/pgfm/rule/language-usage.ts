@@ -17,7 +17,11 @@ export const LanguageUsageRule: Rule = {
   async execute(): Promise<string> {
     const problemList = await getProblemList();
     const solutions = (
-      await Promise.all(problemList.map((problem) => problem.getSolutions()))
+      await Promise.all(
+        problemList
+          .filter((problem) => problem.isSolved)
+          .map((problem) => problem.getSolutions())
+      )
     ).flat();
     const ratio = solutions
       .map((solutionPath) => parse(solutionPath).ext)
@@ -40,9 +44,10 @@ export const LanguageUsageRule: Rule = {
           ([ext, count]) => dedent`
         | ${
           ExtensionLanguageNameMap[ext] || 'Unknown'
-        } (${ext}) | ${count} of ${solutions.length} (${
-            (count / solutions.length) * 100
-          }%) |
+        } (${ext}) | ${count} of ${solutions.length} (${(
+            (count / solutions.length) *
+            100
+          ).toFixed(2)}%) |
       `
         )
       )

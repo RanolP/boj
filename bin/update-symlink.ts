@@ -16,6 +16,10 @@ import { prompt } from 'inquirer';
       underline(problem.id) +
       ' '.repeat(maxLen - problem.id.toString().length + 1);
 
+    if (!problem.isSolved) {
+      console.log(yellow(label) + ' Not solved, pass.');
+      continue;
+    }
     const solutions = await problem.getSolutions();
     let solution: string;
     if (solutions.length === 1) {

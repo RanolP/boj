@@ -25,7 +25,7 @@ export const ProblemTableRule: Rule = {
           const first = origin[0];
           origin.push({ problem: curr, dateRowspan: 0 });
           origin.sort(
-            ({ problem: a }, { problem: b }) => b.meta.order - a.meta.order
+            ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order
           );
           first.dateRowspan = 0;
           origin[0].dateRowspan = origin.length;
@@ -43,13 +43,37 @@ export const ProblemTableRule: Rule = {
       problem,
       dateRowspan: shouldAddDate,
     }: ProblemProps): Promise<string> {
-      const { date } = problem.meta;
+      const { date, love } = problem.meta;
       const problemLevel = await fetchProblemLevel(problem.id);
       const problemTitle = await fetchProblemTitle(problem.id);
-      const solution = await problem.getSolutions();
 
       function createSolutionLink(filename: string, ext: string): string {
         return `<a href="./${problem.id}/${filename}">풀이 (${ext})</a>`;
+      }
+
+      let solveCell: string;
+      switch (problem.meta.status) {
+        case 'solved':
+        case 'solved-late': {
+          const solution = await problem.getSolutions();
+          solveCell = solution
+            .map((file) => createSolutionLink(file, parse(file).ext))
+            .concat(
+              (await exists(join(ROOT, problem.id.toString(), 'README.md')))
+                ? [`<a href="./${problem.id}/README.md">노트</a>`]
+                : []
+            )
+            .join(', ');
+          break;
+        }
+        case 'in-progress': {
+          solveCell = '푸는 중';
+          break;
+        }
+        case 'timeout': {
+          solveCell = '시간 내 못 품';
+          break;
+        }
       }
 
       return [
@@ -62,20 +86,13 @@ export const ProblemTableRule: Rule = {
                 problemLevel.level
               }.svg" height="16px"/>
               ${ProblemLevelNameMap[problemLevel.level]}, ${
-          problem.id
-        } ${problemTitle}
+          love ? `LV${love} ` : ''
+        }${problem.id} ${problemTitle}
             </a>
           </td>
         `,
         '<td>',
-        solution
-          .map((file) => createSolutionLink(file, parse(file).ext))
-          .concat(
-            (await exists(join(ROOT, problem.id.toString(), 'README.md')))
-              ? [`<a href="./${problem.id}/README.md">노트</a>`]
-              : []
-          )
-          .join(', '),
+        solveCell,
         '</td>',
         '</tr>',
       ]

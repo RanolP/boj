@@ -31,8 +31,9 @@ export async function getProblemList(): Promise<Problem[]> {
 interface ProblemMeta {
   date: string;
   lastUpdate: string;
-  status: 'solved' | 'in-progress' | 'dropped' | 'solved-timeout' | 'timeout';
+  status: 'solved' | 'in-progress' | 'timeout' | 'solved-late';
   order: number;
+  love?: number;
 }
 
 export class Problem {
@@ -46,6 +47,16 @@ export class Problem {
       })
     ) as ProblemMeta;
     return this._meta;
+  }
+
+  get isSolved(): boolean {
+    switch (this.meta.status) {
+      case 'solved':
+      case 'solved-late':
+        return true;
+      default:
+        return false;
+    }
   }
 
   async getSolutions(): Promise<string[]> {
