@@ -81,7 +81,7 @@ export const ProblemTableRule: Rule = {
         shouldAddDate > 0 ? `<td rowspan="${shouldAddDate}">${date}</td>` : '',
         dedent`
           <td>
-            <a href="https://noj.am/${problem.id}">
+            <a href="http://noj.am/${problem.id}">
               <img src="https://static.solved.ac/tier_small/${
                 problemLevel.level
               }.svg" height="16px"/>
