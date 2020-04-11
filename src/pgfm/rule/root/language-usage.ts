@@ -1,11 +1,7 @@
-import { Rule } from '.';
-import { getProblemList, Problem } from '../../problem';
+import { Rule } from '..';
+import { getProblemList } from '../../../problem';
 import dedent from 'dedent';
-import { fetchProblemLevel, ProblemLevelNameMap } from '../../api/solvedac';
-import { fetchProblemTitle } from '../../api/baekjoon';
 import { join, parse } from 'path';
-import { exists } from '../../better-fs';
-import { ROOT } from '../../constants';
 
 const ExtensionLanguageNameMap: Record<string, string> = {
   '.rs': 'Rust',
@@ -14,6 +10,8 @@ const ExtensionLanguageNameMap: Record<string, string> = {
 
 export const LanguageUsageRule: Rule = {
   name: 'language-usage',
+  type: 'root',
+  isBlock: true,
   async execute(): Promise<string> {
     const problemList = await getProblemList();
     const solutions = (

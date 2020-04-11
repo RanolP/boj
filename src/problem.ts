@@ -1,6 +1,7 @@
 import { lstat, readdir, readFile } from './better-fs';
 import { join, basename, parse } from 'path';
 import { ROOT } from './constants';
+import { isMainThread } from 'worker_threads';
 
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 
@@ -26,6 +27,11 @@ export async function getProblemList(): Promise<Problem[]> {
   }
   problems = result;
   return result;
+}
+
+export async function getProblem(id: number): Promise<Problem> {
+  const problemList = await getProblemList();
+  return problemList.find((problem) => problem.id === id)!;
 }
 
 interface ProblemMeta {

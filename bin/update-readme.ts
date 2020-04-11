@@ -1,30 +1,66 @@
 import { exists, readFile, writeFile } from '../src/better-fs';
 import { ROOT } from '../src/constants';
 import { join } from 'path';
-import { blue, underline, gray, red } from 'chalk';
-import { preprocess } from '../src/pgfm';
+import { preprocess, RootRuleset, NoteRuleset } from '../src/pgfm';
+import { chalk, Logger } from '../src/util/console';
+import { getProblemList } from '../src/problem';
 
 (async () => {
-  const label = (text: 'info' | 'error', color: (input: string) => string) =>
-    gray('[update-readme] > ') +
-    underline(color(text)) +
-    ' '.repeat(5 - text.length + 1);
-  console.log(
-    label('info', blue) +
-      ' Create README.md based on template/README.template.md...'
+  const base = new Logger('update-readme');
+
+  const problemList = await getProblemList();
+
+  const problemLoggers = base.labeled(
+    problemList.map((it) => it.id),
+    ['info', 'error', 'success']
   );
+  const { info, error, success } = base.labeled(
+    {
+      info: chalk.blue,
+      error: chalk.red,
+      success: chalk.green,
+    },
+    problemList.map((it) => it.id)
+  );
+
+  for (const problem of problemList) {
+    const log = problemLoggers[problem.id];
+    if (!problem.isSolved) {
+      log(chalk.yellow, 'Not solved, pass.');
+      continue;
+    }
+    const noteSourceFile = join(ROOT, problem.id.toString(), 'Note.md');
+    if (!(await exists(noteSourceFile))) {
+      log(chalk.yellow, 'Note not found, pass.');
+      continue;
+    }
+    const noteTemplate = await readFile(noteSourceFile, {
+      encoding: 'utf-8',
+    });
+
+    const result = await preprocess(noteTemplate, { problem }, NoteRuleset);
+
+    const target = join(ROOT, problem.id.toString(), 'README.md');
+
+    writeFile(target, result);
+
+    log(chalk.green, 'Success.');
+  }
+
+  info('Create README.md based on template/README.template.md...');
   const templateFile = join(ROOT, 'template', 'README.template.md');
   if (!(await exists(templateFile))) {
-    console.log(
-      label('error', red) + ' File not found: template/README.template.md'
-    );
+    error('File not found: template/README.template.md');
   }
   const template = await readFile(templateFile, {
     encoding: 'utf-8',
   });
 
+  const result = await preprocess(template, {}, RootRuleset);
+
   const target = join(ROOT, 'README.md');
-  const result = await preprocess(template);
 
   writeFile(target, result);
+
+  success('All done!');
 })();

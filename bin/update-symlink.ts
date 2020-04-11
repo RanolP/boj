@@ -4,20 +4,19 @@ import { ROOT } from '../src/constants';
 import { join, parse } from 'path';
 import { blue, green, yellow, underline, gray } from 'chalk';
 import { prompt } from 'inquirer';
+import { chalk, Logger } from '../src/util/console';
 
 (async () => {
   const problemList = await getProblemList();
-  const maxLen = problemList
-    .map((it) => it.id.toString().length)
-    .reduce((prev, curr) => (prev < curr ? curr : prev), 0);
+
+  const base = new Logger('update-symlink');
+  const problemLoggers = base.labeled(problemList.map((it) => it.id));
+
   for (const problem of problemList) {
-    const label =
-      gray('[update-symlink] > ') +
-      underline(problem.id) +
-      ' '.repeat(maxLen - problem.id.toString().length + 1);
+    const log = problemLoggers[problem.id];
 
     if (!problem.isSolved) {
-      console.log(yellow(label) + ' Not solved, pass.');
+      log(chalk.yellow, 'Not solved, pass.');
       continue;
     }
     const solutions = await problem.getSolutions();
@@ -44,7 +43,7 @@ import { prompt } from 'inquirer';
       if (fetchedStat.isSymbolicLink()) {
         const link = await readlink(target);
         if (link === source) {
-          console.log(green(label) + ' Already up-to-date.');
+          log(chalk.green, 'Already up-to-date.');
           continue;
         }
       }
@@ -56,11 +55,11 @@ import { prompt } from 'inquirer';
       if (overwrite) {
         await unlink(target);
       } else {
-        console.log(yellow(label) + ' Update passed.');
+        log(chalk.yellow, 'Update passed.');
         continue;
       }
     }
     await symlink(source, target, 'file');
-    console.log(blue(label) + ' Updated.');
+    log(blue, 'Updated.');
   }
 })();

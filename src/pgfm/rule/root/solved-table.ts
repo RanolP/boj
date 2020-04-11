@@ -1,19 +1,21 @@
-import { Rule } from '.';
-import { getProblemList, Problem } from '../../problem';
+import { Rule } from '..';
+import { getProblemList, Problem } from '../../../problem';
 import dedent from 'dedent';
-import { fetchProblemLevel, ProblemLevelNameMap } from '../../api/solvedac';
-import { fetchProblemTitle } from '../../api/baekjoon';
+import { fetchProblemLevel, ProblemLevelNameMap } from '../../../api/solvedac';
+import { fetchProblemTitle } from '../../../api/baekjoon';
 import { join, parse } from 'path';
-import { exists } from '../../better-fs';
-import { ROOT } from '../../constants';
+import { exists } from '../../../better-fs';
+import { ROOT } from '../../../constants';
 
 interface ProblemProps {
   problem: Problem;
   dateRowspan: number;
 }
 
-export const ProblemTableRule: Rule = {
-  name: 'problem-table',
+export const SolvedTableRule: Rule = {
+  name: 'solved-table',
+  type: 'root',
+  isBlock: true,
   async execute(): Promise<string> {
     const problemList = await getProblemList();
     problemList.sort((a, b) => a.meta.date.localeCompare(b.meta.date));
@@ -56,14 +58,16 @@ export const ProblemTableRule: Rule = {
         case 'solved':
         case 'solved-late': {
           const solution = await problem.getSolutions();
-          solveCell = solution
-            .map((file) => createSolutionLink(file, parse(file).ext))
-            .concat(
-              (await exists(join(ROOT, problem.id.toString(), 'README.md')))
-                ? [`<a href="./${problem.id}/README.md">노트</a>`]
-                : []
-            )
-            .join(', ');
+          solveCell =
+            solution
+              .map((file) => createSolutionLink(file, parse(file).ext))
+              .concat(
+                (await exists(join(ROOT, problem.id.toString(), 'README.md')))
+                  ? [`<a href="./${problem.id}/README.md">노트</a>`]
+                  : []
+              )
+              .join(', ') +
+            (problem.meta.status === 'solved-late' ? ' *지각' : '');
           break;
         }
         case 'in-progress': {
@@ -71,7 +75,7 @@ export const ProblemTableRule: Rule = {
           break;
         }
         case 'timeout': {
-          solveCell = '시간 내 못 품';
+          solveCell = '타임아웃';
           break;
         }
       }
