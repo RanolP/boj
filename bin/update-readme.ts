@@ -23,6 +23,12 @@ const fetchLastReadMeUpdate = cached(
   Duration.of({ day: 14 })
 );
 
+const fetchLastProblemList = cached(
+  async () => (await getProblemList()).map((problem) => problem.id),
+  'last-problem-list',
+  Duration.of({ day: 1 })
+);
+
 (async () => {
   const base = new Logger('update-readme');
 
@@ -41,7 +47,8 @@ const fetchLastReadMeUpdate = cached(
     problemList.map((it) => it.id)
   );
 
-  let problemNoteUpdated = false;
+  let problemUpdated =
+    problemList.map((it) => it.id) != (await fetchLastProblemList());
 
   for (const problem of problemList) {
     const log = problemLoggers[problem.id];
@@ -75,7 +82,7 @@ const fetchLastReadMeUpdate = cached(
 
     log(chalk.green, 'Success.');
 
-    problemNoteUpdated = true;
+    problemUpdated = true;
   }
 
   const templateFile = join(ROOT, 'template', 'README.template.md');
@@ -83,7 +90,7 @@ const fetchLastReadMeUpdate = cached(
     error('File not found: template/README.template.md');
   }
 
-  if (!problemNoteUpdated) {
+  if (!problemUpdated) {
     const lastUpdate = await fetchLastReadMeUpdate(templateFile);
 
     if (
