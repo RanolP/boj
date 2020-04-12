@@ -105,10 +105,9 @@ exports.rimraf = function (path, _a) {
                     return [4 /*yield*/, exports.lstat(realPath)];
                 case 2:
                     stat = _f.sent();
-                    console.log('RP: ', realPath);
                     if (!stat.isFile()) return [3 /*break*/, 5];
                     if (!file(realPath, stat)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, exports.unlink(path)];
+                    return [4 /*yield*/, exports.unlink(realPath)];
                 case 3:
                     _f.sent();
                     _f.label = 4;

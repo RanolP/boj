@@ -63,10 +63,9 @@ export const rimraf = async (
     return;
   }
   const stat = await lstat(realPath);
-  console.log('RP: ', realPath);
   if (stat.isFile()) {
     if (file(realPath, stat)) {
-      await unlink(path);
+      await unlink(realPath);
     }
     return;
   }
