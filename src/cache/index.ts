@@ -10,18 +10,32 @@ interface CacheData {
   data: string;
 }
 
-export function cached<Params extends Array<unknown>, Result>(
+export type FetchKind = 'first' | 'expired';
+
+export type NoFetchKind<T> = ('fetchKind' extends keyof T ? never : T) & T;
+
+export type Fetched<T> = T & { fetchKind: FetchKind };
+
+export function cached<Params extends Array<any>, Result>(
   key: (...params: Params) => string,
   duration: Duration,
-  body: (...params: Params) => Promise<Result> | Result
-): (...params: Params) => Promise<Result> {
-  return async (...params) => {
+  body: (
+    ...params: Params
+  ) => Promise<NoFetchKind<Result>> | NoFetchKind<Result>
+): (...params: Params) => Promise<Fetched<Result>> {
+  const memCache = {} as Record<string, Fetched<Result>>;
+  return async (...params): Promise<Fetched<Result>> => {
+    const currentKey = key(...params);
+    if (memCache[currentKey]) {
+      return memCache[currentKey];
+    }
     const now = new Date();
-    const cacheFile = join(ROOT, '.boj-cache', key(...params) + '.json');
+    const cacheFile = join(ROOT, '.boj-cache', currentKey + '.json');
     const parsed = parse(cacheFile);
     if (!(await exists(parsed.dir))) {
       await mkdirs(parsed.dir);
     }
+    let fetchKind: FetchKind = 'first' as const;
     if (await exists(cacheFile)) {
       const content = await readFile(cacheFile, { encoding: 'utf-8' });
       try {
@@ -29,13 +43,21 @@ export function cached<Params extends Array<unknown>, Result>(
         const from = new Date(cacheData.lastUpdate);
         const passed = Duration.fromDateRange(from, now);
         if (passed < duration) {
-          return JSON.parse(cacheData.data) as Result;
+          const result = Object.assign(JSON.parse(cacheData.data) as Result, {
+            fetchKind,
+          });
+          memCache[currentKey] = result;
+          return result;
         }
       } catch {
         // do nothing
       }
+      fetchKind = 'expired' as const;
     }
-    const fetched = await body(...params);
+    const fetched = Object.assign(await body.apply(fetchKind, params), {
+      fetchKind,
+    });
+    memCache[currentKey] = fetched;
     await writeFile(
       cacheFile,
       JSON.stringify({
@@ -43,6 +65,6 @@ export function cached<Params extends Array<unknown>, Result>(
         data: fetched,
       })
     );
-    return fetched;
+    return memCache[currentKey];
   };
 }

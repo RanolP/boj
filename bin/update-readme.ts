@@ -1,9 +1,21 @@
-import { exists, readFile, writeFile } from '../src/better-fs';
+import { exists, readFile, writeFile, lstat } from '../src/better-fs';
 import { ROOT } from '../src/constants';
 import { join } from 'path';
 import { preprocess, RootRuleset, NoteRuleset } from '../src/pgfm';
 import { chalk, Logger } from '../src/util/console';
-import { getProblemList } from '../src/problem';
+import { getProblemList, Problem } from '../src/problem';
+import { cached, Duration } from '../src/cache';
+import { PathLike } from 'fs';
+
+async function getLastUpdate(path: PathLike): Promise<string> {
+  return (await lstat(path)).mtime.toISOString();
+}
+
+const fetchLastNoteUpdate = cached(
+  (problem) => `${problem.id}/last-note-update`,
+  Duration.of({ day: 14 }),
+  (problem: Problem) => getLastUpdate(problem.noteFile)
+);
 
 (async () => {
   const base = new Logger('update-readme');
@@ -33,6 +45,16 @@ import { getProblemList } from '../src/problem';
       log(chalk.yellow, 'Note not found, pass.');
       continue;
     }
+    const lastUpdate = await fetchLastNoteUpdate(problem);
+
+    if (
+      lastUpdate.fetchKind !== 'first' &&
+      (await getLastUpdate(problem.noteFile)) == lastUpdate
+    ) {
+      log(chalk.green, 'Already up-to-date');
+      continue;
+    }
+
     const noteTemplate = await readFile(problem.noteFile, {
       encoding: 'utf-8',
     });
