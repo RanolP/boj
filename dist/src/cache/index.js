@@ -53,9 +53,9 @@ function cached(body, key, duration) {
             params[_i] = arguments[_i];
         }
         return __awaiter(_this, void 0, void 0, function () {
-            var currentKey, now, cacheFile, parsed, fetchKind, content, cacheData, from, passed, result, fetched, _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var currentKey, now, cacheFile, parsed, fetchKind, content, _a, lastUpdate, data, from, passed, result, fetched, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         currentKey = typeof key === 'function' ? key.apply(void 0, params) : key;
                         if (memCache[currentKey]) {
@@ -66,50 +66,50 @@ function cached(body, key, duration) {
                         parsed = path_1.parse(cacheFile);
                         return [4 /*yield*/, better_fs_1.exists(parsed.dir)];
                     case 1:
-                        if (!!(_c.sent())) return [3 /*break*/, 3];
+                        if (!!(_d.sent())) return [3 /*break*/, 3];
                         return [4 /*yield*/, better_fs_1.mkdirs(parsed.dir)];
                     case 2:
-                        _c.sent();
-                        _c.label = 3;
+                        _d.sent();
+                        _d.label = 3;
                     case 3:
-                        fetchKind = 'first';
+                        fetchKind = 'fetch';
                         return [4 /*yield*/, better_fs_1.exists(cacheFile)];
                     case 4:
-                        if (!_c.sent()) return [3 /*break*/, 6];
+                        if (!_d.sent()) return [3 /*break*/, 6];
                         return [4 /*yield*/, better_fs_1.readFile(cacheFile, { encoding: 'utf-8' })];
                     case 5:
-                        content = _c.sent();
+                        content = _d.sent();
                         try {
-                            cacheData = JSON.parse(content);
-                            from = new Date(cacheData.lastUpdate);
+                            _a = JSON.parse(content), lastUpdate = _a.lastUpdate, data = _a.data;
+                            from = new Date(lastUpdate);
                             passed = duration_1.Duration.fromDateRange(from, now);
                             if (passed < duration) {
-                                result = Object.assign(JSON.parse(cacheData.data), {
-                                    fetchKind: fetchKind,
+                                result = Object.assign(data, {
+                                    fetchKind: 'file',
                                 });
                                 memCache[currentKey] = result;
                                 return [2 /*return*/, result];
                             }
                         }
-                        catch (_d) {
+                        catch (_e) {
                             // do nothing
                         }
                         fetchKind = 'expired';
-                        _c.label = 6;
+                        _d.label = 6;
                     case 6:
-                        _b = (_a = Object).assign;
+                        _c = (_b = Object).assign;
                         return [4 /*yield*/, body.apply(fetchKind, params)];
                     case 7:
-                        fetched = _b.apply(_a, [_c.sent(), {
+                        fetched = _c.apply(_b, [_d.sent(), {
                                 fetchKind: fetchKind,
                             }]);
                         memCache[currentKey] = fetched;
                         return [4 /*yield*/, better_fs_1.writeFile(cacheFile, JSON.stringify({
                                 lastUpdate: now.toISOString(),
                                 data: fetched,
-                            }))];
+                            }, null, '  '))];
                     case 8:
-                        _c.sent();
+                        _d.sent();
                         return [2 /*return*/, memCache[currentKey]];
                 }
             });

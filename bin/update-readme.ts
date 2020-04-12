@@ -56,7 +56,7 @@ const fetchLastReadMeUpdate = cached(
     const lastUpdate = await fetchLastNoteUpdate(problem);
 
     if (
-      lastUpdate.fetchKind !== 'first' &&
+      lastUpdate.fetchKind === 'file' &&
       (await getLastUpdate(problem.noteFile)) == lastUpdate
     ) {
       log(chalk.green, 'Already up-to-date');
@@ -87,7 +87,7 @@ const fetchLastReadMeUpdate = cached(
     const lastUpdate = await fetchLastReadMeUpdate(templateFile);
 
     if (
-      lastUpdate.fetchKind !== 'first' &&
+      lastUpdate.fetchKind === 'file' &&
       (await getLastUpdate(templateFile)) == lastUpdate
     ) {
       success('README.md is already up-to-date');

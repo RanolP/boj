@@ -7,10 +7,10 @@ export * from './duration';
 
 interface CacheData {
   lastUpdate: number;
-  data: string;
+  data: any;
 }
 
-export type FetchKind = 'first' | 'expired';
+export type FetchKind = 'fetch' | 'file' | 'expired';
 
 export type NoFetchKind<T> = ('fetchKind' extends keyof T ? never : T) & T;
 
@@ -35,16 +35,16 @@ export function cached<Params extends Array<any>, Result>(
     if (!(await exists(parsed.dir))) {
       await mkdirs(parsed.dir);
     }
-    let fetchKind: FetchKind = 'first' as const;
+    let fetchKind: FetchKind = 'fetch' as const;
     if (await exists(cacheFile)) {
       const content = await readFile(cacheFile, { encoding: 'utf-8' });
       try {
-        const cacheData = JSON.parse(content) as CacheData;
-        const from = new Date(cacheData.lastUpdate);
+        const { lastUpdate, data } = JSON.parse(content) as CacheData;
+        const from = new Date(lastUpdate);
         const passed = Duration.fromDateRange(from, now);
-        if (passed >= duration) {
-          const result = Object.assign(JSON.parse(cacheData.data) as Result, {
-            fetchKind,
+        if (passed < duration) {
+          const result = Object.assign(data as Result, {
+            fetchKind: 'file' as const,
           });
           memCache[currentKey] = result;
           return result;
@@ -60,10 +60,14 @@ export function cached<Params extends Array<any>, Result>(
     memCache[currentKey] = fetched;
     await writeFile(
       cacheFile,
-      JSON.stringify({
-        lastUpdate: now.toISOString(),
-        data: fetched,
-      })
+      JSON.stringify(
+        {
+          lastUpdate: now.toISOString(),
+          data: fetched,
+        },
+        null,
+        '  '
+      )
     );
     return memCache[currentKey];
   };
