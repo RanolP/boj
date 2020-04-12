@@ -42,7 +42,7 @@ export function cached<Params extends Array<any>, Result>(
         const cacheData = JSON.parse(content) as CacheData;
         const from = new Date(cacheData.lastUpdate);
         const passed = Duration.fromDateRange(from, now);
-        if (passed < duration) {
+        if (passed >= duration) {
           const result = Object.assign(JSON.parse(cacheData.data) as Result, {
             fetchKind,
           });
