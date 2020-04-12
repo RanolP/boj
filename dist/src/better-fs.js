@@ -71,6 +71,7 @@ exports.readlink = util_1.promisify(fs_1.readlink);
 exports.readFile = util_1.promisify(fs_1.readFile);
 exports.writeFile = util_1.promisify(fs_1.writeFile);
 exports.mkdir = util_1.promisify(fs_1.mkdir);
+exports.rmdir = util_1.promisify(fs_1.rmdir);
 exports.mkdirs = function (dir) { return __awaiter(void 0, void 0, void 0, function () {
     var parsed;
     return __generator(this, function (_a) {
@@ -88,3 +89,54 @@ exports.mkdirs = function (dir) { return __awaiter(void 0, void 0, void 0, funct
         }
     });
 }); };
+exports.rimraf = function (path, _a) {
+    var _b = _a === void 0 ? {} : _a, _c = _b.file, file = _c === void 0 ? function () { return true; } : _c, _d = _b.folder, folder = _d === void 0 ? function () { return true; } : _d;
+    return __awaiter(void 0, void 0, void 0, function () {
+        var realPath, stat, _i, _e, child;
+        return __generator(this, function (_f) {
+            switch (_f.label) {
+                case 0:
+                    realPath = path_1.resolve(path.toString());
+                    return [4 /*yield*/, exports.exists(realPath)];
+                case 1:
+                    if (!(_f.sent())) {
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, exports.lstat(realPath)];
+                case 2:
+                    stat = _f.sent();
+                    console.log('RP: ', realPath);
+                    if (!stat.isFile()) return [3 /*break*/, 5];
+                    if (!file(realPath, stat)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, exports.unlink(path)];
+                case 3:
+                    _f.sent();
+                    _f.label = 4;
+                case 4: return [2 /*return*/];
+                case 5:
+                    if (!folder(realPath, stat)) {
+                        return [2 /*return*/];
+                    }
+                    _i = 0;
+                    return [4 /*yield*/, exports.readdir(realPath)];
+                case 6:
+                    _e = _f.sent();
+                    _f.label = 7;
+                case 7:
+                    if (!(_i < _e.length)) return [3 /*break*/, 10];
+                    child = _e[_i];
+                    return [4 /*yield*/, exports.rimraf(path_1.join(realPath, child))];
+                case 8:
+                    _f.sent();
+                    _f.label = 9;
+                case 9:
+                    _i++;
+                    return [3 /*break*/, 7];
+                case 10: return [4 /*yield*/, exports.rmdir(realPath)];
+                case 11:
+                    _f.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+};
