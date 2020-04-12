@@ -65,6 +65,10 @@ export class Problem {
     }
   }
 
+  get noteFile(): string {
+    return join(ROOT, this.id.toString(), 'Note.md');
+  }
+
   async getSolutions(): Promise<string[]> {
     const result = [];
     const fileList = await readdir(join(ROOT, this.id.toString()));

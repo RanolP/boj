@@ -1,16 +1,18 @@
-import { ChalkFunction } from 'chalk';
 import { gray, underline } from './chalk';
 
 export * as chalk from './chalk';
 
-export type Styler = ChalkFunction;
+export type Styler = (...text: unknown[]) => string;
 export type Print = (text: string) => void;
 export type ColorablePrint = (style: Styler, text: string) => void;
 
 export class Logger {
   constructor(private readonly group: string) {}
 
-  log(text: string): void {
+  log(text?: string): void {
+    if (!text) {
+      return;
+    }
     console.log(gray(`[${this.group}] > `) + text);
   }
 
@@ -21,12 +23,19 @@ export class Logger {
 
   labeled<T extends string | number>(
     input: Array<T>,
-    second?: Array<string | number> | number
+    second?: Array<string | number> | number,
+    third?: Styler
   ): Record<T, ColorablePrint>;
 
   labeled<T extends string | number>(
+    input: Array<T>,
+    second: Styler
+  ): Record<T, Print>;
+
+  labeled<T extends string | number>(
     input: Record<T, Styler> | Array<readonly [T, Styler]> | Array<T>,
-    second?: Array<string | number> | number
+    second?: Array<string | number> | number | Styler,
+    third?: Styler
   ): Record<T, Print | ColorablePrint> {
     if (Array.isArray(input)) {
       if (input.length === 0) {
@@ -38,7 +47,7 @@ export class Logger {
           second
         );
       } else {
-        return this.labeledObject(input as T[], second);
+        return this.labeledObject(input as T[], second || third);
       }
     }
     return this.labeledColoredObject(
@@ -51,11 +60,14 @@ export class Logger {
 
   private labeledColoredObject<T extends string | number>(
     labels: Record<T, Styler>,
-    second?: Array<string | number> | number
+    second?: Array<string | number> | number | Styler
   ): Record<T, Print> {
     return Object.fromEntries(
       (Object.entries(
-        this.labeledObject(Object.keys(labels) as T[], second)
+        this.labeledObject(
+          Object.keys(labels) as T[],
+          typeof second === 'function' ? second : undefined
+        )
       ) as Array<[T, ColorablePrint]>).map<[T, Print]>(([label, colorable]) => [
         label,
         (text) => colorable(labels[label], text),
@@ -65,21 +77,26 @@ export class Logger {
 
   private labeledObject<T extends string | number>(
     labels: T[],
-    second?: Array<string | number> | number
-  ): Record<T, ColorablePrint> {
+    second?: Array<string | number> | number | Styler
+  ): Record<T, Print | ColorablePrint> {
     const maxLabelLength = (labels as Array<string | number>)
       .concat(second && Array.isArray(second) ? second : [])
       .map((it) => it.toString().length)
-      .concat(!second || Array.isArray(second) ? [] : [second])
+      .concat(typeof second !== 'number' ? [] : [second])
       .reduce((l, r) => Math.max(l, r), 0);
     return Object.fromEntries(
       labels.map<[T, ColorablePrint]>((label) => [
         label,
-        (styler, text) => {
+        (innerFirst: Styler | string, innerSecond?: string) => {
+          let stylerToApply: Styler =
+            (typeof innerFirst !== 'string' ? innerFirst : undefined) ||
+            (typeof second === 'function' ? second : undefined) ||
+            ((...param: unknown[]) => param.join(''));
           this.log(
-            underline(styler(label)) +
+            underline(stylerToApply ? stylerToApply(label) : label) +
               ' '.repeat(maxLabelLength - label.toString().length + 2) +
-              text
+              (innerSecond ||
+                (typeof innerFirst === 'string' ? innerFirst : undefined))
           );
         },
       ])

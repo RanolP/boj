@@ -29,12 +29,11 @@ import { getProblemList } from '../src/problem';
       log(chalk.yellow, 'Not solved, pass.');
       continue;
     }
-    const noteSourceFile = join(ROOT, problem.id.toString(), 'Note.md');
-    if (!(await exists(noteSourceFile))) {
+    if (!(await exists(problem.noteFile))) {
       log(chalk.yellow, 'Note not found, pass.');
       continue;
     }
-    const noteTemplate = await readFile(noteSourceFile, {
+    const noteTemplate = await readFile(problem.noteFile, {
       encoding: 'utf-8',
     });
 
