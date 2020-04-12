@@ -12,9 +12,15 @@ async function getLastUpdate(path: PathLike): Promise<string> {
 }
 
 const fetchLastNoteUpdate = cached(
+  (problem: Problem) => getLastUpdate(problem.noteFile),
   (problem) => `${problem.id}/last-note-update`,
-  Duration.of({ day: 14 }),
-  (problem: Problem) => getLastUpdate(problem.noteFile)
+  Duration.of({ day: 14 })
+);
+
+const fetchLastReadMeUpdate = cached(
+  getLastUpdate,
+  'last-readme-update',
+  Duration.of({ day: 14 })
 );
 
 (async () => {
@@ -34,6 +40,8 @@ const fetchLastNoteUpdate = cached(
     },
     problemList.map((it) => it.id)
   );
+
+  let problemNoteUpdated = false;
 
   for (const problem of problemList) {
     const log = problemLoggers[problem.id];
@@ -66,13 +74,28 @@ const fetchLastNoteUpdate = cached(
     writeFile(target, result);
 
     log(chalk.green, 'Success.');
+
+    problemNoteUpdated = true;
   }
 
-  info('Create README.md based on template/README.template.md...');
   const templateFile = join(ROOT, 'template', 'README.template.md');
   if (!(await exists(templateFile))) {
     error('File not found: template/README.template.md');
   }
+
+  if (!problemNoteUpdated) {
+    const lastUpdate = await fetchLastReadMeUpdate(templateFile);
+
+    if (
+      lastUpdate.fetchKind !== 'first' &&
+      (await getLastUpdate(templateFile)) == lastUpdate
+    ) {
+      success('README.md is already up-to-date');
+      return;
+    }
+  }
+
+  info('Create README.md based on template/README.template.md...');
   const template = await readFile(templateFile, {
     encoding: 'utf-8',
   });

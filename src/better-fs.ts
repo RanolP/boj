@@ -10,9 +10,11 @@ import {
   readFile as readFileCallback,
   writeFile as writeFileCallback,
   mkdir as mkdirCallback,
+  rmdir as rmdirCallback,
+  Stats,
 } from 'fs';
 import { promisify } from 'util';
-import { resolve, parse } from 'path';
+import { resolve, parse, join } from 'path';
 
 export const readdir = promisify(readdirCallback);
 export const lstat = promisify(lstatCallback);
@@ -39,10 +41,40 @@ export const readlink = promisify(readlinkCallback);
 export const readFile = promisify(readFileCallback);
 export const writeFile = promisify(writeFileCallback);
 export const mkdir = promisify(mkdirCallback);
+export const rmdir = promisify(rmdirCallback);
 export const mkdirs = async (dir: PathLike) => {
   const parsed = parse(dir.toString());
   if (!(await exists(parsed.dir))) {
     await mkdirs(parsed.dir);
   }
   return mkdir(dir);
+};
+export const rimraf = async (
+  path: PathLike,
+  {
+    file = () => true,
+    folder = () => true,
+  }: Partial<
+    Record<'file' | 'folder', (path: string, stat: Stats) => boolean>
+  > = {}
+) => {
+  const realPath = resolve(path.toString());
+  if (!(await exists(realPath))) {
+    return;
+  }
+  const stat = await lstat(realPath);
+  console.log('RP: ', realPath);
+  if (stat.isFile()) {
+    if (file(realPath, stat)) {
+      await unlink(path);
+    }
+    return;
+  }
+  if (!folder(realPath, stat)) {
+    return;
+  }
+  for (const child of await readdir(realPath)) {
+    await rimraf(join(realPath, child));
+  }
+  await rmdir(realPath);
 };

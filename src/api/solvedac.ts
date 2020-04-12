@@ -42,7 +42,7 @@ export const ProblemLevelNameMap: Record<number, string> = Object.fromEntries(
 );
 
 export const fetchProblemLevel = cached(
+  fetchProblemLevelLogic,
   (id) => `${id}/solved/level`,
-  Duration.of({ day: 14 }),
-  fetchProblemLevelLogic
+  Duration.of({ day: 14 })
 );

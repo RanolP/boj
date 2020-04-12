@@ -17,15 +17,15 @@ export type NoFetchKind<T> = ('fetchKind' extends keyof T ? never : T) & T;
 export type Fetched<T> = T & { fetchKind: FetchKind };
 
 export function cached<Params extends Array<any>, Result>(
-  key: (...params: Params) => string,
-  duration: Duration,
   body: (
     ...params: Params
-  ) => Promise<NoFetchKind<Result>> | NoFetchKind<Result>
+  ) => Promise<NoFetchKind<Result>> | NoFetchKind<Result>,
+  key: string | ((...params: Params) => string),
+  duration: Duration
 ): (...params: Params) => Promise<Fetched<Result>> {
   const memCache = {} as Record<string, Fetched<Result>>;
   return async (...params): Promise<Fetched<Result>> => {
-    const currentKey = key(...params);
+    const currentKey = typeof key === 'function' ? key(...params) : key;
     if (memCache[currentKey]) {
       return memCache[currentKey];
     }
