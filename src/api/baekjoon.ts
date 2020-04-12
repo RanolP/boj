@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
+import { Duration, cached } from '../cache';
 
 const TITLE_REGEX = /<span id="problem_title">([^<]+)<\/span>/;
 
-// TODO: Cache logic
-export async function fetchProblemTitle(id: number): Promise<string> {
+async function fetchProblemTitleLogic(id: number): Promise<string> {
   const response = await fetch(`https://acmicpc.net/problem/${id}`);
   const html = await response.text();
   const match = TITLE_REGEX.exec(html);
@@ -13,3 +13,9 @@ export async function fetchProblemTitle(id: number): Promise<string> {
     return '&lt;Title Fetch Failed&rt;';
   }
 }
+
+export const fetchProblemTitle = cached(
+  (id) => `${id}/boj/problem-title`,
+  Duration.of({ year: 1 }),
+  fetchProblemTitleLogic
+);

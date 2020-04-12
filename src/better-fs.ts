@@ -9,9 +9,10 @@ import {
   constants,
   readFile as readFileCallback,
   writeFile as writeFileCallback,
+  mkdir as mkdirCallback,
 } from 'fs';
 import { promisify } from 'util';
-import { resolve } from 'path';
+import { resolve, parse } from 'path';
 
 export const readdir = promisify(readdirCallback);
 export const lstat = promisify(lstatCallback);
@@ -37,3 +38,11 @@ export const unlink = promisify(unlinkCallback);
 export const readlink = promisify(readlinkCallback);
 export const readFile = promisify(readFileCallback);
 export const writeFile = promisify(writeFileCallback);
+export const mkdir = promisify(mkdirCallback);
+export const mkdirs = async (dir: PathLike) => {
+  const parsed = parse(dir.toString());
+  if (!(await exists(parsed.dir))) {
+    await mkdirs(parsed.dir);
+  }
+  return mkdir(dir);
+};

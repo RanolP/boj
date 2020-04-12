@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { Duration, cached } from '../cache';
 
 interface SolvedAcAlgorithm {
   algorithm_id: number;
@@ -15,8 +16,7 @@ interface SolvedAcProblemLevel {
   algorithms: SolvedAcAlgorithm[];
 }
 
-// TODO: Cache Logic
-export async function fetchProblemLevel(
+async function fetchProblemLevelLogic(
   id: number
 ): Promise<SolvedAcProblemLevel> {
   const response = await fetch(
@@ -39,4 +39,10 @@ export const ProblemLevelNameMap: Record<number, string> = Object.fromEntries(
       `${tier} ${level}`,
     ])
   )
+);
+
+export const fetchProblemLevel = cached(
+  (id) => `${id}/solved/level`,
+  Duration.of({ day: 14 }),
+  fetchProblemLevelLogic
 );
