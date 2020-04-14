@@ -1,10 +1,16 @@
-import { exists, readFile, writeFile, lstat } from '../src/better-fs';
+import {
+  exists,
+  readFile,
+  writeFile,
+  lstat,
+  notExists,
+} from '../src/better-fs';
 import { ROOT } from '../src/constants';
 import { join } from 'path';
 import { preprocess, RootRuleset, NoteRuleset } from '../src/pgfm';
 import { chalk, Logger } from '../src/util/console';
 import { getProblemList, Problem } from '../src/problem';
-import { cached, Duration } from '../src/cache';
+import { cached, Duration, permastate } from '../src/cache';
 import { PathLike } from 'fs';
 
 async function getLastUpdate(path: PathLike): Promise<string> {
@@ -56,7 +62,7 @@ const fetchLastProblemList = cached(
       log(chalk.yellow, 'Not solved, pass.');
       continue;
     }
-    if (!(await exists(problem.noteFile))) {
+    if (await notExists(problem.noteFile)) {
       log(chalk.yellow, 'Note not found, pass.');
       continue;
     }
@@ -66,7 +72,6 @@ const fetchLastProblemList = cached(
       lastUpdate.fetchKind === 'file' &&
       (await getLastUpdate(problem.noteFile)) == lastUpdate
     ) {
-      log(chalk.green, 'Already up-to-date');
       continue;
     }
 
@@ -82,11 +87,13 @@ const fetchLastProblemList = cached(
 
     log(chalk.green, 'Success.');
 
+    await fetchLastNoteUpdate.force(problem);
+
     problemUpdated = true;
   }
 
   const templateFile = join(ROOT, 'template', 'README.template.md');
-  if (!(await exists(templateFile))) {
+  if (await notExists(templateFile)) {
     error('File not found: template/README.template.md');
   }
 

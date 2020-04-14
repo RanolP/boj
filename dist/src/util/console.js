@@ -1,4 +1,20 @@
 "use strict";
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -37,7 +53,7 @@ var Logger = /** @class */ (function () {
     };
     Logger.prototype.labeledColoredObject = function (labels, second) {
         return Object.fromEntries(Object.entries(this.labeledObject(Object.keys(labels), typeof second === 'function' ? second : undefined)).map(function (_a) {
-            var label = _a[0], colorable = _a[1];
+            var _b = __read(_a, 2), label = _b[0], colorable = _b[1];
             return [
                 label,
                 function (text) { return colorable(labels[label], text); },

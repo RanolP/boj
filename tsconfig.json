@@ -7,6 +7,8 @@
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
+    "typeRoots": ["node_modules/@types", "typings"]
   }
 }

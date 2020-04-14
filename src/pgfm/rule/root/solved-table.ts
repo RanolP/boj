@@ -17,8 +17,7 @@ export const SolvedTableRule: Rule = {
   type: 'root',
   isBlock: true,
   async execute(): Promise<string> {
-    const problemList = await getProblemList();
-    problemList.sort((a, b) => a.meta.date.localeCompare(b.meta.date));
+    const problemList = await getProblemList({ sorted: true });
     const problemListClassified = Object.values(
       problemList.reduce((acc, curr) => {
         let update: ProblemProps[];
@@ -45,7 +44,7 @@ export const SolvedTableRule: Rule = {
       problem,
       dateRowspan: shouldAddDate,
     }: ProblemProps): Promise<string> {
-      const { date, love } = problem.meta;
+      const { date, love, problemDifficulty } = problem.meta;
       const problemLevel = await fetchProblemLevel(problem.id);
       const problemTitle = await fetchProblemTitle(problem.id);
 
@@ -90,8 +89,10 @@ export const SolvedTableRule: Rule = {
                 problemLevel.level
               }.svg" height="16px"/>
               ${ProblemLevelNameMap[problemLevel.level]}, ${
-          love ? `LV${love} ` : ''
-        }${problem.id} ${problemTitle}
+          love ? `LV${love} (Legacy) ` : ''
+        }${problemDifficulty ? `${problemDifficulty} ` : ''}${
+          problem.id
+        } ${problemTitle}
             </a>
           </td>
         `,

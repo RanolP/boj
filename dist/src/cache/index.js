@@ -35,6 +35,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spread = (this && this.__spread) || function () {
+    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+    return ar;
+};
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
@@ -44,46 +64,74 @@ var constants_1 = require("../constants");
 var path_1 = require("path");
 var better_fs_1 = require("../better-fs");
 __export(require("./duration"));
-function cached(body, key, duration) {
+function permastate(initial, key, duration, options) {
+    if (options === void 0) { options = {}; }
+    return [
+        cached(initial, key, duration, options),
+        cached(function () {
+            var _a = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                _a[_i] = arguments[_i];
+            }
+            var _b = __read(_a, 1), v = _b[0];
+            return v;
+        }, function () {
+            var _a = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                _a[_i] = arguments[_i];
+            }
+            var _b = __read(_a), _ = _b[0], params = _b.slice(1);
+            return key.apply(void 0, __spread(params));
+        }, duration_1.Duration.of({})),
+    ];
+}
+exports.permastate = permastate;
+function cached(body, key, duration, _a) {
     var _this = this;
+    var _b = _a === void 0 ? {} : _a, _c = _b.useFileCache, useFileCache = _c === void 0 ? true : _c, _d = _b.useAbsoluteDate, useAbsoluteDate = _d === void 0 ? false : _d;
     var memCache = {};
-    return function () {
+    return Object.assign(function () {
         var params = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             params[_i] = arguments[_i];
         }
         return __awaiter(_this, void 0, void 0, function () {
-            var currentKey, now, cacheFile, parsed, fetchKind, content, _a, lastUpdate, data, from, passed, result, fetched, _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var currentKey, now, cacheFile, parsed, fetchKind, _a, content, _b, lastUpdate, data, from, passed, result, fetched, _c, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
                     case 0:
-                        currentKey = typeof key === 'function' ? key.apply(void 0, params) : key;
+                        currentKey = typeof key === 'function' ? key.apply(void 0, __spread(params)) : key;
                         if (memCache[currentKey]) {
                             return [2 /*return*/, memCache[currentKey]];
                         }
                         now = new Date();
                         cacheFile = path_1.join(constants_1.ROOT, '.boj-cache', currentKey + '.json');
                         parsed = path_1.parse(cacheFile);
-                        return [4 /*yield*/, better_fs_1.exists(parsed.dir)];
+                        return [4 /*yield*/, better_fs_1.notExists(parsed.dir)];
                     case 1:
-                        if (!!(_d.sent())) return [3 /*break*/, 3];
+                        if (!_e.sent()) return [3 /*break*/, 3];
                         return [4 /*yield*/, better_fs_1.mkdirs(parsed.dir)];
                     case 2:
-                        _d.sent();
-                        _d.label = 3;
+                        _e.sent();
+                        _e.label = 3;
                     case 3:
                         fetchKind = 'fetch';
+                        _a = useFileCache;
+                        if (!_a) return [3 /*break*/, 5];
                         return [4 /*yield*/, better_fs_1.exists(cacheFile)];
                     case 4:
-                        if (!_d.sent()) return [3 /*break*/, 6];
-                        return [4 /*yield*/, better_fs_1.readFile(cacheFile, { encoding: 'utf-8' })];
+                        _a = (_e.sent());
+                        _e.label = 5;
                     case 5:
-                        content = _d.sent();
+                        if (!_a) return [3 /*break*/, 7];
+                        return [4 /*yield*/, better_fs_1.readFile(cacheFile, { encoding: 'utf-8' })];
+                    case 6:
+                        content = _e.sent();
                         try {
-                            _a = JSON.parse(content), lastUpdate = _a.lastUpdate, data = _a.data;
+                            _b = JSON.parse(content), lastUpdate = _b.lastUpdate, data = _b.data;
                             from = new Date(lastUpdate);
                             passed = duration_1.Duration.fromDateRange(from, now);
-                            if (passed < duration) {
+                            if (passed.compareTo(duration, useAbsoluteDate) < 0) {
                                 result = Object.assign(data, {
                                     fetchKind: 'file',
                                 });
@@ -91,29 +139,65 @@ function cached(body, key, duration) {
                                 return [2 /*return*/, result];
                             }
                         }
-                        catch (_e) {
+                        catch (_f) {
                             // do nothing
                         }
                         fetchKind = 'expired';
-                        _d.label = 6;
-                    case 6:
-                        _c = (_b = Object).assign;
-                        return [4 /*yield*/, body.apply(fetchKind, params)];
+                        _e.label = 7;
                     case 7:
-                        fetched = _c.apply(_b, [_d.sent(), {
+                        _d = (_c = Object).assign;
+                        return [4 /*yield*/, body.apply(null, params)];
+                    case 8:
+                        fetched = _d.apply(_c, [_e.sent(), {
                                 fetchKind: fetchKind,
                             }]);
                         memCache[currentKey] = fetched;
+                        if (!useFileCache) return [3 /*break*/, 10];
                         return [4 /*yield*/, better_fs_1.writeFile(cacheFile, JSON.stringify({
                                 lastUpdate: now.toISOString(),
                                 data: fetched,
                             }, null, '  '))];
-                    case 8:
-                        _d.sent();
-                        return [2 /*return*/, memCache[currentKey]];
+                    case 9:
+                        _e.sent();
+                        _e.label = 10;
+                    case 10: return [2 /*return*/, memCache[currentKey]];
                 }
             });
         });
-    };
+    }, {
+        force: function () {
+            var params = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                params[_i] = arguments[_i];
+            }
+            return __awaiter(_this, void 0, void 0, function () {
+                var currentKey, now, cacheFile, fetched, _a, _b;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
+                        case 0:
+                            currentKey = typeof key === 'function' ? key.apply(void 0, __spread(params)) : key;
+                            now = new Date();
+                            cacheFile = path_1.join(constants_1.ROOT, '.boj-cache', currentKey + '.json');
+                            _b = (_a = Object).assign;
+                            return [4 /*yield*/, body.apply(null, params)];
+                        case 1:
+                            fetched = _b.apply(_a, [_c.sent(), {
+                                    fetchKind: 'force-fetch',
+                                }]);
+                            memCache[currentKey] = fetched;
+                            if (!useFileCache) return [3 /*break*/, 3];
+                            return [4 /*yield*/, better_fs_1.writeFile(cacheFile, JSON.stringify({
+                                    lastUpdate: now.toISOString(),
+                                    data: fetched,
+                                }, null, '  '))];
+                        case 2:
+                            _c.sent();
+                            _c.label = 3;
+                        case 3: return [2 /*return*/, memCache[currentKey]];
+                    }
+                });
+            });
+        },
+    });
 }
 exports.cached = cached;

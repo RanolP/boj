@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var inquirer_1 = require("inquirer");
 var console_1 = require("../src/util/console");
@@ -43,9 +54,10 @@ var better_fs_1 = require("../src/better-fs");
 var constants_1 = require("../src/constants");
 var path_1 = require("path");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var warning, reset, problemList, _i, problemList_1, problem;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var warning, reset, problemList, problemList_1, problemList_1_1, problem, e_1_1;
+    var e_1, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 warning = new console_1.Logger('reset').labeled({
                     warning: console_1.chalk.yellow,
@@ -56,38 +68,52 @@ var path_1 = require("path");
                         message: "Would you reset whole repository?",
                     })];
             case 1:
-                reset = (_a.sent()).reset;
+                reset = (_b.sent()).reset;
                 if (!reset) {
                     warning('Action aborted by user.');
                     return [2 /*return*/];
                 }
                 return [4 /*yield*/, problem_1.getProblemList()];
             case 2:
-                problemList = _a.sent();
-                _i = 0, problemList_1 = problemList;
-                _a.label = 3;
+                problemList = _b.sent();
+                _b.label = 3;
             case 3:
-                if (!(_i < problemList_1.length)) return [3 /*break*/, 6];
-                problem = problemList_1[_i];
-                return [4 /*yield*/, better_fs_1.rimraf(path_1.join(constants_1.ROOT, problem.id.toString()))];
+                _b.trys.push([3, 8, 9, 10]);
+                problemList_1 = __values(problemList), problemList_1_1 = problemList_1.next();
+                _b.label = 4;
             case 4:
-                _a.sent();
-                _a.label = 5;
+                if (!!problemList_1_1.done) return [3 /*break*/, 7];
+                problem = problemList_1_1.value;
+                return [4 /*yield*/, better_fs_1.rimraf(path_1.join(constants_1.ROOT, problem.id.toString()))];
             case 5:
-                _i++;
-                return [3 /*break*/, 3];
-            case 6: return [4 /*yield*/, better_fs_1.rimraf(path_1.join(constants_1.ROOT, '.boj-cache'))];
-            case 7:
-                _a.sent();
-                return [4 /*yield*/, better_fs_1.rimraf(path_1.join(constants_1.ROOT, 'README.md'))];
+                _b.sent();
+                _b.label = 6;
+            case 6:
+                problemList_1_1 = problemList_1.next();
+                return [3 /*break*/, 4];
+            case 7: return [3 /*break*/, 10];
             case 8:
-                _a.sent();
+                e_1_1 = _b.sent();
+                e_1 = { error: e_1_1 };
+                return [3 /*break*/, 10];
+            case 9:
+                try {
+                    if (problemList_1_1 && !problemList_1_1.done && (_a = problemList_1.return)) _a.call(problemList_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+                return [7 /*endfinally*/];
+            case 10: return [4 /*yield*/, better_fs_1.rimraf(path_1.join(constants_1.ROOT, '.boj-cache'))];
+            case 11:
+                _b.sent();
+                return [4 /*yield*/, better_fs_1.rimraf(path_1.join(constants_1.ROOT, 'README.md'))];
+            case 12:
+                _b.sent();
                 return [4 /*yield*/, better_fs_1.rimraf(constants_1.ROOT, {
                         file: function (_, stat) { return stat.isSymbolicLink(); },
                         folder: function () { return false; },
                     })];
-            case 9:
-                _a.sent();
+            case 13:
+                _b.sent();
                 return [2 /*return*/];
         }
     });

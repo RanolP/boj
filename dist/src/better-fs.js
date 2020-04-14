@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var util_1 = require("util");
@@ -66,6 +77,12 @@ exports.exists = function (path, mode) { return __awaiter(void 0, void 0, void 0
         }
     });
 }); };
+exports.notExists = function (path, mode) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    switch (_a.label) {
+        case 0: return [4 /*yield*/, exports.exists(path, mode)];
+        case 1: return [2 /*return*/, !(_a.sent())];
+    }
+}); }); };
 exports.unlink = util_1.promisify(fs_1.unlink);
 exports.readlink = util_1.promisify(fs_1.readlink);
 exports.readFile = util_1.promisify(fs_1.readFile);
@@ -78,9 +95,9 @@ exports.mkdirs = function (dir) { return __awaiter(void 0, void 0, void 0, funct
         switch (_a.label) {
             case 0:
                 parsed = path_1.parse(dir.toString());
-                return [4 /*yield*/, exports.exists(parsed.dir)];
+                return [4 /*yield*/, exports.notExists(parsed.dir)];
             case 1:
-                if (!!(_a.sent())) return [3 /*break*/, 3];
+                if (!_a.sent()) return [3 /*break*/, 3];
                 return [4 /*yield*/, exports.mkdirs(parsed.dir)];
             case 2:
                 _a.sent();
@@ -92,48 +109,62 @@ exports.mkdirs = function (dir) { return __awaiter(void 0, void 0, void 0, funct
 exports.rimraf = function (path, _a) {
     var _b = _a === void 0 ? {} : _a, _c = _b.file, file = _c === void 0 ? function () { return true; } : _c, _d = _b.folder, folder = _d === void 0 ? function () { return true; } : _d;
     return __awaiter(void 0, void 0, void 0, function () {
-        var realPath, stat, _i, _e, child;
-        return __generator(this, function (_f) {
-            switch (_f.label) {
+        var realPath, stat, _e, _f, child, e_1_1;
+        var e_1, _g;
+        return __generator(this, function (_h) {
+            switch (_h.label) {
                 case 0:
                     realPath = path_1.resolve(path.toString());
-                    return [4 /*yield*/, exports.exists(realPath)];
+                    return [4 /*yield*/, exports.notExists(realPath)];
                 case 1:
-                    if (!(_f.sent())) {
+                    if (_h.sent()) {
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, exports.lstat(realPath)];
                 case 2:
-                    stat = _f.sent();
+                    stat = _h.sent();
                     if (!stat.isFile()) return [3 /*break*/, 5];
                     if (!file(realPath, stat)) return [3 /*break*/, 4];
                     return [4 /*yield*/, exports.unlink(realPath)];
                 case 3:
-                    _f.sent();
-                    _f.label = 4;
+                    _h.sent();
+                    _h.label = 4;
                 case 4: return [2 /*return*/];
                 case 5:
                     if (!folder(realPath, stat)) {
                         return [2 /*return*/];
                     }
-                    _i = 0;
-                    return [4 /*yield*/, exports.readdir(realPath)];
+                    _h.label = 6;
                 case 6:
-                    _e = _f.sent();
-                    _f.label = 7;
+                    _h.trys.push([6, 12, 13, 14]);
+                    return [4 /*yield*/, exports.readdir(realPath)];
                 case 7:
-                    if (!(_i < _e.length)) return [3 /*break*/, 10];
-                    child = _e[_i];
-                    return [4 /*yield*/, exports.rimraf(path_1.join(realPath, child))];
+                    _e = __values.apply(void 0, [_h.sent()]), _f = _e.next();
+                    _h.label = 8;
                 case 8:
-                    _f.sent();
-                    _f.label = 9;
+                    if (!!_f.done) return [3 /*break*/, 11];
+                    child = _f.value;
+                    return [4 /*yield*/, exports.rimraf(path_1.join(realPath, child))];
                 case 9:
-                    _i++;
-                    return [3 /*break*/, 7];
-                case 10: return [4 /*yield*/, exports.rmdir(realPath)];
-                case 11:
-                    _f.sent();
+                    _h.sent();
+                    _h.label = 10;
+                case 10:
+                    _f = _e.next();
+                    return [3 /*break*/, 8];
+                case 11: return [3 /*break*/, 14];
+                case 12:
+                    e_1_1 = _h.sent();
+                    e_1 = { error: e_1_1 };
+                    return [3 /*break*/, 14];
+                case 13:
+                    try {
+                        if (_f && !_f.done && (_g = _e.return)) _g.call(_e);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                    return [7 /*endfinally*/];
+                case 14: return [4 /*yield*/, exports.rmdir(realPath)];
+                case 15:
+                    _h.sent();
                     return [2 /*return*/];
             }
         });

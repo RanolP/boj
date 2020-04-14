@@ -35,68 +35,94 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var parse_1 = require("./parse");
 function preprocess(source, context, ruleset) {
     return __awaiter(this, void 0, void 0, function () {
-        var result, _i, _a, node, _b, rule, _c, _d, _e, _f, rule, _g, _h, _j;
-        return __generator(this, function (_k) {
-            switch (_k.label) {
+        var result, _a, _b, node, _c, rule, _d, _e, _f, _g, rule, _h, _j, _k, e_1_1;
+        var e_1, _l;
+        return __generator(this, function (_m) {
+            switch (_m.label) {
                 case 0:
                     result = [];
-                    _i = 0, _a = parse_1.parsePgfm(source);
-                    _k.label = 1;
+                    _m.label = 1;
                 case 1:
-                    if (!(_i < _a.length)) return [3 /*break*/, 12];
-                    node = _a[_i];
-                    _b = node.type;
-                    switch (_b) {
-                        case 'string': return [3 /*break*/, 2];
-                        case 'pgfm-block': return [3 /*break*/, 3];
-                        case 'pgfm-inline': return [3 /*break*/, 7];
-                    }
-                    return [3 /*break*/, 11];
+                    _m.trys.push([1, 14, 15, 16]);
+                    _a = __values(parse_1.parsePgfm(source)), _b = _a.next();
+                    _m.label = 2;
                 case 2:
+                    if (!!_b.done) return [3 /*break*/, 13];
+                    node = _b.value;
+                    _c = node.type;
+                    switch (_c) {
+                        case 'string': return [3 /*break*/, 3];
+                        case 'pgfm-block': return [3 /*break*/, 4];
+                        case 'pgfm-inline': return [3 /*break*/, 8];
+                    }
+                    return [3 /*break*/, 12];
+                case 3:
                     {
                         result.push(node.data);
-                        return [3 /*break*/, 11];
+                        return [3 /*break*/, 12];
                     }
-                    _k.label = 3;
-                case 3:
-                    rule = ruleset.block[node.name];
-                    _d = (_c = result).push;
-                    _e = '\n\n';
-                    if (!rule) return [3 /*break*/, 5];
-                    return [4 /*yield*/, rule.execute(node.data, context)];
+                    _m.label = 4;
                 case 4:
-                    _f = _k.sent();
-                    return [3 /*break*/, 6];
-                case 5:
-                    _f = node.origin;
-                    _k.label = 6;
-                case 6:
-                    _d.apply(_c, [_e +
-                            (_f) +
-                            '\n\n']);
-                    return [3 /*break*/, 11];
-                case 7:
-                    rule = ruleset.inline[node.name];
-                    _h = (_g = result).push;
-                    if (!rule) return [3 /*break*/, 9];
+                    rule = ruleset.block[node.name];
+                    _e = (_d = result).push;
+                    _f = '\n\n';
+                    if (!rule) return [3 /*break*/, 6];
                     return [4 /*yield*/, rule.execute(node.data, context)];
+                case 5:
+                    _g = _m.sent();
+                    return [3 /*break*/, 7];
+                case 6:
+                    _g = node.origin;
+                    _m.label = 7;
+                case 7:
+                    _e.apply(_d, [_f +
+                            (_g) +
+                            '\n\n']);
+                    return [3 /*break*/, 12];
                 case 8:
-                    _j = _k.sent();
-                    return [3 /*break*/, 10];
+                    rule = ruleset.inline[node.name];
+                    _j = (_h = result).push;
+                    if (!rule) return [3 /*break*/, 10];
+                    return [4 /*yield*/, rule.execute(node.data, context)];
                 case 9:
-                    _j = node.origin;
-                    _k.label = 10;
-                case 10:
-                    _h.apply(_g, [_j]);
+                    _k = _m.sent();
                     return [3 /*break*/, 11];
+                case 10:
+                    _k = node.origin;
+                    _m.label = 11;
                 case 11:
-                    _i++;
-                    return [3 /*break*/, 1];
-                case 12: return [2 /*return*/, result.join('')];
+                    _j.apply(_h, [_k]);
+                    return [3 /*break*/, 12];
+                case 12:
+                    _b = _a.next();
+                    return [3 /*break*/, 2];
+                case 13: return [3 /*break*/, 16];
+                case 14:
+                    e_1_1 = _m.sent();
+                    e_1 = { error: e_1_1 };
+                    return [3 /*break*/, 16];
+                case 15:
+                    try {
+                        if (_b && !_b.done && (_l = _a.return)) _l.call(_a);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                    return [7 /*endfinally*/];
+                case 16: return [2 /*return*/, result.join('')];
             }
         });
     });

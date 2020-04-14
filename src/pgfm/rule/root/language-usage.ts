@@ -1,7 +1,7 @@
 import { Rule } from '..';
 import { getProblemList } from '../../../problem';
 import dedent from 'dedent';
-import { join, parse } from 'path';
+import { parse } from 'path';
 
 const ExtensionLanguageNameMap: Record<string, string> = {
   '.rs': 'Rust',

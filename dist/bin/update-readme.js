@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var better_fs_1 = require("../src/better-fs");
 var constants_1 = require("../src/constants");
@@ -62,14 +73,15 @@ var fetchLastProblemList = cache_1.cached(function () { return __awaiter(void 0,
     }
 }); }); }, 'last-problem-list', cache_1.Duration.of({ day: 1 }));
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var base, problemList, problemLoggers, _a, info, error, success, problemUpdated, _b, _i, problemList_1, problem, log, lastUpdate, _c, noteTemplate, result_1, target_1, templateFile, lastUpdate, _d, template, result, target;
-    return __generator(this, function (_e) {
-        switch (_e.label) {
+    var base, problemList, problemLoggers, _a, info, error, success, problemUpdated, _b, problemList_1, problemList_1_1, problem, log, lastUpdate, _c, noteTemplate, result_1, target_1, e_1_1, templateFile, lastUpdate, _d, template, result, target;
+    var e_1, _e;
+    return __generator(this, function (_f) {
+        switch (_f.label) {
             case 0:
                 base = new console_1.Logger('update-readme');
                 return [4 /*yield*/, problem_1.getProblemList()];
             case 1:
-                problemList = _e.sent();
+                problemList = _f.sent();
                 problemLoggers = base.labeled(problemList.map(function (it) { return it.id; }), ['info', 'error', 'success']);
                 _a = base.labeled({
                     info: console_1.chalk.blue,
@@ -79,86 +91,102 @@ var fetchLastProblemList = cache_1.cached(function () { return __awaiter(void 0,
                 _b = problemList.map(function (it) { return it.id; });
                 return [4 /*yield*/, fetchLastProblemList()];
             case 2:
-                problemUpdated = _b != (_e.sent());
-                _i = 0, problemList_1 = problemList;
-                _e.label = 3;
+                problemUpdated = _b != (_f.sent());
+                _f.label = 3;
             case 3:
-                if (!(_i < problemList_1.length)) return [3 /*break*/, 11];
-                problem = problemList_1[_i];
+                _f.trys.push([3, 14, 15, 16]);
+                problemList_1 = __values(problemList), problemList_1_1 = problemList_1.next();
+                _f.label = 4;
+            case 4:
+                if (!!problemList_1_1.done) return [3 /*break*/, 13];
+                problem = problemList_1_1.value;
                 log = problemLoggers[problem.id];
                 if (!problem.isSolved) {
                     log(console_1.chalk.yellow, 'Not solved, pass.');
-                    return [3 /*break*/, 10];
+                    return [3 /*break*/, 12];
                 }
-                return [4 /*yield*/, better_fs_1.exists(problem.noteFile)];
-            case 4:
-                if (!(_e.sent())) {
+                return [4 /*yield*/, better_fs_1.notExists(problem.noteFile)];
+            case 5:
+                if (_f.sent()) {
                     log(console_1.chalk.yellow, 'Note not found, pass.');
-                    return [3 /*break*/, 10];
+                    return [3 /*break*/, 12];
                 }
                 return [4 /*yield*/, fetchLastNoteUpdate(problem)];
-            case 5:
-                lastUpdate = _e.sent();
-                _c = lastUpdate.fetchKind === 'file';
-                if (!_c) return [3 /*break*/, 7];
-                return [4 /*yield*/, getLastUpdate(problem.noteFile)];
             case 6:
-                _c = (_e.sent()) == lastUpdate;
-                _e.label = 7;
+                lastUpdate = _f.sent();
+                _c = lastUpdate.fetchKind === 'file';
+                if (!_c) return [3 /*break*/, 8];
+                return [4 /*yield*/, getLastUpdate(problem.noteFile)];
             case 7:
+                _c = (_f.sent()) == lastUpdate;
+                _f.label = 8;
+            case 8:
                 if (_c) {
-                    log(console_1.chalk.green, 'Already up-to-date');
-                    return [3 /*break*/, 10];
+                    return [3 /*break*/, 12];
                 }
                 return [4 /*yield*/, better_fs_1.readFile(problem.noteFile, {
                         encoding: 'utf-8',
                     })];
-            case 8:
-                noteTemplate = _e.sent();
-                return [4 /*yield*/, pgfm_1.preprocess(noteTemplate, { problem: problem }, pgfm_1.NoteRuleset)];
             case 9:
-                result_1 = _e.sent();
+                noteTemplate = _f.sent();
+                return [4 /*yield*/, pgfm_1.preprocess(noteTemplate, { problem: problem }, pgfm_1.NoteRuleset)];
+            case 10:
+                result_1 = _f.sent();
                 target_1 = path_1.join(constants_1.ROOT, problem.id.toString(), 'README.md');
                 better_fs_1.writeFile(target_1, result_1);
                 log(console_1.chalk.green, 'Success.');
-                problemUpdated = true;
-                _e.label = 10;
-            case 10:
-                _i++;
-                return [3 /*break*/, 3];
+                return [4 /*yield*/, fetchLastNoteUpdate.force(problem)];
             case 11:
-                templateFile = path_1.join(constants_1.ROOT, 'template', 'README.template.md');
-                return [4 /*yield*/, better_fs_1.exists(templateFile)];
+                _f.sent();
+                problemUpdated = true;
+                _f.label = 12;
             case 12:
-                if (!(_e.sent())) {
+                problemList_1_1 = problemList_1.next();
+                return [3 /*break*/, 4];
+            case 13: return [3 /*break*/, 16];
+            case 14:
+                e_1_1 = _f.sent();
+                e_1 = { error: e_1_1 };
+                return [3 /*break*/, 16];
+            case 15:
+                try {
+                    if (problemList_1_1 && !problemList_1_1.done && (_e = problemList_1.return)) _e.call(problemList_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+                return [7 /*endfinally*/];
+            case 16:
+                templateFile = path_1.join(constants_1.ROOT, 'template', 'README.template.md');
+                return [4 /*yield*/, better_fs_1.notExists(templateFile)];
+            case 17:
+                if (_f.sent()) {
                     error('File not found: template/README.template.md');
                 }
-                if (!!problemUpdated) return [3 /*break*/, 16];
+                if (!!problemUpdated) return [3 /*break*/, 21];
                 return [4 /*yield*/, fetchLastReadMeUpdate(templateFile)];
-            case 13:
-                lastUpdate = _e.sent();
+            case 18:
+                lastUpdate = _f.sent();
                 _d = lastUpdate.fetchKind === 'file';
-                if (!_d) return [3 /*break*/, 15];
+                if (!_d) return [3 /*break*/, 20];
                 return [4 /*yield*/, getLastUpdate(templateFile)];
-            case 14:
-                _d = (_e.sent()) == lastUpdate;
-                _e.label = 15;
-            case 15:
+            case 19:
+                _d = (_f.sent()) == lastUpdate;
+                _f.label = 20;
+            case 20:
                 if (_d) {
                     success('README.md is already up-to-date');
                     return [2 /*return*/];
                 }
-                _e.label = 16;
-            case 16:
+                _f.label = 21;
+            case 21:
                 info('Create README.md based on template/README.template.md...');
                 return [4 /*yield*/, better_fs_1.readFile(templateFile, {
                         encoding: 'utf-8',
                     })];
-            case 17:
-                template = _e.sent();
+            case 22:
+                template = _f.sent();
                 return [4 /*yield*/, pgfm_1.preprocess(template, {}, pgfm_1.RootRuleset)];
-            case 18:
-                result = _e.sent();
+            case 23:
+                result = _f.sent();
                 target = path_1.join(constants_1.ROOT, 'README.md');
                 better_fs_1.writeFile(target, result);
                 success('All done!');

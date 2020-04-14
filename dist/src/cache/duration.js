@@ -1,4 +1,15 @@
 "use strict";
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var DurationType;
 (function (DurationType) {
@@ -29,20 +40,60 @@ var Duration = /** @class */ (function () {
         this.minute = minute;
         this.second = second;
     }
-    Duration.prototype.compareTo = function (other) {
-        for (var _i = 0, _a = [
-            function (d) { return d.year; },
-            function (d) { return d.month; },
-            function (d) { return d.day; },
-            function (d) { return d.hour; },
-            function (d) { return d.minute; },
-            function (d) { return d.second; },
-        ]; _i < _a.length; _i++) {
-            var picker = _a[_i];
-            var compared = picker(this).compare(picker(other));
-            if (compared !== 0) {
-                return compared;
+    Duration.prototype.normalize = function () {
+        var year = this.year.value;
+        var month = this.month.value;
+        var day = this.day.value;
+        var hour = this.hour.value;
+        var minute = this.minute.value;
+        var second = this.second.value;
+        while (second < 0) {
+            minute -= 1;
+            second += 60;
+        }
+        while (minute < 0) {
+            hour -= 1;
+            minute += 60;
+        }
+        while (hour < 0) {
+            day -= 1;
+            hour += 24;
+        }
+        while (day < 0) {
+            month -= 1;
+            day += 30;
+        }
+        while (month < 0) {
+            year -= 1;
+            month += 12;
+        }
+        return Duration.of({ year: year, month: month, day: day, hour: hour, minute: minute, second: second });
+    };
+    Duration.prototype.compareTo = function (other, useAbsoluteDate) {
+        var e_1, _a;
+        var pick = function (key) { return function (d) { return (useAbsoluteDate ? d : d.normalize())[key]; }; };
+        try {
+            for (var _b = __values([
+                pick('year'),
+                pick('month'),
+                pick('day'),
+                pick('hour'),
+                pick('minute'),
+                pick('second'),
+            ]), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var picker = _c.value;
+                var compared = picker(this).compare(picker(other));
+                if (compared !== 0) {
+                    return compared;
+                }
             }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
         }
         return 0;
     };

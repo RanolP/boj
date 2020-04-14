@@ -50,6 +50,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -88,7 +104,7 @@ exports.LanguageUsageRule = {
                                 dedent_1.default(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n        | \uC5B8\uC5B4 | \uC0AC\uC6A9 \uBE44\uC728 |\n        | ---- | --------- |\n      "], ["\n        | \uC5B8\uC5B4 | \uC0AC\uC6A9 \uBE44\uC728 |\n        | ---- | --------- |\n      "]))),
                             ]
                                 .concat(Object.entries(ratio).map(function (_a) {
-                                var ext = _a[0], count = _a[1];
+                                var _b = __read(_a, 2), ext = _b[0], count = _b[1];
                                 return dedent_1.default(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n        | ", " (", ") | ", " of ", " (", "%) |\n      "], ["\n        | ",
                                     " (", ") | ", " of ", " (",
                                     "%) |\n      "])), ExtensionLanguageNameMap[ext] || 'Unknown', ext, count, solutions.length, ((count / solutions.length) *

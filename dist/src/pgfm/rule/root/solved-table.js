@@ -73,11 +73,11 @@ exports.SolvedTableRule = {
                     function createSolutionLink(filename, ext) {
                         return "<a href=\"./" + problem.id + "/" + filename + "\">\uD480\uC774 (" + ext + ")</a>";
                     }
-                    var _b, date, love, problemLevel, problemTitle, solveCell, _c, solution, _d, _e;
+                    var _b, date, love, problemDifficulty, problemLevel, problemTitle, solveCell, _c, solution, _d, _e;
                     return __generator(this, function (_f) {
                         switch (_f.label) {
                             case 0:
-                                _b = problem.meta, date = _b.date, love = _b.love;
+                                _b = problem.meta, date = _b.date, love = _b.love, problemDifficulty = _b.problemDifficulty;
                                 return [4 /*yield*/, solvedac_1.fetchProblemLevel(problem.id)];
                             case 1:
                                 problemLevel = _f.sent();
@@ -121,9 +121,10 @@ exports.SolvedTableRule = {
                             case 8: return [2 /*return*/, [
                                     '<tr>',
                                     shouldAddDate > 0 ? "<td rowspan=\"" + shouldAddDate + "\">" + date + "</td>" : '',
-                                    dedent_1.default(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n          <td>\n            <a href=\"http://noj.am/", "\">\n              <img src=\"https://static.solved.ac/tier_small/", ".svg\" height=\"16px\"/>\n              ", ", ", "", " ", "\n            </a>\n          </td>\n        "], ["\n          <td>\n            <a href=\"http://noj.am/", "\">\n              <img src=\"https://static.solved.ac/tier_small/",
+                                    dedent_1.default(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n          <td>\n            <a href=\"http://noj.am/", "\">\n              <img src=\"https://static.solved.ac/tier_small/", ".svg\" height=\"16px\"/>\n              ", ", ", "", "", " ", "\n            </a>\n          </td>\n        "], ["\n          <td>\n            <a href=\"http://noj.am/", "\">\n              <img src=\"https://static.solved.ac/tier_small/",
                                         ".svg\" height=\"16px\"/>\n              ", ", ",
-                                        "", " ", "\n            </a>\n          </td>\n        "])), problem.id, problemLevel.level, solvedac_1.ProblemLevelNameMap[problemLevel.level], love ? "LV" + love + " " : '', problem.id, problemTitle),
+                                        "", "",
+                                        " ", "\n            </a>\n          </td>\n        "])), problem.id, problemLevel.level, solvedac_1.ProblemLevelNameMap[problemLevel.level], love ? "LV" + love + " (Legacy) " : '', problemDifficulty ? problemDifficulty + " " : '', problem.id, problemTitle),
                                     '<td>',
                                     solveCell,
                                     '</td>',
@@ -139,10 +140,9 @@ exports.SolvedTableRule = {
             var problemList, problemListClassified, _a, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0: return [4 /*yield*/, problem_1.getProblemList()];
+                    case 0: return [4 /*yield*/, problem_1.getProblemList({ sorted: true })];
                     case 1:
                         problemList = _c.sent();
-                        problemList.sort(function (a, b) { return a.meta.date.localeCompare(b.meta.date); });
                         problemListClassified = Object.values(problemList.reduce(function (acc, curr) {
                             var _a;
                             var update;

@@ -35,50 +35,85 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var better_fs_1 = require("./better-fs");
 var path_1 = require("path");
 var constants_1 = require("./constants");
 var PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
-var problems = null;
-function getProblemList() {
+var problems = {};
+var fetchStatus = {
+    allFetched: false,
+    array: [],
+    arraySorted: [],
+};
+function getProblemList(_a) {
+    var _b = (_a === void 0 ? {} : _a).sorted, sorted = _b === void 0 ? false : _b;
     return __awaiter(this, void 0, void 0, function () {
-        var result, fileList, _i, fileList_1, file, fetchedStat, folderBasename, problem;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var fileList, fileList_1, fileList_1_1, file, fetchedStat, folderBasename, e_1_1;
+        var e_1, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0:
-                    if (problems) {
-                        return [2 /*return*/, problems];
-                    }
-                    result = [];
+                    if (!!fetchStatus.allFetched) return [3 /*break*/, 10];
                     return [4 /*yield*/, better_fs_1.readdir(constants_1.ROOT)];
                 case 1:
-                    fileList = _a.sent();
-                    _i = 0, fileList_1 = fileList;
-                    _a.label = 2;
+                    fileList = _d.sent();
+                    _d.label = 2;
                 case 2:
-                    if (!(_i < fileList_1.length)) return [3 /*break*/, 6];
-                    file = fileList_1[_i];
-                    return [4 /*yield*/, better_fs_1.lstat(path_1.join(constants_1.ROOT, file))];
+                    _d.trys.push([2, 7, 8, 9]);
+                    fileList_1 = __values(fileList), fileList_1_1 = fileList_1.next();
+                    _d.label = 3;
                 case 3:
-                    fetchedStat = _a.sent();
+                    if (!!fileList_1_1.done) return [3 /*break*/, 6];
+                    file = fileList_1_1.value;
+                    return [4 /*yield*/, better_fs_1.lstat(path_1.join(constants_1.ROOT, file))];
+                case 4:
+                    fetchedStat = _d.sent();
                     if (fetchedStat.isFile()) {
                         return [3 /*break*/, 5];
                     }
                     folderBasename = path_1.basename(file);
-                    if (!PROBLEM_NUMBER_REGEX.test(folderBasename)) return [3 /*break*/, 5];
-                    problem = new Problem(Number(folderBasename));
-                    return [4 /*yield*/, problem.initialize()];
-                case 4:
-                    _a.sent();
-                    result.push(problem);
-                    _a.label = 5;
+                    if (PROBLEM_NUMBER_REGEX.test(folderBasename)) {
+                        getProblem(Number(folderBasename));
+                    }
+                    _d.label = 5;
                 case 5:
-                    _i++;
-                    return [3 /*break*/, 2];
-                case 6:
-                    problems = result;
-                    return [2 /*return*/, result];
+                    fileList_1_1 = fileList_1.next();
+                    return [3 /*break*/, 3];
+                case 6: return [3 /*break*/, 9];
+                case 7:
+                    e_1_1 = _d.sent();
+                    e_1 = { error: e_1_1 };
+                    return [3 /*break*/, 9];
+                case 8:
+                    try {
+                        if (fileList_1_1 && !fileList_1_1.done && (_c = fileList_1.return)) _c.call(fileList_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                    return [7 /*endfinally*/];
+                case 9:
+                    fetchStatus.allFetched = true;
+                    fetchStatus.array = Object.values(problems);
+                    fetchStatus.arraySorted = Object.values(problems).sort(function (a, b) {
+                        var date = a.meta.date.localeCompare(b.meta.date);
+                        if (date !== 0) {
+                            return date;
+                        }
+                        return a.meta.order - b.meta.order;
+                    });
+                    _d.label = 10;
+                case 10: return [2 /*return*/, sorted ? fetchStatus.arraySorted : fetchStatus.array];
             }
         });
     });
@@ -86,13 +121,16 @@ function getProblemList() {
 exports.getProblemList = getProblemList;
 function getProblem(id) {
     return __awaiter(this, void 0, void 0, function () {
-        var problemList;
+        var problem;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getProblemList()];
+                case 0:
+                    problem = new Problem(id);
+                    return [4 /*yield*/, problem.initialize()];
                 case 1:
-                    problemList = _a.sent();
-                    return [2 /*return*/, problemList.find(function (problem) { return problem.id === id; })];
+                    _a.sent();
+                    problems[id] = problem;
+                    return [2 /*return*/, problem];
             }
         });
     });
@@ -143,35 +181,50 @@ var Problem = /** @class */ (function () {
     });
     Problem.prototype.getSolutions = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var result, fileList, _i, fileList_2, file, fetchedStat, filename;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var result, fileList, fileList_2, fileList_2_1, file, fetchedStat, filename, e_2_1;
+            var e_2, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         result = [];
                         return [4 /*yield*/, better_fs_1.readdir(path_1.join(constants_1.ROOT, this.id.toString()))];
                     case 1:
-                        fileList = _a.sent();
-                        _i = 0, fileList_2 = fileList;
-                        _a.label = 2;
+                        fileList = _b.sent();
+                        _b.label = 2;
                     case 2:
-                        if (!(_i < fileList_2.length)) return [3 /*break*/, 5];
-                        file = fileList_2[_i];
-                        return [4 /*yield*/, better_fs_1.lstat(path_1.join(constants_1.ROOT, this.id.toString(), file))];
+                        _b.trys.push([2, 7, 8, 9]);
+                        fileList_2 = __values(fileList), fileList_2_1 = fileList_2.next();
+                        _b.label = 3;
                     case 3:
-                        fetchedStat = _a.sent();
+                        if (!!fileList_2_1.done) return [3 /*break*/, 6];
+                        file = fileList_2_1.value;
+                        return [4 /*yield*/, better_fs_1.lstat(path_1.join(constants_1.ROOT, this.id.toString(), file))];
+                    case 4:
+                        fetchedStat = _b.sent();
                         if (fetchedStat.isDirectory()) {
-                            return [3 /*break*/, 4];
+                            return [3 /*break*/, 5];
                         }
                         filename = path_1.parse(file).name;
                         if (filename !== 'solution') {
-                            return [3 /*break*/, 4];
+                            return [3 /*break*/, 5];
                         }
                         result.push(file);
-                        _a.label = 4;
-                    case 4:
-                        _i++;
-                        return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/, result];
+                        _b.label = 5;
+                    case 5:
+                        fileList_2_1 = fileList_2.next();
+                        return [3 /*break*/, 3];
+                    case 6: return [3 /*break*/, 9];
+                    case 7:
+                        e_2_1 = _b.sent();
+                        e_2 = { error: e_2_1 };
+                        return [3 /*break*/, 9];
+                    case 8:
+                        try {
+                            if (fileList_2_1 && !fileList_2_1.done && (_a = fileList_2.return)) _a.call(fileList_2);
+                        }
+                        finally { if (e_2) throw e_2.error; }
+                        return [7 /*endfinally*/];
+                    case 9: return [2 /*return*/, result];
                 }
             });
         });

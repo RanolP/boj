@@ -1,37 +1,53 @@
 import { lstat, readdir, readFile } from './better-fs';
 import { join, basename, parse } from 'path';
 import { ROOT } from './constants';
-import { isMainThread } from 'worker_threads';
 
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 
-let problems: Problem[] | null = null;
+let problems: Record<number, Problem> = {};
+let fetchStatus = {
+  allFetched: false,
+  array: [] as Problem[],
+  arraySorted: [] as Problem[],
+};
 
-export async function getProblemList(): Promise<Problem[]> {
-  if (problems) {
-    return problems;
-  }
-  const result = [];
-  const fileList = await readdir(ROOT);
-  for (const file of fileList) {
-    const fetchedStat = await lstat(join(ROOT, file));
-    if (fetchedStat.isFile()) {
-      continue;
+type GetProblemListOption = Partial<{
+  sorted: boolean;
+}>;
+
+export async function getProblemList({
+  sorted = false,
+}: GetProblemListOption = {}): Promise<Problem[]> {
+  if (!fetchStatus.allFetched) {
+    const fileList = await readdir(ROOT);
+    for (const file of fileList) {
+      const fetchedStat = await lstat(join(ROOT, file));
+      if (fetchedStat.isFile()) {
+        continue;
+      }
+      const folderBasename = basename(file);
+      if (PROBLEM_NUMBER_REGEX.test(folderBasename)) {
+        getProblem(Number(folderBasename));
+      }
     }
-    const folderBasename = basename(file);
-    if (PROBLEM_NUMBER_REGEX.test(folderBasename)) {
-      const problem = new Problem(Number(folderBasename));
-      await problem.initialize();
-      result.push(problem);
-    }
+    fetchStatus.allFetched = true;
+    fetchStatus.array = Object.values(problems);
+    fetchStatus.arraySorted = Object.values(problems).sort((a, b) => {
+      const date = a.meta.date.localeCompare(b.meta.date);
+      if (date !== 0) {
+        return date;
+      }
+      return a.meta.order - b.meta.order;
+    });
   }
-  problems = result;
-  return result;
+  return sorted ? fetchStatus.arraySorted : fetchStatus.array;
 }
 
 export async function getProblem(id: number): Promise<Problem> {
-  const problemList = await getProblemList();
-  return problemList.find((problem) => problem.id === id)!;
+  const problem = new Problem(id);
+  await problem.initialize();
+  problems[id] = problem;
+  return problem;
 }
 
 interface ProblemMeta {
@@ -40,6 +56,7 @@ interface ProblemMeta {
   status: 'solved' | 'in-progress' | 'timeout' | 'solved-late';
   order: number;
   love?: number;
+  problemDifficulty: 'A' | 'B' | 'C';
 }
 
 export class Problem {

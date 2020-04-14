@@ -35,41 +35,94 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var better_fs_1 = require("../src/better-fs");
 var console_1 = require("../src/util/console");
 var problem_1 = require("../src/problem");
+var baekjoon_1 = require("../src/api/baekjoon");
+var align_1 = require("../src/util/align");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var base, problemList, problemLoggers, _i, problemList_1, problem, log;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var base, problemList, tagged, title, _a, problemLoggers, _b, _c, _d, index, _e, problem, message, log;
+    var e_1, _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0:
                 base = new console_1.Logger('analyze');
-                return [4 /*yield*/, problem_1.getProblemList()];
+                return [4 /*yield*/, problem_1.getProblemList({ sorted: true })];
             case 1:
-                problemList = _a.sent();
-                problemLoggers = base.labeled(problemList.map(function (it) { return it.id; }), console_1.chalk.yellow);
-                _i = 0, problemList_1 = problemList;
-                _a.label = 2;
+                problemList = _g.sent();
+                return [4 /*yield*/, Promise.all(problemList.map(function (it) { return __awaiter(void 0, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (!it.isSolved) {
+                                        return [2 /*return*/, [[it, 'Not solved']]];
+                                    }
+                                    return [4 /*yield*/, better_fs_1.notExists(it.noteFile)];
+                                case 1:
+                                    if (_a.sent()) {
+                                        return [2 /*return*/, [[it, 'Note not found']]];
+                                    }
+                                    return [2 /*return*/, []];
+                            }
+                        });
+                    }); }))];
             case 2:
-                if (!(_i < problemList_1.length)) return [3 /*break*/, 5];
-                problem = problemList_1[_i];
-                log = problemLoggers[problem.id];
-                if (!problem.isSolved) {
-                    log('Not solved.');
-                    return [3 /*break*/, 4];
-                }
-                return [4 /*yield*/, better_fs_1.exists(problem.noteFile)];
+                tagged = (_g.sent()).flat();
+                _a = align_1.aligned;
+                return [4 /*yield*/, Promise.all(tagged.map(function (_a) {
+                        var _b = __read(_a, 1), it = _b[0];
+                        return baekjoon_1.fetchProblemTitle(it.id);
+                    }))];
             case 3:
-                if (!(_a.sent())) {
-                    log('Note not found.');
-                    return [3 /*break*/, 4];
+                title = _a.apply(void 0, [_g.sent(),
+                    align_1.stringify]);
+                problemLoggers = base.labeled(tagged.map(function (_a) {
+                    var _b = __read(_a, 1), it = _b[0];
+                    return it.id;
+                }), console_1.chalk.yellow);
+                try {
+                    for (_b = __values(Object.entries(tagged)), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        _d = __read(_c.value, 2), index = _d[0], _e = __read(_d[1], 2), problem = _e[0], message = _e[1];
+                        log = problemLoggers[problem.id];
+                        log(title[Number(index)] + "  " + message);
+                    }
                 }
-                _a.label = 4;
-            case 4:
-                _i++;
-                return [3 /*break*/, 2];
-            case 5: return [2 /*return*/];
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_f = _b.return)) _f.call(_b);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+                return [2 /*return*/];
         }
     });
 }); })();

@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var node_fetch_1 = __importDefault(require("node-fetch"));
-var cache_1 = require("../cache");
+var cache_1 = require("../../cache");
 var TITLE_REGEX = /<span id="problem_title">([^<]+)<\/span>/;
 function fetchProblemTitleLogic(id) {
     return __awaiter(this, void 0, void 0, function () {

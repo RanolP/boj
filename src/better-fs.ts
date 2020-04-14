@@ -35,6 +35,10 @@ export const exists = async (
     }
   }
 };
+export const notExists = async (
+  path: PathLike,
+  mode?: number
+): Promise<boolean> => !(await exists(path, mode));
 
 export const unlink = promisify(unlinkCallback);
 export const readlink = promisify(readlinkCallback);
@@ -44,7 +48,7 @@ export const mkdir = promisify(mkdirCallback);
 export const rmdir = promisify(rmdirCallback);
 export const mkdirs = async (dir: PathLike) => {
   const parsed = parse(dir.toString());
-  if (!(await exists(parsed.dir))) {
+  if (await notExists(parsed.dir)) {
     await mkdirs(parsed.dir);
   }
   return mkdir(dir);
@@ -59,7 +63,7 @@ export const rimraf = async (
   > = {}
 ) => {
   const realPath = resolve(path.toString());
-  if (!(await exists(realPath))) {
+  if (await notExists(realPath)) {
     return;
   }
   const stat = await lstat(realPath);

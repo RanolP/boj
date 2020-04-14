@@ -43,7 +43,6 @@ import { chalk, Logger } from '../src/util/console';
       if (fetchedStat.isSymbolicLink()) {
         const link = await readlink(target);
         if (link === source) {
-          log(chalk.green, 'Already up-to-date.');
           continue;
         }
       }

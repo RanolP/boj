@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { Duration, cached } from '../cache';
+import { Duration, cached } from '../../cache';
 
 const TITLE_REGEX = /<span id="problem_title">([^<]+)<\/span>/;
 

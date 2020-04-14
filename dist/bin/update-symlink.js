@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var better_fs_1 = require("../src/better-fs");
 var problem_1 = require("../src/problem");
@@ -44,82 +55,96 @@ var chalk_1 = require("chalk");
 var inquirer_1 = require("inquirer");
 var console_1 = require("../src/util/console");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var problemList, base, problemLoggers, _i, problemList_1, problem, log, solutions, solution, source, target, fetchedStat, link, overwrite;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var problemList, base, problemLoggers, problemList_1, problemList_1_1, problem, log, solutions, solution, source, target, fetchedStat, link, overwrite, e_1_1;
+    var e_1, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0: return [4 /*yield*/, problem_1.getProblemList()];
             case 1:
-                problemList = _a.sent();
+                problemList = _b.sent();
                 base = new console_1.Logger('update-symlink');
                 problemLoggers = base.labeled(problemList.map(function (it) { return it.id; }));
-                _i = 0, problemList_1 = problemList;
-                _a.label = 2;
+                _b.label = 2;
             case 2:
-                if (!(_i < problemList_1.length)) return [3 /*break*/, 17];
-                problem = problemList_1[_i];
+                _b.trys.push([2, 19, 20, 21]);
+                problemList_1 = __values(problemList), problemList_1_1 = problemList_1.next();
+                _b.label = 3;
+            case 3:
+                if (!!problemList_1_1.done) return [3 /*break*/, 18];
+                problem = problemList_1_1.value;
                 log = problemLoggers[problem.id];
                 if (!problem.isSolved) {
                     log(console_1.chalk.yellow, 'Not solved, pass.');
-                    return [3 /*break*/, 16];
+                    return [3 /*break*/, 17];
                 }
                 return [4 /*yield*/, problem.getSolutions()];
-            case 3:
-                solutions = _a.sent();
+            case 4:
+                solutions = _b.sent();
                 solution = void 0;
-                if (!(solutions.length === 1)) return [3 /*break*/, 4];
+                if (!(solutions.length === 1)) return [3 /*break*/, 5];
                 solution = solutions[0];
-                return [3 /*break*/, 6];
-            case 4: return [4 /*yield*/, inquirer_1.prompt({
+                return [3 /*break*/, 7];
+            case 5: return [4 /*yield*/, inquirer_1.prompt({
                     type: 'list',
                     name: 'solution',
                     message: 'What is the main solution file',
                     choices: solutions,
                 })];
-            case 5:
-                solution = (_a.sent()).solution;
-                _a.label = 6;
             case 6:
+                solution = (_b.sent()).solution;
+                _b.label = 7;
+            case 7:
                 source = path_1.join(problem.id.toString(), solution);
                 target = path_1.join(constants_1.ROOT, 'P' + problem.id.toString() + path_1.parse(solution).ext);
                 return [4 /*yield*/, better_fs_1.exists(target)];
-            case 7:
-                if (!_a.sent()) return [3 /*break*/, 14];
-                return [4 /*yield*/, better_fs_1.lstat(target)];
             case 8:
-                fetchedStat = _a.sent();
-                if (!fetchedStat.isSymbolicLink()) return [3 /*break*/, 10];
-                return [4 /*yield*/, better_fs_1.readlink(target)];
+                if (!_b.sent()) return [3 /*break*/, 15];
+                return [4 /*yield*/, better_fs_1.lstat(target)];
             case 9:
-                link = _a.sent();
+                fetchedStat = _b.sent();
+                if (!fetchedStat.isSymbolicLink()) return [3 /*break*/, 11];
+                return [4 /*yield*/, better_fs_1.readlink(target)];
+            case 10:
+                link = _b.sent();
                 if (link === source) {
-                    log(console_1.chalk.green, 'Already up-to-date.');
-                    return [3 /*break*/, 16];
+                    return [3 /*break*/, 17];
                 }
-                _a.label = 10;
-            case 10: return [4 /*yield*/, inquirer_1.prompt({
+                _b.label = 11;
+            case 11: return [4 /*yield*/, inquirer_1.prompt({
                     type: 'confirm',
                     name: 'overwrite',
                     message: "Would you overwrite " + target + "?",
                 })];
-            case 11:
-                overwrite = (_a.sent()).overwrite;
-                if (!overwrite) return [3 /*break*/, 13];
-                return [4 /*yield*/, better_fs_1.unlink(target)];
             case 12:
-                _a.sent();
-                return [3 /*break*/, 14];
+                overwrite = (_b.sent()).overwrite;
+                if (!overwrite) return [3 /*break*/, 14];
+                return [4 /*yield*/, better_fs_1.unlink(target)];
             case 13:
+                _b.sent();
+                return [3 /*break*/, 15];
+            case 14:
                 log(console_1.chalk.yellow, 'Update passed.');
-                return [3 /*break*/, 16];
-            case 14: return [4 /*yield*/, better_fs_1.symlink(source, target, 'file')];
-            case 15:
-                _a.sent();
-                log(chalk_1.blue, 'Updated.');
-                _a.label = 16;
+                return [3 /*break*/, 17];
+            case 15: return [4 /*yield*/, better_fs_1.symlink(source, target, 'file')];
             case 16:
-                _i++;
-                return [3 /*break*/, 2];
-            case 17: return [2 /*return*/];
+                _b.sent();
+                log(chalk_1.blue, 'Updated.');
+                _b.label = 17;
+            case 17:
+                problemList_1_1 = problemList_1.next();
+                return [3 /*break*/, 3];
+            case 18: return [3 /*break*/, 21];
+            case 19:
+                e_1_1 = _b.sent();
+                e_1 = { error: e_1_1 };
+                return [3 /*break*/, 21];
+            case 20:
+                try {
+                    if (problemList_1_1 && !problemList_1_1.done && (_a = problemList_1.return)) _a.call(problemList_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+                return [7 /*endfinally*/];
+            case 21: return [2 /*return*/];
         }
     });
 }); })();

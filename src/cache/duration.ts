@@ -25,14 +25,47 @@ export class Duration {
     public readonly second: DurationPart<DurationType.Second>
   ) {}
 
-  compareTo(other: Duration): number {
+  normalize(): Duration {
+    let year = this.year.value;
+    let month = this.month.value;
+    let day = this.day.value;
+    let hour = this.hour.value;
+    let minute = this.minute.value;
+    let second = this.second.value;
+    while (second < 0) {
+      minute -= 1;
+      second += 60;
+    }
+    while (minute < 0) {
+      hour -= 1;
+      minute += 60;
+    }
+    while (hour < 0) {
+      day -= 1;
+      hour += 24;
+    }
+    while (day < 0) {
+      month -= 1;
+      day += 30;
+    }
+    while (month < 0) {
+      year -= 1;
+      month += 12;
+    }
+    return Duration.of({ year, month, day, hour, minute, second });
+  }
+
+  compareTo(other: Duration, useAbsoluteDate: boolean): number {
+    const pick = <K extends keyof Duration>(key: K) => (
+      d: Duration
+    ): Duration[K] => (useAbsoluteDate ? d : d.normalize())[key];
     for (const picker of [
-      (d: Duration) => d.year,
-      (d: Duration) => d.month,
-      (d: Duration) => d.day,
-      (d: Duration) => d.hour,
-      (d: Duration) => d.minute,
-      (d: Duration) => d.second,
+      pick('year'),
+      pick('month'),
+      pick('day'),
+      pick('hour'),
+      pick('minute'),
+      pick('second'),
     ] as Array<(d: Duration) => DurationPart<any>>) {
       const compared = picker(this).compare(picker(other));
       if (compared !== 0) {
