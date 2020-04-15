@@ -77,9 +77,53 @@ exports.exists = function (path, mode) { return __awaiter(void 0, void 0, void 0
         }
     });
 }); };
+exports.existsFile = function (path, mode) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0: return [4 /*yield*/, exports.exists(path, mode)];
+            case 1:
+                _a = (_b.sent());
+                if (!_a) return [3 /*break*/, 3];
+                return [4 /*yield*/, exports.lstat(path_1.resolve(path.toString()))];
+            case 2:
+                _a = (_b.sent()).isFile();
+                _b.label = 3;
+            case 3: return [2 /*return*/, _a];
+        }
+    });
+}); };
+exports.existsDirectory = function (path, mode) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0: return [4 /*yield*/, exports.exists(path, mode)];
+            case 1:
+                _a = (_b.sent());
+                if (!_a) return [3 /*break*/, 3];
+                return [4 /*yield*/, exports.lstat(path_1.resolve(path.toString()))];
+            case 2:
+                _a = (_b.sent()).isDirectory();
+                _b.label = 3;
+            case 3: return [2 /*return*/, _a];
+        }
+    });
+}); };
 exports.notExists = function (path, mode) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
     switch (_a.label) {
         case 0: return [4 /*yield*/, exports.exists(path, mode)];
+        case 1: return [2 /*return*/, !(_a.sent())];
+    }
+}); }); };
+exports.notExistsFile = function (path, mode) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    switch (_a.label) {
+        case 0: return [4 /*yield*/, exports.existsFile(path, mode)];
+        case 1: return [2 /*return*/, !(_a.sent())];
+    }
+}); }); };
+exports.notExistsDirectory = function (path, mode) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    switch (_a.label) {
+        case 0: return [4 /*yield*/, exports.existsDirectory(path, mode)];
         case 1: return [2 /*return*/, !(_a.sent())];
     }
 }); }); };

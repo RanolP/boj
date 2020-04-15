@@ -2,11 +2,11 @@ import { Rule } from '..';
 import { getProblemList } from '../../../problem';
 import dedent from 'dedent';
 import { parse } from 'path';
+import { Languages } from '../../../util/language';
 
-const ExtensionLanguageNameMap: Record<string, string> = {
-  '.rs': 'Rust',
-  '.py': 'Python',
-};
+const ExtensionLanguageNameMap: Record<string, string> = Object.fromEntries(
+  Languages.map(({ name, fileExtension }) => [fileExtension, name])
+);
 
 export const LanguageUsageRule: Rule = {
   name: 'language-usage',

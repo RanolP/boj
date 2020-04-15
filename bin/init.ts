@@ -4,18 +4,28 @@ import {
   writeFile,
   exists,
   readFile,
+  readdir,
 } from '../src/better-fs';
-import { join } from 'path';
+import { join, parse } from 'path';
 import { ROOT } from '../src/constants';
 import { searchProblem } from '../src/api/baekjoon';
-import { prompt, registerPrompt } from 'inquirer';
+import {
+  prompt,
+  registerPrompt,
+  DistinctChoice,
+  ChoiceOptions,
+} from 'inquirer';
 import AutoCompletePrompt from 'inquirer-autocomplete-prompt';
+import CheckboxPlusPrompt from 'inquirer-checkbox-plus-prompt';
 import { Logger, chalk } from '../src/util/console';
 import { getProblem } from '../src/problem';
 import { Duration, permastate } from '../src/cache';
 import minimist from 'minimist';
+import { searchLanguage, Language } from '../src/util/language';
+import { filter } from 'fuzzy';
 
 registerPrompt('autocomplete', AutoCompletePrompt);
+registerPrompt('checkbox-plus', CheckboxPlusPrompt);
 
 const [order, setOrder] = permastate(
   () => 1,
@@ -36,8 +46,19 @@ declare module 'inquirer' {
     ) => Promise<Array<DistinctChoice<ChoiceOptions>>>;
   }
 
+  interface CheckboxPlusQuestion<T> extends Question<T> {
+    type: 'checkbox-plus';
+    highlight?: boolean;
+    searchable?: boolean;
+    source: (
+      previousAnswers: string[],
+      searchTerm: string | undefined
+    ) => Promise<Array<DistinctChoice<ChoiceOptions>>>;
+  }
+
   interface QuestionMap<T extends Answers = Answers> {
     autocomplete: AutoCompleteQuestion<T>;
+    'checkbox-plus': CheckboxPlusQuestion<T>;
   }
 }
 
@@ -100,13 +121,73 @@ declare module 'inquirer' {
   const problem = await getProblem(id);
   const solutions = await problem.getSolutions();
   if (solutions.length === 0) {
-    const { extension } = await prompt({
-      type: 'input',
-      name: 'extension',
-      message: 'Solution file extension',
+    const { language } = await prompt<{ language?: Language }>({
+      type: 'autocomplete',
+      name: 'language',
+      message: 'Language',
+      source: async (_, query) =>
+        [
+          {
+            name: 'Select it later',
+            value: undefined,
+          },
+        ].concat(searchLanguage(query || '')),
     });
-    await writeFile(join(problemPath, 'solution.' + extension), '');
-    create(`Solution file for ${id}`);
+    if (language) {
+      let source = '';
+      let sourceType = 'empty';
+      const templateDirectory = join(ROOT, 'template', language.id);
+      if (await exists(templateDirectory)) {
+        const files = (await readdir(templateDirectory))
+          .map((it) => parse(it))
+          .filter((it) => it.ext === language.fileExtension);
+        const main = 'main' + language.fileExtension;
+        const { templateToUse } = await prompt<{ templateToUse: string[] }>({
+          type: 'checkbox-plus',
+          name: 'templateToUse',
+          message: 'Templates',
+          default: files.some((it) => it.base === main) ? [main] : [],
+          source: async (_, query) =>
+            filter(query || '', files, {
+              extract: ({ base }) => base,
+            }).map(({ original }) => ({
+              name: original.name,
+              value: original.base,
+              short: original.name,
+            })),
+          highlight: true,
+          searchable: true,
+        });
+        const concatenated = await Promise.all(
+          templateToUse
+            .filter((it) => it !== main)
+            .map((it) =>
+              readFile(join(templateDirectory, it), { encoding: 'utf-8' })
+            )
+        );
+        source =
+          concatenated
+            .map((it) => it.trim())
+            .concat(
+              templateToUse.some((it) => it === main)
+                ? [
+                    (
+                      await readFile(join(templateDirectory, main), {
+                        encoding: 'utf-8',
+                      })
+                    ).trim(),
+                  ]
+                : []
+            )
+            .join('\n\n') + '\n';
+        sourceType = 'template';
+      }
+      await writeFile(
+        join(problemPath, 'solution' + language.fileExtension),
+        source
+      );
+      create(`Solution file for ${id} (${sourceType})`);
+    }
   }
   if (await notExists(problem.noteFile)) {
     const { shouldCreate } = !problem.isSolved

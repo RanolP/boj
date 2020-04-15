@@ -73,10 +73,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var problem_1 = require("../../../problem");
 var dedent_1 = __importDefault(require("dedent"));
 var path_1 = require("path");
-var ExtensionLanguageNameMap = {
-    '.rs': 'Rust',
-    '.py': 'Python',
-};
+var language_1 = require("../../../util/language");
+var ExtensionLanguageNameMap = Object.fromEntries(language_1.Languages.map(function (_a) {
+    var name = _a.name, fileExtension = _a.fileExtension;
+    return [fileExtension, name];
+}));
 exports.LanguageUsageRule = {
     name: 'language-usage',
     type: 'root',

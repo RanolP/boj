@@ -35,10 +35,30 @@ export const exists = async (
     }
   }
 };
+export const existsFile = async (
+  path: PathLike,
+  mode?: number
+): Promise<boolean> =>
+  (await exists(path, mode)) &&
+  (await lstat(resolve(path.toString()))).isFile();
+export const existsDirectory = async (
+  path: PathLike,
+  mode?: number
+): Promise<boolean> =>
+  (await exists(path, mode)) &&
+  (await lstat(resolve(path.toString()))).isDirectory();
 export const notExists = async (
   path: PathLike,
   mode?: number
 ): Promise<boolean> => !(await exists(path, mode));
+export const notExistsFile = async (
+  path: PathLike,
+  mode?: number
+): Promise<boolean> => !(await existsFile(path, mode));
+export const notExistsDirectory = async (
+  path: PathLike,
+  mode?: number
+): Promise<boolean> => !(await existsDirectory(path, mode));
 
 export const unlink = promisify(unlinkCallback);
 export const readlink = promisify(readlinkCallback);
