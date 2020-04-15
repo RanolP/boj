@@ -1,11 +1,10 @@
 {
   "name": "boj",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "script set for boj",
   "repository": "https://github.com/RanolP/boj-toolchain",
   "author": "RanolP <public.ranolp@gmail.com>",
   "license": "Unlicense",
-  "private": true,
   "bin": {
     "boj": "./bin/run"
   },
