@@ -1,13 +1,32 @@
 {
-  "name": "scripts",
-  "version": "0.1.0-SNAPSHOT",
+  "name": "boj",
+  "version": "0.1.3",
   "description": "script set for boj",
-  "main": "index.js",
+  "repository": "https://github.com/RanolP/boj-toolchain",
   "author": "RanolP <public.ranolp@gmail.com>",
   "license": "Unlicense",
-  "private": true,
+  "bin": {
+    "boj": "./bin/run"
+  },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node bin/run"
+  },
+  "dependencies": {
+    "@oclif/command": "^1.5.19",
+    "@oclif/config": "^1.15.1",
+    "@oclif/plugin-help": "^2.2.3",
+    "@oclif/plugin-not-found": "^1.2.3",
+    "chalk": "^4.0.0",
+    "dedent": "^0.7.0",
+    "fuzzy": "^0.1.3",
+    "globby": "^11.0.0",
+    "inquirer": "^7.1.0",
+    "inquirer-autocomplete-prompt": "^1.0.2",
+    "inquirer-checkbox-plus-prompt": "^1.0.1",
+    "minimist": "^1.2.5",
+    "node-fetch": "^2.6.0",
+    "string-width": "^4.2.0"
   },
   "devDependencies": {
     "@types/dedent": "^0.7.0",
@@ -24,17 +43,19 @@
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.3",
     "prettier": "^2.0.4",
+    "ts-node": "^8.8.2",
     "typescript": "^3.8.3"
   },
-  "dependencies": {
-    "chalk": "^4.0.0",
-    "dedent": "^0.7.0",
-    "fuzzy": "^0.1.3",
-    "inquirer": "^7.1.0",
-    "inquirer-autocomplete-prompt": "^1.0.2",
-    "inquirer-checkbox-plus-prompt": "^1.0.1",
-    "minimist": "^1.2.5",
-    "node-fetch": "^2.6.0",
-    "string-width": "^4.2.0"
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "oclif": {
+    "bin": "boj",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-not-found"
+    ]
   }
 }
