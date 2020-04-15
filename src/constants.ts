@@ -1,4 +1,4 @@
-import { relative } from 'path';
+import { resolve } from 'path';
 import { cwd } from 'process';
 
-export const ROOT = relative(cwd(), '../');
+export const ROOT = resolve(cwd());
