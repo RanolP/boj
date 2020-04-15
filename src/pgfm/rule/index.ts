@@ -1,4 +1,4 @@
-import { Problem } from '../../problem';
+import { Problem } from '../../lib/problem';
 
 export interface Rule<T = {}, Context = {}> {
   name: string;

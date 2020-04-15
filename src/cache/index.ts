@@ -1,7 +1,13 @@
 import { Duration } from './duration';
 import { ROOT } from '../constants';
 import { join, parse } from 'path';
-import { exists, readFile, writeFile, mkdirs, notExists } from '../better-fs';
+import {
+  exists,
+  readFile,
+  writeFile,
+  mkdirs,
+  notExists,
+} from '../lib/better-fs';
 
 export * from './duration';
 

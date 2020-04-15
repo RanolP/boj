@@ -1,10 +1,10 @@
 import { Rule } from '..';
-import { getProblemList, Problem } from '../../../problem';
+import { getProblemList, Problem } from '../../../lib/problem';
 import dedent from 'dedent';
 import { fetchProblemLevel, ProblemLevelNameMap } from '../../../api/solvedac';
 import { fetchProblemTitle } from '../../../api/baekjoon';
 import { join, parse } from 'path';
-import { exists } from '../../../better-fs';
+import { exists } from '../../../lib/better-fs';
 import { ROOT } from '../../../constants';
 
 interface ProblemProps {

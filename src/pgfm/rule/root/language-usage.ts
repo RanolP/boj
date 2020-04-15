@@ -1,5 +1,5 @@
 import { Rule } from '..';
-import { getProblemList } from '../../../problem';
+import { getProblemList } from '../../../lib/problem';
 import dedent from 'dedent';
 import { parse } from 'path';
 import { Languages } from '../../../util/language';
