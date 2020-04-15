@@ -66,11 +66,11 @@ exports.ProblemInfoTableRule = {
                         problemTitle = _b.sent();
                         switch (problem.meta.status) {
                             case 'solved': {
-                                solveCell = '싱공';
+                                solveCell = '성공';
                                 break;
                             }
                             case 'solved-late': {
-                                solveCell = '싱공 (*지각)';
+                                solveCell = '성공 (*지각)';
                                 break;
                             }
                             case 'in-progress': {

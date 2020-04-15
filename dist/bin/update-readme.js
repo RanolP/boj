@@ -46,6 +46,9 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var better_fs_1 = require("../src/better-fs");
 var constants_1 = require("../src/constants");
@@ -54,6 +57,7 @@ var pgfm_1 = require("../src/pgfm");
 var console_1 = require("../src/util/console");
 var problem_1 = require("../src/problem");
 var cache_1 = require("../src/cache");
+var minimist_1 = __importDefault(require("minimist"));
 function getLastUpdate(path) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -73,11 +77,14 @@ var fetchLastProblemList = cache_1.cached(function () { return __awaiter(void 0,
     }
 }); }); }, 'last-problem-list', cache_1.Duration.of({ day: 1 }));
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var base, problemList, problemLoggers, _a, info, error, success, problemUpdated, _b, problemList_1, problemList_1_1, problem, log, lastUpdate, _c, noteTemplate, result_1, target_1, e_1_1, templateFile, lastUpdate, _d, template, result, target;
+    var force, base, problemList, problemLoggers, _a, info, error, success, problemUpdated, _b, problemList_1, problemList_1_1, problem, log, lastUpdate, _c, noteTemplate, result_1, target_1, e_1_1, templateFile, lastUpdate, _d, template, result, target;
     var e_1, _e;
     return __generator(this, function (_f) {
         switch (_f.label) {
             case 0:
+                force = minimist_1.default(process.argv.slice(2), {
+                    boolean: ['force'],
+                }).force;
                 base = new console_1.Logger('update-readme');
                 return [4 /*yield*/, problem_1.getProblemList()];
             case 1:
@@ -114,7 +121,8 @@ var fetchLastProblemList = cache_1.cached(function () { return __awaiter(void 0,
                 return [4 /*yield*/, fetchLastNoteUpdate(problem)];
             case 6:
                 lastUpdate = _f.sent();
-                _c = lastUpdate.fetchKind === 'file';
+                _c = !force &&
+                    lastUpdate.fetchKind === 'file';
                 if (!_c) return [3 /*break*/, 8];
                 return [4 /*yield*/, getLastUpdate(problem.noteFile)];
             case 7:
@@ -161,7 +169,7 @@ var fetchLastProblemList = cache_1.cached(function () { return __awaiter(void 0,
                 if (_f.sent()) {
                     error('File not found: template/README.template.md');
                 }
-                if (!!problemUpdated) return [3 /*break*/, 21];
+                if (!(!force && !problemUpdated)) return [3 /*break*/, 21];
                 return [4 /*yield*/, fetchLastReadMeUpdate(templateFile)];
             case 18:
                 lastUpdate = _f.sent();

@@ -12,6 +12,7 @@ import { chalk, Logger } from '../src/util/console';
 import { getProblemList, Problem } from '../src/problem';
 import { cached, Duration, permastate } from '../src/cache';
 import { PathLike } from 'fs';
+import minimist from 'minimist';
 
 async function getLastUpdate(path: PathLike): Promise<string> {
   return (await lstat(path)).mtime.toISOString();
@@ -36,6 +37,9 @@ const fetchLastProblemList = cached(
 );
 
 (async () => {
+  let { force } = minimist(process.argv.slice(2), {
+    boolean: ['force'],
+  });
   const base = new Logger('update-readme');
 
   const problemList = await getProblemList();
@@ -69,6 +73,7 @@ const fetchLastProblemList = cached(
     const lastUpdate = await fetchLastNoteUpdate(problem);
 
     if (
+      !force &&
       lastUpdate.fetchKind === 'file' &&
       (await getLastUpdate(problem.noteFile)) == lastUpdate
     ) {
@@ -97,7 +102,7 @@ const fetchLastProblemList = cached(
     error('File not found: template/README.template.md');
   }
 
-  if (!problemUpdated) {
+  if (!force && !problemUpdated) {
     const lastUpdate = await fetchLastReadMeUpdate(templateFile);
 
     if (
