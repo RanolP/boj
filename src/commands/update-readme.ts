@@ -12,7 +12,6 @@ import { chalk, Logger } from '../util/console';
 import { getProblemList, Problem } from '../lib/problem';
 import { cached, Duration, permastate } from '../cache';
 import { PathLike } from 'fs';
-import minimist from 'minimist';
 import { Command, flags } from '@oclif/command';
 
 async function getLastUpdate(path: PathLike): Promise<string> {
@@ -22,19 +21,19 @@ async function getLastUpdate(path: PathLike): Promise<string> {
 const fetchLastNoteUpdate = cached(
   (problem: Problem) => getLastUpdate(problem.noteFile),
   (problem) => `${problem.id}/last-note-update`,
-  Duration.of({ day: 14 })
+  Duration.of({ day: 14 }),
 );
 
 const fetchLastReadMeUpdate = cached(
   getLastUpdate,
   'last-readme-update',
-  Duration.of({ day: 14 })
+  Duration.of({ day: 14 }),
 );
 
 const fetchLastProblemList = cached(
   async () => (await getProblemList()).map((problem) => problem.id),
   'last-problem-list',
-  Duration.of({ day: 1 })
+  Duration.of({ day: 1 }),
 );
 
 export default class UpdateReadmeCommand extends Command {
@@ -54,7 +53,7 @@ export default class UpdateReadmeCommand extends Command {
 
     const problemLoggers = base.labeled(
       problemList.map((it) => it.id),
-      ['info', 'error', 'success']
+      ['info', 'error', 'success'],
     );
     const { info, error, success } = base.labeled(
       {
@@ -62,7 +61,7 @@ export default class UpdateReadmeCommand extends Command {
         error: chalk.red,
         success: chalk.green,
       },
-      problemList.map((it) => it.id)
+      problemList.map((it) => it.id),
     );
 
     let problemUpdated =
