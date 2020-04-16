@@ -48,7 +48,7 @@ class InitCommand extends command_1.Command {
             const { problemDifficulty } = await inquirer_1.prompt([
                 {
                     type: 'list',
-                    name: 'extension',
+                    name: 'problemDifficulty',
                     message: 'Problem Difficulty',
                     choices: ['A', 'B', 'C'],
                 },
