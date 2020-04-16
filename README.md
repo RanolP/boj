@@ -1,7 +1,7 @@
 ![npm version](https://img.shields.io/npm/v/boj?style=for-the-badge)
 ![npm license](https://img.shields.io/npm/l/boj?style=for-the-badge)
 ![code size in bytes](https://img.shields.io/github/languages/code-size/RanolP/boj?style=for-the-badge)
-![BOJ Toolchain](https://a0.pise.pw/R5Y8P)
+![BOJ Toolchain](https://img.shields.io/badge/BOJ-Toolchain-blue?style=for-the-badge)
 
 # boj
 
