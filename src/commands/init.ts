@@ -27,7 +27,7 @@ const [order, setOrder] = permastate(
   Duration.of({ hour: 24 }),
   {
     useAbsoluteDate: true,
-  }
+  },
 );
 
 declare module 'inquirer' {
@@ -36,7 +36,7 @@ declare module 'inquirer' {
     suggestOnly?: boolean;
     source: (
       previousAnswers: string[],
-      searchTerm: string | undefined
+      searchTerm: string | undefined,
     ) => Promise<Array<DistinctChoice<ChoiceOptions>>>;
   }
 
@@ -46,7 +46,7 @@ declare module 'inquirer' {
     searchable?: boolean;
     source: (
       previousAnswers: string[],
-      searchTerm: string | undefined
+      searchTerm: string | undefined,
     ) => Promise<Array<DistinctChoice<ChoiceOptions>>>;
   }
 
@@ -97,7 +97,7 @@ export default class InitCommand extends Command {
       const { problemDifficulty } = await prompt([
         {
           type: 'list',
-          name: 'extension',
+          name: 'problemDifficulty',
           message: 'Problem Difficulty',
           choices: ['A', 'B', 'C'],
         },
@@ -116,8 +116,8 @@ export default class InitCommand extends Command {
             problemDifficulty,
           },
           null,
-          '  '
-        )
+          '  ',
+        ),
       );
 
       await setOrder((await order()) + 1);
@@ -166,8 +166,8 @@ export default class InitCommand extends Command {
             templateToUse
               .filter((it) => it !== main)
               .map((it) =>
-                readFile(join(templateDirectory, it), { encoding: 'utf-8' })
-              )
+                readFile(join(templateDirectory, it), { encoding: 'utf-8' }),
+              ),
           );
           source =
             concatenated
@@ -181,14 +181,14 @@ export default class InitCommand extends Command {
                         })
                       ).trim(),
                     ]
-                  : []
+                  : [],
               )
               .join('\n\n') + '\n';
           sourceType = 'template';
         }
         await writeFile(
           join(problemPath, 'solution' + language.fileExtension),
-          source
+          source,
         );
         create(`Solution file for ${id} (${sourceType})`);
       }

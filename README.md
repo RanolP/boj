@@ -11,14 +11,31 @@
 
 npm 계열 패키지 매니저가 필요합니다.
 
-```
-yarn global add boj
-npm install --global boj
+```sh
+yarn global add boj            # for yarn
+npm install --global boj       # for npm
 ```
 
 :tada: 끝!
 
 ## 사용법
+
+### (TODO) boj new \<folder-name\> [--template \<git-url\>]
+
+템플릿을 기반으로 저장소를 초기화 합니다.
+
+### (TODO) boj cat [--id \<number\>]
+
+터미널에서 백준 문제를 읽습니다.
+
+### (TODO) boj solve \<number\>
+
+Playwright를 통해 백준에 제출합니다.
+`맞았습니다!!`가 뜨면 meta.json의 `status` 항목을 `solved` 혹은 `solved-late`로 바꿉니다.
+
+### (TODO) boj timeout
+
+하루 안에 풀지 못한 모든 문제의 `status`를 `timeout`으로 설정합니다.
 
 ### boj init [--id \<number\>]
 
