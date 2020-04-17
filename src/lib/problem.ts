@@ -1,6 +1,7 @@
 import { lstat, readdir, readFile } from './better-fs';
 import { join, basename, parse } from 'path';
 import { ROOT } from '../constants';
+import { Duration } from '../cache';
 
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 
@@ -27,13 +28,13 @@ export async function getProblemList({
       }
       const folderBasename = basename(file);
       if (PROBLEM_NUMBER_REGEX.test(folderBasename)) {
-        getProblem(Number(folderBasename));
+        await getProblem(Number(folderBasename));
       }
     }
     fetchStatus.allFetched = true;
     fetchStatus.array = Object.values(problems);
     fetchStatus.arraySorted = Object.values(problems).sort((a, b) => {
-      const date = a.meta.date.localeCompare(b.meta.date);
+      const date = a.meta.solvedDate.localeCompare(b.meta.solvedDate);
       if (date !== 0) {
         return date;
       }
@@ -50,13 +51,12 @@ export async function getProblem(id: number): Promise<Problem> {
   return problem;
 }
 
-interface ProblemMeta {
-  date: string;
-  lastUpdate: string;
-  status: 'solved' | 'in-progress' | 'timeout' | 'solved-late';
+export interface ProblemMeta {
+  createDate: string;
+  solvedDate: string;
+  status: 'solved' | 'in-progress';
   order: number;
-  love?: number;
-  problemDifficulty: 'A' | 'B' | 'C';
+  type: 'daily-boj' | 'my-way';
 }
 
 export class Problem {
@@ -67,19 +67,30 @@ export class Problem {
     this._meta = JSON.parse(
       await readFile(join(ROOT, this.id.toString(), 'meta.json'), {
         encoding: 'utf-8',
-      })
+      }),
     ) as ProblemMeta;
     return this._meta;
   }
 
   get isSolved(): boolean {
-    switch (this.meta.status) {
-      case 'solved':
-      case 'solved-late':
-        return true;
-      default:
-        return false;
-    }
+    return this.meta.status === 'solved';
+  }
+
+  get isTimeout(): boolean {
+    const createDate = new Date(this.meta.createDate);
+    const solvedDate = this.meta.solvedDate
+      ? new Date(this.meta.solvedDate)
+      : (() => {
+          const now = new Date();
+          const tomorrow = new Date(
+            `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
+          );
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          return tomorrow;
+        })();
+    const duration = Duration.fromDateRange(createDate, solvedDate);
+
+    return duration.compareTo(Duration.of({ hour: 24 }), true) > 0;
   }
 
   get noteFile(): string {

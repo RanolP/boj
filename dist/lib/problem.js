@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const better_fs_1 = require("./better-fs");
 const path_1 = require("path");
 const constants_1 = require("../constants");
+const cache_1 = require("../cache");
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 let problems = {};
 let fetchStatus = {
@@ -20,13 +21,13 @@ async function getProblemList({ sorted = false, } = {}) {
             }
             const folderBasename = path_1.basename(file);
             if (PROBLEM_NUMBER_REGEX.test(folderBasename)) {
-                getProblem(Number(folderBasename));
+                await getProblem(Number(folderBasename));
             }
         }
         fetchStatus.allFetched = true;
         fetchStatus.array = Object.values(problems);
         fetchStatus.arraySorted = Object.values(problems).sort((a, b) => {
-            const date = a.meta.date.localeCompare(b.meta.date);
+            const date = a.meta.solvedDate.localeCompare(b.meta.solvedDate);
             if (date !== 0) {
                 return date;
             }
@@ -55,13 +56,20 @@ class Problem {
         return this._meta;
     }
     get isSolved() {
-        switch (this.meta.status) {
-            case 'solved':
-            case 'solved-late':
-                return true;
-            default:
-                return false;
-        }
+        return this.meta.status === 'solved';
+    }
+    get isTimeout() {
+        const createDate = new Date(this.meta.createDate);
+        const solvedDate = this.meta.solvedDate
+            ? new Date(this.meta.solvedDate)
+            : (() => {
+                const now = new Date();
+                const tomorrow = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                return tomorrow;
+            })();
+        const duration = cache_1.Duration.fromDateRange(createDate, solvedDate);
+        return duration.compareTo(cache_1.Duration.of({ hour: 24 }), true) > 0;
     }
     get noteFile() {
         return path_1.join(constants_1.ROOT, this.id.toString(), 'Note.md');

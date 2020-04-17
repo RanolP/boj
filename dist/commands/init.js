@@ -45,23 +45,14 @@ class InitCommand extends command_1.Command {
             const year = now.getFullYear();
             const month = (now.getMonth() + 1).toString().padStart(2, '0');
             const day = now.getDate().toString().padStart(2, '0');
-            const { problemDifficulty } = await inquirer_1.prompt([
-                {
-                    type: 'list',
-                    name: 'problemDifficulty',
-                    message: 'Problem Difficulty',
-                    choices: ['A', 'B', 'C'],
-                },
-            ]);
-            await better_fs_1.writeFile(path_1.join(problemPath, 'meta.json'), JSON.stringify({
-                date: `${year}-${month}-${day}`,
-                lastUpdate: `${year}-${month}-${day}`,
+            const meta = {
+                createDate: `${year}-${month}-${day}`,
+                solvedDate: `${year}-${month}-${day}`,
                 status: 'in-progress',
                 type: 'daily-boj',
                 order: await order(),
-                love: undefined,
-                problemDifficulty,
-            }, null, '  '));
+            };
+            await better_fs_1.writeFile(path_1.join(problemPath, 'meta.json'), JSON.stringify(meta, null, '  '));
             await setOrder((await order()) + 1);
         }
         const problem = await problem_1.getProblem(id);

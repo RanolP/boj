@@ -13,7 +13,7 @@ import { prompt, registerPrompt } from 'inquirer';
 import AutoCompletePrompt from 'inquirer-autocomplete-prompt';
 import CheckboxPlusPrompt from 'inquirer-checkbox-plus-prompt';
 import { Logger, chalk } from '../util/console';
-import { getProblem } from '../lib/problem';
+import { getProblem, ProblemMeta } from '../lib/problem';
 import { Duration, permastate } from '../cache';
 import { searchLanguage, Language } from '../util/language';
 import { filter } from 'fuzzy';
@@ -94,30 +94,17 @@ export default class InitCommand extends Command {
       const month = (now.getMonth() + 1).toString().padStart(2, '0');
       const day = now.getDate().toString().padStart(2, '0');
 
-      const { problemDifficulty } = await prompt([
-        {
-          type: 'list',
-          name: 'problemDifficulty',
-          message: 'Problem Difficulty',
-          choices: ['A', 'B', 'C'],
-        },
-      ]);
+      const meta: ProblemMeta = {
+        createDate: `${year}-${month}-${day}`,
+        solvedDate: `${year}-${month}-${day}`,
+        status: 'in-progress',
+        type: 'daily-boj',
+        order: await order(),
+      };
 
       await writeFile(
         join(problemPath, 'meta.json'),
-        JSON.stringify(
-          {
-            date: `${year}-${month}-${day}`,
-            lastUpdate: `${year}-${month}-${day}`,
-            status: 'in-progress',
-            type: 'daily-boj',
-            order: await order(),
-            love: undefined,
-            problemDifficulty,
-          },
-          null,
-          '  ',
-        ),
+        JSON.stringify(meta, null, '  '),
       );
 
       await setOrder((await order()) + 1);

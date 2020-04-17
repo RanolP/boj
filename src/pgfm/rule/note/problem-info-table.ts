@@ -8,26 +8,19 @@ export const ProblemInfoTableRule: Rule<{}, NoteContext> = {
   type: 'note',
   isBlock: true,
   async execute(_: {}, { problem }: NoteContext): Promise<string> {
-    const { love } = problem.meta;
     const problemLevel = await fetchProblemLevel(problem.id);
     const problemTitle = await fetchProblemTitle(problem.id);
 
     let solveCell: string;
     switch (problem.meta.status) {
       case 'solved': {
-        solveCell = '성공';
-        break;
-      }
-      case 'solved-late': {
-        solveCell = '성공 (*지각)';
+        solveCell = problem.isTimeout
+          ? `성공 (→ ${problem.meta.createDate})`
+          : '성공';
         break;
       }
       case 'in-progress': {
-        solveCell = '푸는 중';
-        break;
-      }
-      case 'timeout': {
-        solveCell = '타임아웃';
+        solveCell = problem.isTimeout ? '타임아웃' : '푸는 중';
         break;
       }
     }
@@ -45,8 +38,8 @@ export const ProblemInfoTableRule: Rule<{}, NoteContext> = {
               problemLevel.level
             }.svg" height="16px"/>
             ${ProblemLevelNameMap[problemLevel.level]}, ${
-      love ? `LV${love} ` : ''
-    }${problem.id} ${problemTitle}
+      problem.id
+    } ${problemTitle}
           </a>
         </td>
         <td>

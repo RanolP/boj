@@ -6,6 +6,7 @@ import { fetchProblemTitle } from '../../../api/baekjoon';
 import { join, parse } from 'path';
 import { exists } from '../../../lib/better-fs';
 import { ROOT } from '../../../constants';
+import { Duration } from '../../../cache';
 
 interface ProblemProps {
   problem: Problem;
@@ -21,12 +22,12 @@ export const SolvedTableRule: Rule = {
     const problemListClassified = Object.values(
       problemList.reduce((acc, curr) => {
         let update: ProblemProps[];
-        if (curr.meta.date in acc) {
-          const origin = acc[curr.meta.date];
+        if (curr.meta.solvedDate in acc) {
+          const origin = acc[curr.meta.solvedDate];
           const first = origin[0];
           origin.push({ problem: curr, dateRowspan: 0 });
           origin.sort(
-            ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order
+            ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order,
           );
           first.dateRowspan = 0;
           origin[0].dateRowspan = origin.length;
@@ -36,26 +37,24 @@ export const SolvedTableRule: Rule = {
         }
         return {
           ...acc,
-          [curr.meta.date]: update,
+          [curr.meta.solvedDate]: update,
         };
-      }, {} as Record<string, ProblemProps[]>)
+      }, {} as Record<string, ProblemProps[]>),
     ).flat();
     async function renderProblemLine({
       problem,
       dateRowspan: shouldAddDate,
     }: ProblemProps): Promise<string> {
-      const { date, love, problemDifficulty } = problem.meta;
+      const { createDate, solvedDate } = problem.meta;
       const problemLevel = await fetchProblemLevel(problem.id);
       const problemTitle = await fetchProblemTitle(problem.id);
-
       function createSolutionLink(filename: string, ext: string): string {
         return `<a href="./${problem.id}/${filename}">풀이 (${ext})</a>`;
       }
 
       let solveCell: string;
       switch (problem.meta.status) {
-        case 'solved':
-        case 'solved-late': {
+        case 'solved': {
           const solution = await problem.getSolutions();
           solveCell =
             solution
@@ -63,25 +62,22 @@ export const SolvedTableRule: Rule = {
               .concat(
                 (await exists(join(ROOT, problem.id.toString(), 'README.md')))
                   ? [`<a href="./${problem.id}/README.md">노트</a>`]
-                  : []
+                  : [],
               )
-              .join(', ') +
-            (problem.meta.status === 'solved-late' ? ' *지각' : '');
+              .join(', ') + (problem.isTimeout ? ` (→ ${createDate})` : '');
           break;
         }
         case 'in-progress': {
-          solveCell = '푸는 중';
-          break;
-        }
-        case 'timeout': {
-          solveCell = '타임아웃';
+          solveCell = problem.isTimeout ? '타임아웃' : '푸는 중';
           break;
         }
       }
 
       return [
         '<tr>',
-        shouldAddDate > 0 ? `<td rowspan="${shouldAddDate}">${date}</td>` : '',
+        shouldAddDate > 0
+          ? `<td rowspan="${shouldAddDate}">${solvedDate}</td>`
+          : '',
         dedent`
           <td>
             <a href="http://noj.am/${problem.id}">
@@ -89,8 +85,6 @@ export const SolvedTableRule: Rule = {
                 problemLevel.level
               }.svg" height="16px"/>
               ${ProblemLevelNameMap[problemLevel.level]}, ${
-          love ? `LV${love} (Legacy) ` : ''
-        }${problemDifficulty ? `${problemDifficulty} ` : ''}${
           problem.id
         } ${problemTitle}
             </a>
@@ -114,7 +108,7 @@ export const SolvedTableRule: Rule = {
         <th>풀이</th>
       </tr>
     ${(await Promise.all(problemListClassified.map(renderProblemLine))).join(
-      '\n'
+      '\n',
     )}
     </table>
     `;

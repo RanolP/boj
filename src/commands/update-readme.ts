@@ -107,6 +107,7 @@ export default class UpdateReadmeCommand extends Command {
     const templateFile = join(ROOT, 'template', 'README.template.md');
     if (await notExists(templateFile)) {
       error('File not found: template/README.template.md');
+      return;
     }
 
     if (!force && !problemUpdated) {

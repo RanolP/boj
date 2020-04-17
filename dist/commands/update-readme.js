@@ -55,6 +55,7 @@ class UpdateReadmeCommand extends command_1.Command {
         const templateFile = path_1.join(constants_1.ROOT, 'template', 'README.template.md');
         if (await better_fs_1.notExists(templateFile)) {
             error('File not found: template/README.template.md');
+            return;
         }
         if (!force && !problemUpdated) {
             const lastUpdate = await fetchLastReadMeUpdate(templateFile);

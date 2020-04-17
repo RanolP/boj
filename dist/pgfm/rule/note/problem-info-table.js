@@ -11,25 +11,18 @@ exports.ProblemInfoTableRule = {
     type: 'note',
     isBlock: true,
     async execute(_, { problem }) {
-        const { love } = problem.meta;
         const problemLevel = await solvedac_1.fetchProblemLevel(problem.id);
         const problemTitle = await baekjoon_1.fetchProblemTitle(problem.id);
         let solveCell;
         switch (problem.meta.status) {
             case 'solved': {
-                solveCell = '성공';
-                break;
-            }
-            case 'solved-late': {
-                solveCell = '성공 (*지각)';
+                solveCell = problem.isTimeout
+                    ? `성공 (→ ${problem.meta.createDate})`
+                    : '성공';
                 break;
             }
             case 'in-progress': {
-                solveCell = '푸는 중';
-                break;
-            }
-            case 'timeout': {
-                solveCell = '타임아웃';
+                solveCell = problem.isTimeout ? '타임아웃' : '푸는 중';
                 break;
             }
         }
@@ -43,7 +36,7 @@ exports.ProblemInfoTableRule = {
         <td>
           <a href="http://noj.am/${problem.id}">
             <img src="https://static.solved.ac/tier_small/${problemLevel.level}.svg" height="16px"/>
-            ${solvedac_1.ProblemLevelNameMap[problemLevel.level]}, ${love ? `LV${love} ` : ''}${problem.id} ${problemTitle}
+            ${solvedac_1.ProblemLevelNameMap[problemLevel.level]}, ${problem.id} ${problemTitle}
           </a>
         </td>
         <td>

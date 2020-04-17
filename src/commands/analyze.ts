@@ -23,18 +23,18 @@ export default class AnalyzeCommand extends Command {
               return [[it, 'Note not found']];
             }
             return [];
-          }
-        )
+          },
+        ),
       )
     ).flat();
     const title = aligned(
       await Promise.all(tagged.map(([it]) => fetchProblemTitle(it.id))),
-      stringify
+      stringify,
     );
 
     const problemLoggers = base.labeled(
       tagged.map(([it]) => it.id),
-      chalk.yellow
+      chalk.yellow,
     );
 
     for (const [index, [problem, message]] of Object.entries(tagged)) {

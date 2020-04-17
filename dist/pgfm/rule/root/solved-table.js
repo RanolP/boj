@@ -18,8 +18,8 @@ exports.SolvedTableRule = {
         const problemList = await problem_1.getProblemList({ sorted: true });
         const problemListClassified = Object.values(problemList.reduce((acc, curr) => {
             let update;
-            if (curr.meta.date in acc) {
-                const origin = acc[curr.meta.date];
+            if (curr.meta.solvedDate in acc) {
+                const origin = acc[curr.meta.solvedDate];
                 const first = origin[0];
                 origin.push({ problem: curr, dateRowspan: 0 });
                 origin.sort(({ problem: a }, { problem: b }) => a.meta.order - b.meta.order);
@@ -30,10 +30,10 @@ exports.SolvedTableRule = {
             else {
                 update = [{ problem: curr, dateRowspan: 1 }];
             }
-            return Object.assign(Object.assign({}, acc), { [curr.meta.date]: update });
+            return Object.assign(Object.assign({}, acc), { [curr.meta.solvedDate]: update });
         }, {})).flat();
         async function renderProblemLine({ problem, dateRowspan: shouldAddDate, }) {
-            const { date, love, problemDifficulty } = problem.meta;
+            const { createDate, solvedDate } = problem.meta;
             const problemLevel = await solvedac_1.fetchProblemLevel(problem.id);
             const problemTitle = await baekjoon_1.fetchProblemTitle(problem.id);
             function createSolutionLink(filename, ext) {
@@ -41,8 +41,7 @@ exports.SolvedTableRule = {
             }
             let solveCell;
             switch (problem.meta.status) {
-                case 'solved':
-                case 'solved-late': {
+                case 'solved': {
                     const solution = await problem.getSolutions();
                     solveCell =
                         solution
@@ -50,27 +49,24 @@ exports.SolvedTableRule = {
                             .concat((await better_fs_1.exists(path_1.join(constants_1.ROOT, problem.id.toString(), 'README.md')))
                             ? [`<a href="./${problem.id}/README.md">노트</a>`]
                             : [])
-                            .join(', ') +
-                            (problem.meta.status === 'solved-late' ? ' *지각' : '');
+                            .join(', ') + (problem.isTimeout ? ` (→ ${createDate})` : '');
                     break;
                 }
                 case 'in-progress': {
-                    solveCell = '푸는 중';
-                    break;
-                }
-                case 'timeout': {
-                    solveCell = '타임아웃';
+                    solveCell = problem.isTimeout ? '타임아웃' : '푸는 중';
                     break;
                 }
             }
             return [
                 '<tr>',
-                shouldAddDate > 0 ? `<td rowspan="${shouldAddDate}">${date}</td>` : '',
+                shouldAddDate > 0
+                    ? `<td rowspan="${shouldAddDate}">${solvedDate}</td>`
+                    : '',
                 dedent_1.default `
           <td>
             <a href="http://noj.am/${problem.id}">
               <img src="https://static.solved.ac/tier_small/${problemLevel.level}.svg" height="16px"/>
-              ${solvedac_1.ProblemLevelNameMap[problemLevel.level]}, ${love ? `LV${love} (Legacy) ` : ''}${problemDifficulty ? `${problemDifficulty} ` : ''}${problem.id} ${problemTitle}
+              ${solvedac_1.ProblemLevelNameMap[problemLevel.level]}, ${problem.id} ${problemTitle}
             </a>
           </td>
         `,
