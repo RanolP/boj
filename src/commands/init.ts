@@ -9,17 +9,13 @@ import {
 import { join, parse } from 'path';
 import { ROOT } from '../constants';
 import { searchProblem } from '../api/baekjoon';
-import { prompt, registerPrompt } from 'inquirer';
-import AutoCompletePrompt from 'inquirer-autocomplete-prompt';
-import CheckboxPlusPrompt from 'inquirer-checkbox-plus-prompt';
+import { prompt } from '../vendors/inquirer';
 import { Logger, chalk } from '../util/console';
 import { getProblem, ProblemMeta } from '../lib/problem';
 import { Duration, permastate } from '../cache';
 import { searchLanguage, Language } from '../util/language';
 import { filter } from 'fuzzy';
-
-registerPrompt('autocomplete', AutoCompletePrompt);
-registerPrompt('checkbox-plus', CheckboxPlusPrompt);
+import { Command, flags } from '@oclif/command';
 
 const [order, setOrder] = permastate(
   () => 1,
@@ -29,33 +25,6 @@ const [order, setOrder] = permastate(
     useAbsoluteDate: true,
   },
 );
-
-declare module 'inquirer' {
-  interface AutoCompleteQuestion<T> extends Question<T> {
-    type: 'autocomplete';
-    suggestOnly?: boolean;
-    source: (
-      previousAnswers: string[],
-      searchTerm: string | undefined,
-    ) => Promise<Array<DistinctChoice<ChoiceOptions>>>;
-  }
-
-  interface CheckboxPlusQuestion<T> extends Question<T> {
-    type: 'checkbox-plus';
-    highlight?: boolean;
-    searchable?: boolean;
-    source: (
-      previousAnswers: string[],
-      searchTerm: string | undefined,
-    ) => Promise<Array<DistinctChoice<ChoiceOptions>>>;
-  }
-
-  interface QuestionMap<T extends Answers = Answers> {
-    autocomplete: AutoCompleteQuestion<T>;
-    'checkbox-plus': CheckboxPlusQuestion<T>;
-  }
-}
-import { Command, flags } from '@oclif/command';
 
 export default class InitCommand extends Command {
   public static description = 'Initialize problem';
@@ -110,7 +79,7 @@ export default class InitCommand extends Command {
       await setOrder((await order()) + 1);
     }
     const problem = await getProblem(id);
-    const solutions = await problem.getSolutions();
+    const solutions = await problem.getSolutionList();
     if (solutions.length === 0) {
       const { language } = await prompt<{ language?: Language }>({
         type: 'autocomplete',

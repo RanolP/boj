@@ -11,6 +11,11 @@ export class DurationPart<T extends DurationType> {
   constructor(public readonly type: T, public readonly value: number) {}
 
   compare(other: DurationPart<T>): number {
+    if (this.value === Infinity) {
+      return other.value === Infinity ? 0 : -1;
+    } else if (other.value === Infinity) {
+      return 1;
+    }
     return this.value - other.value;
   }
 }
@@ -22,7 +27,7 @@ export class Duration {
     public readonly day: DurationPart<DurationType.Day>,
     public readonly hour: DurationPart<DurationType.Hour>,
     public readonly minute: DurationPart<DurationType.Minute>,
-    public readonly second: DurationPart<DurationType.Second>
+    public readonly second: DurationPart<DurationType.Second>,
   ) {}
 
   normalize(): Duration {
@@ -57,7 +62,7 @@ export class Duration {
 
   compareTo(other: Duration, useAbsoluteDate: boolean): number {
     const pick = <K extends keyof Duration>(key: K) => (
-      d: Duration
+      d: Duration,
     ): Duration[K] => (useAbsoluteDate ? d : d.normalize())[key];
     for (const picker of [
       pick('year'),
@@ -79,6 +84,15 @@ export class Duration {
     return `${this.year.value}-${this.month.value}-${this.day.value} ${this.hour.value}:${this.minute.value}:${this.second.value}`;
   }
 
+  static Infinity: Duration = Duration.of({
+    year: Infinity,
+    month: Infinity,
+    day: Infinity,
+    hour: Infinity,
+    minute: Infinity,
+    second: Infinity,
+  });
+
   static of({
     year = 0,
     month = 0,
@@ -95,7 +109,7 @@ export class Duration {
       new DurationPart(DurationType.Day, day),
       new DurationPart(DurationType.Hour, hour),
       new DurationPart(DurationType.Minute, minute),
-      new DurationPart(DurationType.Second, second)
+      new DurationPart(DurationType.Second, second),
     );
   }
 
@@ -103,16 +117,19 @@ export class Duration {
     return new Duration(
       new DurationPart(
         DurationType.Year,
-        to.getFullYear() - from.getFullYear()
+        to.getFullYear() - from.getFullYear(),
       ),
       new DurationPart(DurationType.Month, to.getMonth() - from.getMonth()),
       new DurationPart(DurationType.Day, to.getDate() - from.getDate()),
       new DurationPart(DurationType.Hour, to.getHours() - from.getHours()),
       new DurationPart(
         DurationType.Minute,
-        to.getMinutes() - from.getMinutes()
+        to.getMinutes() - from.getMinutes(),
       ),
-      new DurationPart(DurationType.Second, to.getSeconds() - from.getSeconds())
+      new DurationPart(
+        DurationType.Second,
+        to.getSeconds() - from.getSeconds(),
+      ),
     );
   }
 }

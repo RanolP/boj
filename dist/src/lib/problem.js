@@ -27,7 +27,13 @@ async function getProblemList({ sorted = false, } = {}) {
         fetchStatus.allFetched = true;
         fetchStatus.array = Object.values(problems);
         fetchStatus.arraySorted = Object.values(problems).sort((a, b) => {
-            const date = a.meta.solvedDate.localeCompare(b.meta.solvedDate);
+            if (a.meta.solvedDate && b.meta.solvedDate) {
+                const date = a.meta.createDate.localeCompare(b.meta.createDate);
+                if (date !== 0) {
+                    return date;
+                }
+            }
+            const date = (a.meta.solvedDate || a.meta.createDate).localeCompare(b.meta.solvedDate || b.meta.createDate);
             if (date !== 0) {
                 return date;
             }
@@ -69,12 +75,12 @@ class Problem {
                 return tomorrow;
             })();
         const duration = cache_1.Duration.fromDateRange(createDate, solvedDate);
-        return duration.compareTo(cache_1.Duration.of({ hour: 24 }), true) > 0;
+        return duration.compareTo(cache_1.Duration.of({ day: 1 }), true) >= 0;
     }
     get noteFile() {
         return path_1.join(constants_1.ROOT, this.id.toString(), 'Note.md');
     }
-    async getSolutions() {
+    async getSolutionList() {
         const result = [];
         const fileList = await better_fs_1.readdir(path_1.join(constants_1.ROOT, this.id.toString()));
         for (const file of fileList) {

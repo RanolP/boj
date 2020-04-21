@@ -3,7 +3,7 @@ import { getProblemList } from '../lib/problem';
 import { ROOT } from '../constants';
 import { join, parse } from 'path';
 import { blue } from 'chalk';
-import { prompt } from 'inquirer';
+import { prompt } from '../vendors/inquirer';
 import { chalk, Logger } from '../util/console';
 import { Command } from '@oclif/command';
 
@@ -22,7 +22,7 @@ export default class InitCommand extends Command {
         log(chalk.yellow, 'Not solved, pass.');
         continue;
       }
-      const solutions = await problem.getSolutions();
+      const solutions = await problem.getSolutionList();
       let solution: string;
       if (solutions.length === 1) {
         solution = solutions[0];
@@ -39,7 +39,7 @@ export default class InitCommand extends Command {
       const source = join(problem.id.toString(), solution);
       const target = join(
         ROOT,
-        'P' + problem.id.toString() + parse(solution).ext
+        'P' + problem.id.toString() + parse(solution).ext,
       );
       if (await exists(target)) {
         const fetchedStat = await lstat(target);

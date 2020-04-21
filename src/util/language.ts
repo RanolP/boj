@@ -50,63 +50,374 @@ export enum LanguageId {
   Aheui = 'aheui',
 }
 
+export interface Runtime {
+  name: string;
+  compileCommand?: string;
+  executeCommand?: string;
+  version?: string;
+}
+
 export interface Language {
   id: LanguageId;
   name: string;
   fileExtension: string;
+  bojRuntimes: Runtime[];
 }
 
-export const Languages = [
-  { id: LanguageId.CPP, name: 'C++', fileExtension: '.cc' },
-  { id: LanguageId.Python, name: 'Python', fileExtension: '.py' },
-  { id: LanguageId.Kotlin, name: 'Kotlin', fileExtension: '.kt' },
-  { id: LanguageId.Rust, name: 'Rust', fileExtension: '.rs' },
-  { id: LanguageId.Text, name: 'Text', fileExtension: '.txt' },
-  { id: LanguageId.Java, name: 'Java', fileExtension: '.java' },
-  { id: LanguageId.C, name: 'C', fileExtension: '.c' },
-  { id: LanguageId.Ruby, name: 'Ruby', fileExtension: '.rb' },
-  { id: LanguageId.Swift, name: 'Swift', fileExtension: '.swift' },
-  { id: LanguageId.CSharp, name: 'C#', fileExtension: '.cs' },
-  { id: LanguageId.Nodejs, name: 'Node.js', fileExtension: '.js' },
-  { id: LanguageId.Go, name: 'Go', fileExtension: '.go' },
-  { id: LanguageId.D, name: 'D', fileExtension: '.d' },
-  { id: LanguageId.FSharp, name: 'F#', fileExtension: '.fs' },
-  { id: LanguageId.PHP, name: 'PHP', fileExtension: '.php' },
-  { id: LanguageId.Pascal, name: 'Pascal', fileExtension: '.pas' },
-  { id: LanguageId.Lua, name: 'Lua', fileExtension: '.lua' },
-  { id: LanguageId.Perl, name: 'Perl', fileExtension: '.pl' },
-  { id: LanguageId.R, name: 'R', fileExtension: '.R' },
-  { id: LanguageId.ObjectiveC, name: 'Objective-C', fileExtension: '.m' },
-  { id: LanguageId.ObjectiveCpp, name: 'Objective-C++', fileExtension: '.mm' },
-  { id: LanguageId.GolfScript, name: 'GolfScript', fileExtension: '.gs' },
-  { id: LanguageId.Assembly, name: 'Assembly', fileExtension: '.asm' },
-  { id: LanguageId.VBNet, name: 'VB.NET', fileExtension: '.vb' },
-  { id: LanguageId.Bash, name: 'Bash', fileExtension: '.sh' },
-  { id: LanguageId.Fortran, name: 'Fortran', fileExtension: '.f95' },
-  { id: LanguageId.Scheme, name: 'Scheme', fileExtension: '.scm' },
-  { id: LanguageId.Ada, name: 'Ada', fileExtension: '.ada' },
-  { id: LanguageId.Awk, name: 'Awk', fileExtension: '.awk' },
-  { id: LanguageId.OCaml, name: 'OCaml', fileExtension: '.ml' },
-  { id: LanguageId.BrainFuck, name: 'Brainf**k', fileExtension: '.bf' },
-  { id: LanguageId.Whitespace, name: 'Whitespace', fileExtension: '.ws' },
-  { id: LanguageId.Tcl, name: 'Tcl', fileExtension: '.tcl' },
-  { id: LanguageId.Cobol, name: 'Cobol', fileExtension: '.cob' },
-  { id: LanguageId.Pike, name: 'Pike', fileExtension: '.pike' },
-  { id: LanguageId.sed, name: 'sed', fileExtension: '.sed' },
-  { id: LanguageId.Boo, name: 'Boo', fileExtension: '.boo' },
-  { id: LanguageId.Intercal, name: 'INTERCAL', fileExtension: '.i' },
-  { id: LanguageId.bc, name: 'bc', fileExtension: '.bc' },
-  { id: LanguageId.Nemerle, name: 'Nemerle', fileExtension: '.n' },
-  { id: LanguageId.Cobra, name: 'Cobra', fileExtension: '.cobra' },
-  { id: LanguageId.Algol68, name: 'Algol 68', fileExtension: '.a68' },
-  { id: LanguageId.Befunge, name: 'Befunge', fileExtension: '.bf' },
-  { id: LanguageId.Haxe, name: 'Haxe', fileExtension: '.hx' },
-  { id: LanguageId.LolCode, name: 'LOLCODE', fileExtension: '.lol' },
-  { id: LanguageId.Aheui, name: '아희', fileExtension: '.aheui' },
+export const Languages: Language[] = [
+  {
+    id: LanguageId.CPP,
+    name: 'C++',
+    fileExtension: '.cc',
+    bojRuntimes: [
+      { name: 'C++2a' },
+      { name: 'C++17' },
+      { name: 'C++14' },
+      { name: 'C++11' },
+      { name: 'C++' },
+      { name: 'C++ (Clang)' },
+      { name: 'C++11 (Clang)' },
+      { name: 'C++14 (Clang)' },
+      { name: 'C++17 (Clang)' },
+      { name: 'C++2a (Clang)' },
+    ],
+  },
+  {
+    id: LanguageId.Python,
+    name: 'Python',
+    fileExtension: '.py',
+    bojRuntimes: [
+      { name: 'Python 3' },
+      { name: 'PyPy3' },
+      { name: 'Python 2' },
+      { name: 'PyPy2' },
+    ],
+  },
+  {
+    id: LanguageId.Kotlin,
+    name: 'Kotlin',
+    fileExtension: '.kt',
+    bojRuntimes: [{ name: 'Kotlin (JVM)' }, { name: 'Kotlin (Native)' }],
+  },
+  {
+    id: LanguageId.Rust,
+    name: 'Rust',
+    fileExtension: '.rs',
+    bojRuntimes: [{ name: 'Rust 2018' }, { name: 'Rust' }],
+  },
+  {
+    id: LanguageId.Text,
+    name: 'Text',
+    fileExtension: '.txt',
+    bojRuntimes: [{ name: 'Text' }],
+  },
+  {
+    id: LanguageId.Java,
+    name: 'Java',
+    fileExtension: '.java',
+    bojRuntimes: [
+      { name: 'Java' },
+      { name: 'Java (OpenJDK)' },
+      { name: 'Java 11' },
+    ],
+  },
+  {
+    id: LanguageId.C,
+    name: 'C',
+    fileExtension: '.c',
+    bojRuntimes: [
+      { name: 'C11' },
+      { name: 'C' },
+      { name: 'C (Clang)' },
+      { name: 'C11 (Clang)' },
+    ],
+  },
+  {
+    id: LanguageId.Ruby,
+    name: 'Ruby',
+    fileExtension: '.rb',
+    bojRuntimes: [{ name: 'Ruby 2.7' }],
+  },
+  {
+    id: LanguageId.Swift,
+    name: 'Swift',
+    fileExtension: '.swift',
+    bojRuntimes: [{ name: 'Swift' }],
+  },
+  {
+    id: LanguageId.CSharp,
+    name: 'C#',
+    fileExtension: '.cs',
+    bojRuntimes: [{ name: 'C# 6.0' }],
+  },
+  {
+    id: LanguageId.Nodejs,
+    name: 'Node.js',
+    fileExtension: '.js',
+    bojRuntimes: [{ name: 'node.js' }, { name: 'Rhino' }],
+  },
+  {
+    id: LanguageId.Go,
+    name: 'Go',
+    fileExtension: '.go',
+    bojRuntimes: [{ name: 'Go' }],
+  },
+  {
+    id: LanguageId.D,
+    name: 'D',
+    fileExtension: '.d',
+    bojRuntimes: [{ name: 'D' }],
+  },
+  {
+    id: LanguageId.FSharp,
+    name: 'F#',
+    fileExtension: '.fs',
+    bojRuntimes: [{ name: 'F#' }],
+  },
+  {
+    id: LanguageId.PHP,
+    name: 'PHP',
+    fileExtension: '.php',
+    bojRuntimes: [{ name: 'PHP' }],
+  },
+  {
+    id: LanguageId.Pascal,
+    name: 'Pascal',
+    fileExtension: '.pas',
+    bojRuntimes: [{ name: 'Pascal' }],
+  },
+  {
+    id: LanguageId.Lua,
+    name: 'Lua',
+    fileExtension: '.lua',
+    bojRuntimes: [{ name: 'Lua' }],
+  },
+  {
+    id: LanguageId.Perl,
+    name: 'Perl',
+    fileExtension: '.pl',
+    bojRuntimes: [{ name: 'Perl' }],
+  },
+  {
+    id: LanguageId.R,
+    name: 'R',
+    fileExtension: '.R',
+    bojRuntimes: [{ name: 'R' }],
+  },
+  {
+    id: LanguageId.ObjectiveC,
+    name: 'Objective-C',
+    fileExtension: '.m',
+    bojRuntimes: [{ name: 'Objective-C' }],
+  },
+  {
+    id: LanguageId.ObjectiveCpp,
+    name: 'Objective-C++',
+    fileExtension: '.mm',
+    bojRuntimes: [{ name: 'Objective-C++' }],
+  },
+  {
+    id: LanguageId.GolfScript,
+    name: 'GolfScript',
+    fileExtension: '.gs',
+    bojRuntimes: [{ name: 'Golfscript' }],
+  },
+  {
+    id: LanguageId.Assembly,
+    name: 'Assembly',
+    fileExtension: '.asm',
+    bojRuntimes: [{ name: 'Assembly (32bit)' }, { name: 'Assembly (64bit)' }],
+  },
+  {
+    id: LanguageId.VBNet,
+    name: 'VB.NET',
+    fileExtension: '.vb',
+    bojRuntimes: [],
+  },
+  {
+    id: LanguageId.Bash,
+    name: 'Bash',
+    fileExtension: '.sh',
+    bojRuntimes: [{ name: 'VB.NET 4.0' }],
+  },
+  {
+    id: LanguageId.Fortran,
+    name: 'Fortran',
+    fileExtension: '.f95',
+    bojRuntimes: [{ name: 'Fortran' }],
+  },
+  {
+    id: LanguageId.Scheme,
+    name: 'Scheme',
+    fileExtension: '.scm',
+    bojRuntimes: [{ name: 'Scheme' }],
+  },
+  {
+    id: LanguageId.Ada,
+    name: 'Ada',
+    fileExtension: '.ada',
+    bojRuntimes: [{ name: 'Ada' }],
+  },
+  {
+    id: LanguageId.Awk,
+    name: 'Awk',
+    fileExtension: '.awk',
+    bojRuntimes: [{ name: 'awk' }],
+  },
+  {
+    id: LanguageId.OCaml,
+    name: 'OCaml',
+    fileExtension: '.ml',
+    bojRuntimes: [{ name: 'OCaml' }],
+  },
+  {
+    id: LanguageId.BrainFuck,
+    name: 'Brainf**k',
+    fileExtension: '.bf',
+    bojRuntimes: [{ name: 'Brainf**k' }],
+  },
+  {
+    id: LanguageId.Whitespace,
+    name: 'Whitespace',
+    fileExtension: '.ws',
+    bojRuntimes: [{ name: 'Whitespace' }],
+  },
+  {
+    id: LanguageId.Tcl,
+    name: 'Tcl',
+    fileExtension: '.tcl',
+    bojRuntimes: [{ name: 'Tcl' }],
+  },
+  {
+    id: LanguageId.Cobol,
+    name: 'Cobol',
+    fileExtension: '.cob',
+    bojRuntimes: [{ name: 'Cobol' }],
+  },
+  {
+    id: LanguageId.Pike,
+    name: 'Pike',
+    fileExtension: '.pike',
+    bojRuntimes: [{ name: 'Pike' }],
+  },
+  {
+    id: LanguageId.sed,
+    name: 'sed',
+    fileExtension: '.sed',
+    bojRuntimes: [{ name: 'sed' }],
+  },
+  {
+    id: LanguageId.Boo,
+    name: 'Boo',
+    fileExtension: '.boo',
+    bojRuntimes: [{ name: 'Boo' }],
+  },
+  {
+    id: LanguageId.Intercal,
+    name: 'INTERCAL',
+    fileExtension: '.i',
+    bojRuntimes: [{ name: 'INTERCAL' }],
+  },
+  {
+    id: LanguageId.bc,
+    name: 'bc',
+    fileExtension: '.bc',
+    bojRuntimes: [{ name: 'bc' }],
+  },
+  {
+    id: LanguageId.Nemerle,
+    name: 'Nemerle',
+    fileExtension: '.n',
+    bojRuntimes: [
+      {
+        name: 'Nemerle',
+      },
+    ],
+  },
+  {
+    id: LanguageId.Cobra,
+    name: 'Cobra',
+    fileExtension: '.cobra',
+    bojRuntimes: [
+      {
+        name: 'Cobra',
+      },
+    ],
+  },
+  {
+    id: LanguageId.Algol68,
+    name: 'Algol 68',
+    fileExtension: '.a68',
+    bojRuntimes: [
+      {
+        name: 'Algol 68',
+      },
+    ],
+  },
+  {
+    id: LanguageId.Befunge,
+    name: 'Befunge',
+    fileExtension: '.bf',
+    bojRuntimes: [
+      {
+        name: 'Befunge',
+      },
+    ],
+  },
+  {
+    id: LanguageId.Haxe,
+    name: 'Haxe',
+    fileExtension: '.hx',
+    bojRuntimes: [
+      {
+        name: 'Haxe',
+      },
+    ],
+  },
+  {
+    id: LanguageId.LolCode,
+    name: 'LOLCODE',
+    fileExtension: '.lol',
+    bojRuntimes: [
+      {
+        name: 'LOLCODE',
+      },
+    ],
+  },
+  {
+    id: LanguageId.Aheui,
+    name: '아희',
+    fileExtension: '.aheui',
+    bojRuntimes: [
+      {
+        name: '아희',
+      },
+    ],
+  },
 ];
 
 export const KeyedLanguages: Record<string, Language> = Object.fromEntries(
-  Languages.map((language) => [language.id, language] as const)
+  Languages.map((language) => [language.id, language] as const),
+);
+
+export const ExtensionLanguagesMap: Record<
+  string,
+  Language[]
+> = Languages.reduce(
+  (acc, language) => ({
+    ...acc,
+    [language.fileExtension]:
+      language.fileExtension in acc
+        ? acc[language.fileExtension].concat(language)
+        : [language],
+  }),
+  {} as Record<string, Language[]>,
+);
+
+export const RuntimeBelongsToMap: Record<string, Language> = Object.fromEntries(
+  Languages.flatMap((language) =>
+    language.bojRuntimes.map((runtime) => [runtime.name, language]),
+  ),
 );
 
 export function searchLanguage(query: string): DistinctChoice<ChoiceOptions> {

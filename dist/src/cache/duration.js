@@ -15,6 +15,12 @@ class DurationPart {
         this.value = value;
     }
     compare(other) {
+        if (this.value === Infinity) {
+            return other.value === Infinity ? 0 : -1;
+        }
+        else if (other.value === Infinity) {
+            return 1;
+        }
         return this.value - other.value;
     }
 }
@@ -85,3 +91,11 @@ class Duration {
     }
 }
 exports.Duration = Duration;
+Duration.Infinity = Duration.of({
+    year: Infinity,
+    month: Infinity,
+    day: Infinity,
+    hour: Infinity,
+    minute: Infinity,
+    second: Infinity,
+});

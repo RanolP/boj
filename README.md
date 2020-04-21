@@ -13,7 +13,7 @@ npm 계열 패키지 매니저가 필요합니다.
 
 ```sh
 yarn global add boj            # for yarn
-npm install --global boj       # for npm
+npm install -g boj             # for npm
 ```
 
 :tada: 끝!
@@ -31,11 +31,12 @@ npm install --global boj       # for npm
 ### (TODO) boj solve \<number\>
 
 Playwright를 통해 백준에 제출합니다.
-`맞았습니다!!`가 뜨면 meta.json의 `status` 항목을 `solved` 혹은 `solved-late`로 바꿉니다.
+`맞았습니다!!`가 뜨면 meta.json의 `status` 항목을 `solved`로 바꿉니다.
 
-### (TODO) boj timeout
+### (TODO) boj hide-solved
 
-하루 안에 풀지 못한 모든 문제의 `status`를 `timeout`으로 설정합니다.
+이미 풀었고, 노트가 완성되어 더 이상 업데이트가 없을 문제를 숨깁니다.
+VS Code에서만 지원합니다.
 
 ### boj init [--id \<number\>]
 

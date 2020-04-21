@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM"],
     "target": "es2017",
     "module": "commonjs",
     "allowJs": false,
@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
+    "resolveJsonModule": true,
     "typeRoots": ["node_modules/@types", "typings"]
   }
 }

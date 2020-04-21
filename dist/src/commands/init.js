@@ -1,26 +1,19 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const better_fs_1 = require("../lib/better-fs");
 const path_1 = require("path");
 const constants_1 = require("../constants");
 const baekjoon_1 = require("../api/baekjoon");
-const inquirer_1 = require("inquirer");
-const inquirer_autocomplete_prompt_1 = __importDefault(require("inquirer-autocomplete-prompt"));
-const inquirer_checkbox_plus_prompt_1 = __importDefault(require("inquirer-checkbox-plus-prompt"));
+const inquirer_1 = require("../vendors/inquirer");
 const console_1 = require("../util/console");
 const problem_1 = require("../lib/problem");
 const cache_1 = require("../cache");
 const language_1 = require("../util/language");
 const fuzzy_1 = require("fuzzy");
-inquirer_1.registerPrompt('autocomplete', inquirer_autocomplete_prompt_1.default);
-inquirer_1.registerPrompt('checkbox-plus', inquirer_checkbox_plus_prompt_1.default);
+const command_1 = require("@oclif/command");
 const [order, setOrder] = cache_1.permastate(() => 1, () => 'order', cache_1.Duration.of({ hour: 24 }), {
     useAbsoluteDate: true,
 });
-const command_1 = require("@oclif/command");
 class InitCommand extends command_1.Command {
     async run() {
         let id = this.parse(InitCommand).flags.id ||
@@ -56,7 +49,7 @@ class InitCommand extends command_1.Command {
             await setOrder((await order()) + 1);
         }
         const problem = await problem_1.getProblem(id);
-        const solutions = await problem.getSolutions();
+        const solutions = await problem.getSolutionList();
         if (solutions.length === 0) {
             const { language } = await inquirer_1.prompt({
                 type: 'autocomplete',

@@ -5,7 +5,7 @@ const problem_1 = require("../lib/problem");
 const constants_1 = require("../constants");
 const path_1 = require("path");
 const chalk_1 = require("chalk");
-const inquirer_1 = require("inquirer");
+const inquirer_1 = require("../vendors/inquirer");
 const console_1 = require("../util/console");
 const command_1 = require("@oclif/command");
 class InitCommand extends command_1.Command {
@@ -19,7 +19,7 @@ class InitCommand extends command_1.Command {
                 log(console_1.chalk.yellow, 'Not solved, pass.');
                 continue;
             }
-            const solutions = await problem.getSolutions();
+            const solutions = await problem.getSolutionList();
             let solution;
             if (solutions.length === 1) {
                 solution = solutions[0];

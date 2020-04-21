@@ -1,0 +1,69 @@
+{
+    "name": "boj",
+    "version": "0.1.14",
+    "description": "script set for boj",
+    "repository": "https://github.com/RanolP/boj",
+    "author": "RanolP <public.ranolp@gmail.com>",
+    "license": "Unlicense",
+    "main": "./bin/run",
+    "bin": {
+        "boj": "./bin/run"
+    },
+    "scripts": {
+        "build": "tsc",
+        "bstart": "tsc && cd local && node ../bin/run",
+        "start": "cd local && node ../bin/run"
+    },
+    "dependencies": {
+        "@idlebox/node-json-edit": "^1.0.20",
+        "@oclif/command": "^1.5.19",
+        "@oclif/config": "^1.15.1",
+        "@oclif/plugin-autocomplete": "^0.1.5",
+        "@oclif/plugin-help": "^2.2.3",
+        "@oclif/plugin-not-found": "^1.2.3",
+        "chalk": "^4.0.0",
+        "dedent": "^0.7.0",
+        "fuzzy": "^0.1.3",
+        "globby": "^11.0.0",
+        "inquirer": "^7.1.0",
+        "inquirer-autocomplete-prompt": "^1.0.2",
+        "inquirer-checkbox-plus-prompt": "^1.0.1",
+        "node-fetch": "^2.6.0",
+        "playwright": "^0.13.0",
+        "string-width": "^4.2.0",
+        "update-notifier": "^4.1.0",
+        "yup": "^0.28.3"
+    },
+    "devDependencies": {
+        "@types/dedent": "^0.7.0",
+        "@types/eslint": "^6.8.0",
+        "@types/eslint-plugin-prettier": "^3.1.0",
+        "@types/inquirer": "^6.5.0",
+        "@types/node": "^13.13.0",
+        "@types/node-fetch": "^2.5.6",
+        "@types/prettier": "^2.0.0",
+        "@types/update-notifier": "^4.1.0",
+        "@types/yup": "^0.26.37",
+        "@typescript-eslint/eslint-plugin": "^2.28.0",
+        "@typescript-eslint/parser": "^2.28.0",
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.10.1",
+        "eslint-plugin-prettier": "^3.1.3",
+        "prettier": "^2.0.4",
+        "ts-node": "^8.8.2",
+        "typescript": "^3.8.3"
+    },
+    "files": [
+        "bin",
+        "dist"
+    ],
+    "oclif": {
+        "bin": "boj",
+        "commands": "./dist/src/commands",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found",
+            "@oclif/plugin-autocomplete"
+        ]
+    }
+}

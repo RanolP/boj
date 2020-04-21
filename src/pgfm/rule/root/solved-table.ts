@@ -19,17 +19,18 @@ export const SolvedTableRule: Rule = {
   isBlock: true,
   async execute(): Promise<string> {
     const problemList = await getProblemList({ sorted: true });
-    const problemListClassified = Object.values(
+    const problemListClassified = Object.entries(
       problemList.reduce((acc, curr) => {
+        const currDate = curr.meta.solvedDate || curr.meta.createDate;
         let update: ProblemProps[];
-        if (curr.meta.solvedDate in acc) {
-          const origin = acc[curr.meta.solvedDate];
-          const first = origin[0];
+        if (currDate in acc) {
+          const origin = acc[currDate];
           origin.push({ problem: curr, dateRowspan: 0 });
+          /*
           origin.sort(
             ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order,
           );
-          first.dateRowspan = 0;
+          */
           origin[0].dateRowspan = origin.length;
           update = origin;
         } else {
@@ -37,10 +38,13 @@ export const SolvedTableRule: Rule = {
         }
         return {
           ...acc,
-          [curr.meta.solvedDate]: update,
+          [currDate]: update,
         };
       }, {} as Record<string, ProblemProps[]>),
-    ).flat();
+    )
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map((tuple) => tuple[1])
+      .flat();
     async function renderProblemLine({
       problem,
       dateRowspan: shouldAddDate,
@@ -55,7 +59,7 @@ export const SolvedTableRule: Rule = {
       let solveCell: string;
       switch (problem.meta.status) {
         case 'solved': {
-          const solution = await problem.getSolutions();
+          const solution = await problem.getSolutionList();
           solveCell =
             solution
               .map((file) => createSolutionLink(file, parse(file).ext))
@@ -76,7 +80,7 @@ export const SolvedTableRule: Rule = {
       return [
         '<tr>',
         shouldAddDate > 0
-          ? `<td rowspan="${shouldAddDate}">${solvedDate}</td>`
+          ? `<td rowspan="${shouldAddDate}">${solvedDate || createDate}</td>`
           : '',
         dedent`
           <td>

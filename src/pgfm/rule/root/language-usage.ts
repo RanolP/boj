@@ -5,7 +5,7 @@ import { parse } from 'path';
 import { Languages } from '../../../util/language';
 
 const ExtensionLanguageNameMap: Record<string, string> = Object.fromEntries(
-  Languages.map(({ name, fileExtension }) => [fileExtension, name])
+  Languages.map(({ name, fileExtension }) => [fileExtension, name]),
 );
 
 export const LanguageUsageRule: Rule = {
@@ -18,7 +18,7 @@ export const LanguageUsageRule: Rule = {
       await Promise.all(
         problemList
           .filter((problem) => problem.isSolved)
-          .map((problem) => problem.getSolutions())
+          .map((problem) => problem.getSolutionList()),
       )
     ).flat();
     const ratio = solutions
@@ -28,7 +28,7 @@ export const LanguageUsageRule: Rule = {
           ...acc,
           [curr]: curr in acc ? acc[curr] + 1 : 1,
         }),
-        {} as Record<string, number>
+        {} as Record<string, number>,
       );
 
     return [
@@ -46,8 +46,8 @@ export const LanguageUsageRule: Rule = {
             (count / solutions.length) *
             100
           ).toFixed(2)}%) |
-      `
-        )
+      `,
+        ),
       )
       .join('\n');
   },

@@ -16,22 +16,28 @@ exports.SolvedTableRule = {
     isBlock: true,
     async execute() {
         const problemList = await problem_1.getProblemList({ sorted: true });
-        const problemListClassified = Object.values(problemList.reduce((acc, curr) => {
+        const problemListClassified = Object.entries(problemList.reduce((acc, curr) => {
+            const currDate = curr.meta.solvedDate || curr.meta.createDate;
             let update;
-            if (curr.meta.solvedDate in acc) {
-                const origin = acc[curr.meta.solvedDate];
-                const first = origin[0];
+            if (currDate in acc) {
+                const origin = acc[currDate];
                 origin.push({ problem: curr, dateRowspan: 0 });
-                origin.sort(({ problem: a }, { problem: b }) => a.meta.order - b.meta.order);
-                first.dateRowspan = 0;
+                /*
+                origin.sort(
+                  ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order,
+                );
+                */
                 origin[0].dateRowspan = origin.length;
                 update = origin;
             }
             else {
                 update = [{ problem: curr, dateRowspan: 1 }];
             }
-            return Object.assign(Object.assign({}, acc), { [curr.meta.solvedDate]: update });
-        }, {})).flat();
+            return Object.assign(Object.assign({}, acc), { [currDate]: update });
+        }, {}))
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map((tuple) => tuple[1])
+            .flat();
         async function renderProblemLine({ problem, dateRowspan: shouldAddDate, }) {
             const { createDate, solvedDate } = problem.meta;
             const problemLevel = await solvedac_1.fetchProblemLevel(problem.id);
@@ -42,7 +48,7 @@ exports.SolvedTableRule = {
             let solveCell;
             switch (problem.meta.status) {
                 case 'solved': {
-                    const solution = await problem.getSolutions();
+                    const solution = await problem.getSolutionList();
                     solveCell =
                         solution
                             .map((file) => createSolutionLink(file, path_1.parse(file).ext))
@@ -60,7 +66,7 @@ exports.SolvedTableRule = {
             return [
                 '<tr>',
                 shouldAddDate > 0
-                    ? `<td rowspan="${shouldAddDate}">${solvedDate}</td>`
+                    ? `<td rowspan="${shouldAddDate}">${solvedDate || createDate}</td>`
                     : '',
                 dedent_1.default `
           <td>

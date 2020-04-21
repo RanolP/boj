@@ -10,18 +10,6 @@ import { aligned, stringify } from '../../util/align';
 const ApplicationId = 'AEWEWTND4P';
 const AlgoliaApiKey = '40fa3b88d4994a18f89e692619c9f3f3';
 
-interface SnippetMatch {
-  value: string;
-  matchLevel: string;
-}
-
-interface HighlightMatch {
-  value: string;
-  matchLevel: string;
-  fullyHighlighted: boolean;
-  matchedWords: string[];
-}
-
 interface SearchResponse {
   results: [
     {
@@ -35,7 +23,7 @@ interface SearchResponse {
         original_description: string;
       }>;
       processingTimeMS: number;
-    }
+    },
   ];
 }
 
@@ -46,7 +34,7 @@ export type Test = {
 };
 
 export async function searchProblemLogic(
-  query?: string
+  query?: string,
 ): Promise<Array<DistinctChoice<ChoiceOptions>>> {
   if (query) {
     try {
@@ -67,18 +55,18 @@ export async function searchProblemLogic(
             ],
           }),
           method: 'POST',
-        }
+        },
       );
       const {
         results: [{ hits }],
       } = (await response.json()) as SearchResponse;
       const id = aligned(
         hits.map(({ id }) => id),
-        chalk.underline
+        chalk.underline,
       );
       const title = aligned(
         hits.map(({ title }) => title),
-        stringify
+        stringify,
       );
       return hits.map((it, index) => {
         let description = '';
@@ -111,5 +99,5 @@ export const searchProblem = cached(
   Duration.of({ year: 1 }),
   {
     useFileCache: false,
-  }
+  },
 );

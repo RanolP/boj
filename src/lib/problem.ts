@@ -34,7 +34,15 @@ export async function getProblemList({
     fetchStatus.allFetched = true;
     fetchStatus.array = Object.values(problems);
     fetchStatus.arraySorted = Object.values(problems).sort((a, b) => {
-      const date = a.meta.solvedDate.localeCompare(b.meta.solvedDate);
+      if (a.meta.solvedDate && b.meta.solvedDate) {
+        const date = a.meta.createDate.localeCompare(b.meta.createDate);
+        if (date !== 0) {
+          return date;
+        }
+      }
+      const date = (a.meta.solvedDate || a.meta.createDate).localeCompare(
+        b.meta.solvedDate || b.meta.createDate,
+      );
       if (date !== 0) {
         return date;
       }
@@ -53,7 +61,7 @@ export async function getProblem(id: number): Promise<Problem> {
 
 export interface ProblemMeta {
   createDate: string;
-  solvedDate: string;
+  solvedDate?: string;
   status: 'solved' | 'in-progress';
   order: number;
   type: 'daily-boj' | 'my-way';
@@ -90,14 +98,14 @@ export class Problem {
         })();
     const duration = Duration.fromDateRange(createDate, solvedDate);
 
-    return duration.compareTo(Duration.of({ hour: 24 }), true) > 0;
+    return duration.compareTo(Duration.of({ day: 1 }), true) >= 0;
   }
 
   get noteFile(): string {
     return join(ROOT, this.id.toString(), 'Note.md');
   }
 
-  async getSolutions(): Promise<string[]> {
+  async getSolutionList(): Promise<string[]> {
     const result = [];
     const fileList = await readdir(join(ROOT, this.id.toString()));
     for (const file of fileList) {
