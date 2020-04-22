@@ -14,6 +14,8 @@ const constants_1 = require("../constants");
 const path_1 = require("path");
 const language_1 = require("../util/language");
 const better_fs_1 = require("../lib/better-fs");
+const progress_1 = __importDefault(require("progress"));
+const terminal_link_1 = __importDefault(require("terminal-link"));
 var AnswerResultType;
 (function (AnswerResultType) {
     AnswerResultType[AnswerResultType["Waiting"] = 0] = "Waiting";
@@ -69,6 +71,15 @@ const AnswerResultLabelSet = {
     [AnswerResultType.JudgeDelaying]: '%(remain)초 후 채점 시작',
     [AnswerResultType.PartiallyAccepted]: '맞았습니다!!',
 };
+function hasProgressbar(result) {
+    switch (result) {
+        case AnswerResultType.Compiling:
+        case AnswerResultType.Judging:
+            return true;
+        default:
+            return false;
+    }
+}
 class SolveCommand extends command_1.Command {
     async run() {
         var _a;
@@ -100,7 +111,11 @@ class SolveCommand extends command_1.Command {
         const head = this.parse(SolveCommand).flags.head;
         info(`Opening a new ${settings.browser}... (${head ? 'with GUI' : 'Headless'})`);
         const browserType = playwright_1.default[settings.browser];
-        const browser = await browserType.launchPersistentContext(path_1.join(constants_1.ROOT, '.boj-cache'), {
+        const folder = path_1.join(constants_1.ROOT, '.boj-cache', 'browser', settings.browser);
+        if (await better_fs_1.notExists(folder)) {
+            await better_fs_1.mkdirs(folder);
+        }
+        const browser = await browserType.launchPersistentContext(folder, {
             headless: !head,
         });
         const page = await browser.newPage();
@@ -117,6 +132,7 @@ class SolveCommand extends command_1.Command {
         }
         catch (_b) {
             error(`Timeout. You can try with ${console_1.chalk.yellow('--head')} flag to show the browser.`);
+            await browser.close();
             return;
         }
         const id = await page.$eval('.loginbar > :first-child > a', (element) => element.innerHTML);
@@ -133,6 +149,7 @@ class SolveCommand extends command_1.Command {
         }
         catch (_c) {
             error('Button fetch failed.');
+            await browser.close();
             return;
         }
         await page.waitFor(1000);
@@ -149,7 +166,8 @@ class SolveCommand extends command_1.Command {
             info(`Tried ${tries} times...`);
         }
         if (tries === 5) {
-            error('Fetch failed.');
+            error('Runtime fetch failed.');
+            await browser.close();
             return;
         }
         await page.waitFor('.chosen-drop > .chosen-results > li', {
@@ -164,6 +182,7 @@ class SolveCommand extends command_1.Command {
             .filter((it) => availableRuntimes.has(it.name));
         if (usableRuntimes.length === 0) {
             error(`There are no selectable runtime found. Found solution file(s): ${solutionList.join(', ')}`);
+            await browser.close();
             return;
         }
         let runtime;
@@ -212,20 +231,31 @@ class SolveCommand extends command_1.Command {
         const input = (await page.$('.CodeMirror'));
         await input.click();
         await input.focus();
-        await input.type(solutionSource);
+        await page.keyboard.insertText(solutionSource);
         await page.click('#submit_button');
         await page.waitForNavigation({
             waitUntil: 'load',
             timeout: 0,
         });
-        let start = -1;
-        await page.exposeFunction('display_solution', (solutionId, ans) => {
-            if (start < 0) {
-                start = Date.now();
-            }
-            render(solutionId, ans, start);
+        let isFirstPacket = true;
+        let toContinue = true;
+        const progressBar = new progress_1.default(`:label  :bar  ${console_1.chalk.magenta(':percent')} ${console_1.chalk.blue(':eta초')}`, {
+            complete: console_1.chalk.yellow('━'),
+            incomplete: console_1.chalk.gray('━'),
+            width: 40,
+            total: 100,
         });
-        // await browser.close();
+        await page.exposeFunction('display_solution', (solutionId, ans) => {
+            toContinue =
+                toContinue && (isFirstPacket || render(solutionId, ans, progressBar));
+            if (isFirstPacket) {
+                isFirstPacket = false;
+            }
+        });
+        while (toContinue) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        await browser.close();
     }
 }
 exports.default = SolveCommand;
@@ -235,26 +265,11 @@ SolveCommand.flags = {
         description: 'Wheater not to launch headless browser or not',
     }),
 };
-function render(solutionId, answer, startTime) {
+function render(solutionId, answer, progressBar) {
     var _a;
     const color = AnswerResultColorSet[answer.result];
     const label = AnswerResultLabelSet[answer.result];
     let to_print = [label];
-    let progress = 0;
-    if (answer.progress) {
-        progress = answer.progress;
-        if (answer.result === AnswerResultType.Compiling ||
-            answer.result === AnswerResultType.Judging) {
-            const now = Date.now();
-            const timeSpentInSeconds = (now - startTime) / 1000;
-            const leftProgress = 100 - progress;
-            const estimateTime = leftProgress / (progress / timeSpentInSeconds);
-            to_print.push(`(${progress}%, ${Math.round(estimateTime)}초)`);
-        }
-        else {
-            to_print.push(`(${progress}%)`);
-        }
-    }
     if (answer.result === AnswerResultType.WrongAnswer && answer.feedback) {
         to_print.push(`[${answer.feedback}]`);
     }
@@ -262,35 +277,47 @@ function render(solutionId, answer, startTime) {
         const remain = (_a = answer.remain) !== null && _a !== void 0 ? _a : 0;
         to_print[0] = to_print[0].replace('%(remain)', remain.toString());
     }
-    let r = '';
-    if (answer.result === AnswerResultType.CompileError) {
-        r += `<a href="/ceinfo/${solutionId}">`;
-    }
+    let toRender;
     if (answer.partial_score) {
-        r += `${Math.round(answer.partial_score * 100) / 100}점`;
+        toRender = `${Math.round(answer.partial_score * 100) / 100}점`;
     }
     else if (answer.subtask_score) {
-        r += `${answer.subtask_score}점`;
+        toRender = `${answer.subtask_score}점`;
+    }
+    else if (answer.custom_result) {
+        toRender = answer.custom_result;
     }
     else {
-        if (answer.custom_result) {
-            r += answer.custom_result;
-        }
-        else {
-            r += to_print.join(' ');
-            if (answer.ac && answer.tot && answer.ac > 0 && answer.tot > 0) {
-                r += ` (${answer.ac}/${answer.tot})`;
-            }
+        toRender = to_print.join(' ');
+        if (answer.ac && answer.tot && answer.ac > 0 && answer.tot > 0) {
+            toRender += ` (${answer.ac}/${answer.tot})`;
         }
     }
     if (answer.result === AnswerResultType.CompileError) {
-        r += '</a>';
+        toRender = terminal_link_1.default(toRender, `https://acmicpc.net/ceinfo/${solutionId}`);
     }
-    console.log(color(r));
+    if (answer.progress) {
+        progressBar.tick(answer.progress - progressBar.curr, {
+            label: color(toRender),
+        });
+    }
+    else {
+        console.log(color(toRender));
+    }
     if (answer.memory) {
         console.log(`Memory  ${answer.memory}`);
     }
     if (answer.time) {
         console.log(`Time    ${answer.time}`);
+    }
+    switch (answer.result) {
+        case AnswerResultType.Waiting:
+        case AnswerResultType.RejudgeWaiting:
+        case AnswerResultType.Compiling:
+        case AnswerResultType.Judging:
+        case AnswerResultType.JudgeDelaying:
+            return true;
+        default:
+            return false;
     }
 }

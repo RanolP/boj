@@ -2,7 +2,7 @@ import { fetchProblemTitle } from '../api/baekjoon';
 import { prompt } from '../vendors/inquirer';
 import { Logger, chalk } from '../util/console';
 import { Command, flags } from '@oclif/command';
-import playwright, { Request, JSHandle } from 'playwright';
+import playwright, { JSHandle } from 'playwright';
 import { getSettings } from '../config';
 import { getProblemList, Problem } from '../lib/problem';
 import { ROOT } from '../constants';
@@ -12,7 +12,10 @@ import {
   Runtime,
   RuntimeBelongsToMap,
 } from '../util/language';
-import { readFile } from '../lib/better-fs';
+import { readFile, mkdirs, notExists } from '../lib/better-fs';
+import ProgressBar from 'progress';
+import { Chalk } from 'chalk';
+import terminalLink from 'terminal-link';
 
 enum AnswerResultType {
   Waiting = 0,
@@ -33,10 +36,7 @@ enum AnswerResultType {
   PartiallyAccepted = 15,
 }
 
-const AnswerResultColorSet: Record<
-  AnswerResultType,
-  (text: string) => string
-> = {
+const AnswerResultColorSet: Record<AnswerResultType, Chalk> = {
   [AnswerResultType.Waiting]: chalk.hex('#a49e9e'),
   [AnswerResultType.RejudgeWaiting]: chalk.hex('#a49e9e'),
   [AnswerResultType.Compiling]: chalk.hex('#e67e22'),
@@ -74,6 +74,20 @@ const AnswerResultLabelSet: Record<AnswerResultType, string> = {
   [AnswerResultType.PartiallyAccepted]: '맞았습니다!!',
 };
 
+function hasProgressbar(
+  result: AnswerResultType,
+): result is AnswerResultType.Compiling | AnswerResultType.Judging {
+  switch (result) {
+    case AnswerResultType.Compiling:
+    case AnswerResultType.Judging:
+      return true;
+    default:
+      return false;
+  }
+}
+
+type ToContinue = boolean;
+
 type AnswerBase = {
   result: AnswerResultType;
   progress?: number;
@@ -108,7 +122,7 @@ type Answer =
       feedback?: string;
     })
   | (AnswerBase & {
-      result: AnswerResultType.JudgeDelaying;
+      result: AnswerResultType.Judging;
       remain?: number;
     });
 
@@ -169,12 +183,14 @@ export default class SolveCommand extends Command {
       })`,
     );
     const browserType = playwright[settings.browser];
-    const browser = await browserType.launchPersistentContext(
-      join(ROOT, '.boj-cache'),
-      {
-        headless: !head,
-      },
-    );
+
+    const folder = join(ROOT, '.boj-cache', 'browser', settings.browser);
+    if (await notExists(folder)) {
+      await mkdirs(folder);
+    }
+    const browser = await browserType.launchPersistentContext(folder, {
+      headless: !head,
+    });
     const page = await browser.newPage();
     await page.goto(
       `https://www.acmicpc.net/login?next=%2Fproblem%2F${problem.id}`,
@@ -195,6 +211,7 @@ export default class SolveCommand extends Command {
           '--head',
         )} flag to show the browser.`,
       );
+      await browser.close();
       return;
     }
     const id = await page.$eval(
@@ -213,6 +230,7 @@ export default class SolveCommand extends Command {
       });
     } catch {
       error('Button fetch failed.');
+      await browser.close();
       return;
     }
     await page.waitFor(1000);
@@ -228,7 +246,8 @@ export default class SolveCommand extends Command {
       info(`Tried ${tries} times...`);
     }
     if (tries === 5) {
-      error('Fetch failed.');
+      error('Runtime fetch failed.');
+      await browser.close();
       return;
     }
     await page.waitFor('.chosen-drop > .chosen-results > li', {
@@ -253,6 +272,7 @@ export default class SolveCommand extends Command {
           ', ',
         )}`,
       );
+      await browser.close();
       return;
     }
     let runtime: Runtime;
@@ -314,50 +334,54 @@ export default class SolveCommand extends Command {
     const input = (await page.$('.CodeMirror'))!;
     await input.click();
     await input.focus();
-    await input.type(solutionSource);
+    await page.keyboard.insertText(solutionSource);
     await page.click('#submit_button');
 
     await page.waitForNavigation({
       waitUntil: 'load',
       timeout: 0,
     });
-    let start: number = -1;
-    await page.exposeFunction(
-      'display_solution',
-      (solutionId: number, ans: any) => {
-        if (start < 0) {
-          start = Date.now();
-        }
-        render(solutionId, ans, start);
+
+    let isFirstPacket = true;
+    let toContinue: ToContinue = true;
+    const progressBar = new ProgressBar(
+      `:label  :bar  ${chalk.magenta(':percent')} ${chalk.blue(':eta초')}`,
+      {
+        complete: chalk.yellow('━'),
+        incomplete: chalk.gray('━'),
+        width: 40,
+        total: 100,
       },
     );
 
-    // await browser.close();
+    await page.exposeFunction(
+      'display_solution',
+      (solutionId: number, ans: any) => {
+        toContinue =
+          toContinue && (isFirstPacket || render(solutionId, ans, progressBar));
+        if (isFirstPacket) {
+          isFirstPacket = false;
+        }
+      },
+    );
+
+    while (toContinue) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    await browser.close();
   }
 }
 
-function render(solutionId: number, answer: Answer, startTime: number) {
+function render(
+  solutionId: number,
+  answer: Answer,
+  progressBar: ProgressBar,
+): ToContinue {
   const color = AnswerResultColorSet[answer.result];
   const label = AnswerResultLabelSet[answer.result];
   let to_print = [label];
 
-  let progress = 0;
-  if (answer.progress) {
-    progress = answer.progress;
-    if (
-      answer.result === AnswerResultType.Compiling ||
-      answer.result === AnswerResultType.Judging
-    ) {
-      const now = Date.now();
-      const timeSpentInSeconds = (now - startTime) / 1000;
-      const leftProgress = 100 - progress;
-      const estimateTime = leftProgress / (progress / timeSpentInSeconds);
-
-      to_print.push(`(${progress}%, ${Math.round(estimateTime)}초)`);
-    } else {
-      to_print.push(`(${progress}%)`);
-    }
-  }
   if (answer.result === AnswerResultType.WrongAnswer && answer.feedback) {
     to_print.push(`[${answer.feedback}]`);
   }
@@ -366,35 +390,50 @@ function render(solutionId: number, answer: Answer, startTime: number) {
     to_print[0] = to_print[0].replace('%(remain)', remain.toString());
   }
 
-  let r = '';
-  if (answer.result === AnswerResultType.CompileError) {
-    r += `<a href="/ceinfo/${solutionId}">`;
-  }
+  let toRender: string;
   if (answer.partial_score) {
-    r += `${Math.round(answer.partial_score * 100) / 100}점`;
+    toRender = `${Math.round(answer.partial_score * 100) / 100}점`;
   } else if (answer.subtask_score) {
-    r += `${answer.subtask_score}점`;
+    toRender = `${answer.subtask_score}점`;
+  } else if (answer.custom_result) {
+    toRender = answer.custom_result;
   } else {
-    if (answer.custom_result) {
-      r += answer.custom_result;
-    } else {
-      r += to_print.join(' ');
-      if (answer.ac && answer.tot && answer.ac > 0 && answer.tot > 0) {
-        r += ` (${answer.ac}/${answer.tot})`;
-      }
+    toRender = to_print.join(' ');
+    if (answer.ac && answer.tot && answer.ac > 0 && answer.tot > 0) {
+      toRender += ` (${answer.ac}/${answer.tot})`;
     }
   }
 
   if (answer.result === AnswerResultType.CompileError) {
-    r += '</a>';
+    toRender = terminalLink(
+      toRender,
+      `https://acmicpc.net/ceinfo/${solutionId}`,
+    );
   }
 
-  console.log(color(r));
+  if (answer.progress) {
+    progressBar.tick(answer.progress - progressBar.curr, {
+      label: color(toRender),
+    });
+  } else {
+    console.log(color(toRender));
+  }
 
   if (answer.memory) {
     console.log(`Memory  ${answer.memory}`);
   }
   if (answer.time) {
     console.log(`Time    ${answer.time}`);
+  }
+
+  switch (answer.result) {
+    case AnswerResultType.Waiting:
+    case AnswerResultType.RejudgeWaiting:
+    case AnswerResultType.Compiling:
+    case AnswerResultType.Judging:
+    case AnswerResultType.JudgeDelaying:
+      return true;
+    default:
+      return false;
   }
 }
