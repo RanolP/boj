@@ -16,6 +16,7 @@ import { Duration, permastate } from '../cache';
 import { searchLanguage, Language } from '../util/language';
 import { filter } from 'fuzzy';
 import { Command, flags } from '@oclif/command';
+import { formatDate } from '../util/date';
 
 const [order, setOrder] = permastate(
   () => 1,
@@ -59,13 +60,9 @@ export default class InitCommand extends Command {
     }
     if (await notExists(join(problemPath, 'meta.json'))) {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = (now.getMonth() + 1).toString().padStart(2, '0');
-      const day = now.getDate().toString().padStart(2, '0');
 
       const meta: ProblemMeta = {
-        createDate: `${year}-${month}-${day}`,
-        solvedDate: `${year}-${month}-${day}`,
+        createDate: formatDate(now),
         status: 'in-progress',
         type: 'daily-boj',
         order: await order(),

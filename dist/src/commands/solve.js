@@ -16,6 +16,7 @@ const language_1 = require("../util/language");
 const better_fs_1 = require("../lib/better-fs");
 const progress_1 = __importDefault(require("progress"));
 const terminal_link_1 = __importDefault(require("terminal-link"));
+const date_1 = require("../util/date");
 var AnswerResultType;
 (function (AnswerResultType) {
     AnswerResultType[AnswerResultType["Waiting"] = 0] = "Waiting";
@@ -239,6 +240,7 @@ class SolveCommand extends command_1.Command {
         });
         let isFirstPacket = true;
         let toContinue = true;
+        let accepted = false;
         const progressBar = new progress_1.default(`:label  :bar  ${console_1.chalk.magenta(':percent')} ${console_1.chalk.blue(':eta초')}`, {
             complete: console_1.chalk.yellow('━'),
             incomplete: console_1.chalk.gray('━'),
@@ -246,8 +248,9 @@ class SolveCommand extends command_1.Command {
             total: 100,
         });
         await page.exposeFunction('display_solution', (solutionId, ans) => {
-            toContinue =
-                toContinue && (isFirstPacket || render(solutionId, ans, progressBar));
+            const renderResult = render(solutionId, ans, progressBar);
+            toContinue = toContinue && (isFirstPacket || renderResult[0]);
+            accepted = accepted || renderResult[1];
             if (isFirstPacket) {
                 isFirstPacket = false;
             }
@@ -256,6 +259,19 @@ class SolveCommand extends command_1.Command {
             await new Promise((resolve) => setTimeout(resolve, 1000));
         }
         await browser.close();
+        if (accepted && !problem.isSolved) {
+            const { toMarkSolved } = await inquirer_1.prompt({
+                type: 'confirm',
+                name: 'toMarkSolved',
+                message: `Would you mark ${problem.id} as solved?`,
+            });
+            if (toMarkSolved) {
+                problem.meta.status = 'solved';
+                const now = new Date();
+                problem.meta.solvedDate = date_1.formatDate(now);
+                await problem.saveMeta();
+            }
+        }
     }
 }
 exports.default = SolveCommand;
@@ -305,10 +321,10 @@ function render(solutionId, answer, progressBar) {
         console.log(color(toRender));
     }
     if (answer.memory) {
-        console.log(`Memory  ${answer.memory}`);
+        console.log(`${console_1.chalk.underline(console_1.chalk.magenta('Memory'))}  ${answer.memory}kB`);
     }
     if (answer.time) {
-        console.log(`Time    ${answer.time}`);
+        console.log(`${console_1.chalk.underline(console_1.chalk.yellow('Time'))}    ${answer.time}ms`);
     }
     switch (answer.result) {
         case AnswerResultType.Waiting:
@@ -316,8 +332,12 @@ function render(solutionId, answer, progressBar) {
         case AnswerResultType.Compiling:
         case AnswerResultType.Judging:
         case AnswerResultType.JudgeDelaying:
-            return true;
+            return [true, false];
         default:
-            return false;
+            return [
+                false,
+                answer.result === AnswerResultType.Accepted ||
+                    answer.result === AnswerResultType.PartiallyAccepted,
+            ];
     }
 }

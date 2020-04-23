@@ -28,10 +28,10 @@ npm install -g boj             # for npm
 
 터미널에서 백준 문제를 읽습니다.
 
-### (TODO) boj solve \<number\>
+### boj solve
 
 Playwright를 통해 백준에 제출합니다.
-`맞았습니다!!`가 뜨면 meta.json의 `status` 항목을 `solved`로 바꿉니다.
+`맞았습니다!!`가 뜨면 meta.json의 `status` 항목을 `solved`로 바꿀지 물어봅니다.
 
 ### (TODO) boj hide-solved
 

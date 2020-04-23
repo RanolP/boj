@@ -16,6 +16,7 @@ import { readFile, mkdirs, notExists } from '../lib/better-fs';
 import ProgressBar from 'progress';
 import { Chalk } from 'chalk';
 import terminalLink from 'terminal-link';
+import { formatDate } from '../util/date';
 
 enum AnswerResultType {
   Waiting = 0,
@@ -87,6 +88,7 @@ function hasProgressbar(
 }
 
 type ToContinue = boolean;
+type Accepted = boolean;
 
 type AnswerBase = {
   result: AnswerResultType;
@@ -344,6 +346,7 @@ export default class SolveCommand extends Command {
 
     let isFirstPacket = true;
     let toContinue: ToContinue = true;
+    let accepted: boolean = false;
     const progressBar = new ProgressBar(
       `:label  :bar  ${chalk.magenta(':percent')} ${chalk.blue(':eta초')}`,
       {
@@ -357,8 +360,9 @@ export default class SolveCommand extends Command {
     await page.exposeFunction(
       'display_solution',
       (solutionId: number, ans: any) => {
-        toContinue =
-          toContinue && (isFirstPacket || render(solutionId, ans, progressBar));
+        const renderResult = render(solutionId, ans, progressBar);
+        toContinue = toContinue && (isFirstPacket || renderResult[0]);
+        accepted = accepted || renderResult[1];
         if (isFirstPacket) {
           isFirstPacket = false;
         }
@@ -370,6 +374,20 @@ export default class SolveCommand extends Command {
     }
 
     await browser.close();
+
+    if (accepted && !problem.isSolved) {
+      const { toMarkSolved } = await prompt({
+        type: 'confirm',
+        name: 'toMarkSolved',
+        message: `Would you mark ${problem.id} as solved?`,
+      });
+      if (toMarkSolved) {
+        problem.meta.status = 'solved';
+        const now = new Date();
+        problem.meta.solvedDate = formatDate(now);
+        await problem.saveMeta();
+      }
+    }
   }
 }
 
@@ -377,7 +395,7 @@ function render(
   solutionId: number,
   answer: Answer,
   progressBar: ProgressBar,
-): ToContinue {
+): [ToContinue, Accepted] {
   const color = AnswerResultColorSet[answer.result];
   const label = AnswerResultLabelSet[answer.result];
   let to_print = [label];
@@ -420,10 +438,12 @@ function render(
   }
 
   if (answer.memory) {
-    console.log(`Memory  ${answer.memory}`);
+    console.log(
+      `${chalk.underline(chalk.magenta('Memory'))}  ${answer.memory}kB`,
+    );
   }
   if (answer.time) {
-    console.log(`Time    ${answer.time}`);
+    console.log(`${chalk.underline(chalk.yellow('Time'))}    ${answer.time}ms`);
   }
 
   switch (answer.result) {
@@ -432,8 +452,12 @@ function render(
     case AnswerResultType.Compiling:
     case AnswerResultType.Judging:
     case AnswerResultType.JudgeDelaying:
-      return true;
+      return [true, false];
     default:
-      return false;
+      return [
+        false,
+        answer.result === AnswerResultType.Accepted ||
+          answer.result === AnswerResultType.PartiallyAccepted,
+      ];
   }
 }

@@ -11,6 +11,7 @@ const cache_1 = require("../cache");
 const language_1 = require("../util/language");
 const fuzzy_1 = require("fuzzy");
 const command_1 = require("@oclif/command");
+const date_1 = require("../util/date");
 const [order, setOrder] = cache_1.permastate(() => 1, () => 'order', cache_1.Duration.of({ hour: 24 }), {
     useAbsoluteDate: true,
 });
@@ -35,12 +36,8 @@ class InitCommand extends command_1.Command {
         }
         if (await better_fs_1.notExists(path_1.join(problemPath, 'meta.json'))) {
             const now = new Date();
-            const year = now.getFullYear();
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
             const meta = {
-                createDate: `${year}-${month}-${day}`,
-                solvedDate: `${year}-${month}-${day}`,
+                createDate: date_1.formatDate(now),
                 status: 'in-progress',
                 type: 'daily-boj',
                 order: await order(),

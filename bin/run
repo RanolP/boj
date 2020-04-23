@@ -8,7 +8,7 @@ if (dev) {
   require('ts-node/register');
 }
 
-require(dev ? '../src' : '../dist')
+require(dev ? '../src' : '../dist/src')
   .run()
   .then(require('@oclif/command/flush'))
   .catch(require('@oclif/errors/handle'));

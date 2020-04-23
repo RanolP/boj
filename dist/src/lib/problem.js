@@ -4,6 +4,7 @@ const better_fs_1 = require("./better-fs");
 const path_1 = require("path");
 const constants_1 = require("../constants");
 const cache_1 = require("../cache");
+const node_json_edit_1 = require("@idlebox/node-json-edit");
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 let problems = {};
 let fetchStatus = {
@@ -56,10 +57,10 @@ class Problem {
         this._meta = null;
     }
     async initialize() {
-        this._meta = JSON.parse(await better_fs_1.readFile(path_1.join(constants_1.ROOT, this.id.toString(), 'meta.json'), {
-            encoding: 'utf-8',
-        }));
-        return this._meta;
+        this._meta = (await node_json_edit_1.loadJsonFile(path_1.join(constants_1.ROOT, this.id.toString(), 'meta.json'), 'utf-8'));
+    }
+    async saveMeta() {
+        await node_json_edit_1.writeJsonFileIfChanged(path_1.join(constants_1.ROOT, this.id.toString(), 'meta.json'), this._meta, 'utf-8');
     }
     get isSolved() {
         return this.meta.status === 'solved';

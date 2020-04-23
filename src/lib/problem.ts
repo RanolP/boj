@@ -2,6 +2,7 @@ import { lstat, readdir, readFile } from './better-fs';
 import { join, basename, parse } from 'path';
 import { ROOT } from '../constants';
 import { Duration } from '../cache';
+import { loadJsonFile, writeJsonFileIfChanged } from '@idlebox/node-json-edit';
 
 const PROBLEM_NUMBER_REGEX = /^[0-9]+$/;
 
@@ -71,13 +72,19 @@ export class Problem {
   private _meta: ProblemMeta | null = null;
   constructor(public readonly id: number) {}
 
-  async initialize() {
-    this._meta = JSON.parse(
-      await readFile(join(ROOT, this.id.toString(), 'meta.json'), {
-        encoding: 'utf-8',
-      }),
-    ) as ProblemMeta;
-    return this._meta;
+  async initialize(): Promise<void> {
+    this._meta = (await loadJsonFile(
+      join(ROOT, this.id.toString(), 'meta.json'),
+      'utf-8',
+    )) as ProblemMeta;
+  }
+
+  async saveMeta(): Promise<void> {
+    await writeJsonFileIfChanged(
+      join(ROOT, this.id.toString(), 'meta.json'),
+      this._meta,
+      'utf-8',
+    );
   }
 
   get isSolved(): boolean {
