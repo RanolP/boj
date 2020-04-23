@@ -1,13 +1,15 @@
 import { Problem } from '../../lib/problem';
+import * as yup from 'yup';
 
-export interface Rule<T = {}, Context = {}> {
+export interface Rule<T extends object = {}, Context = {}> {
   name: string;
   type: 'root' | 'note' | 'any';
   isBlock: boolean;
+  schema?: yup.ObjectSchema<T>;
   execute(data: T, context: Context): PromiseLike<string> | string;
 }
 
-export type UnknownRule = Rule<unknown>;
+export type UnknownRule = Rule<{}>;
 export type Ruleset = Record<string, UnknownRule>;
 
 export type ClassifiedRuleset = {
@@ -32,7 +34,7 @@ export function classifyRules(rules: UnknownRule[]): ClassifiedRuleset {
     {
       block: {},
       inline: {},
-    } as ClassifiedRuleset
+    } as ClassifiedRuleset,
   );
 }
 
@@ -50,9 +52,10 @@ export function combineRuleset(
         ...curr.inline,
       },
     }),
-    { block: {}, inline: {} } as ClassifiedRuleset
+    { block: {}, inline: {} } as ClassifiedRuleset,
   );
 }
 
-export * from './root/';
-export * from './note/';
+export * from './root';
+export * from './note';
+export * from './any';

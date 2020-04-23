@@ -11,5 +11,6 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "typeRoots": ["node_modules/@types", "typings"]
-  }
+  },
+  "include": ["src", "typings"]
 }

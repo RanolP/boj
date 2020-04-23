@@ -6,18 +6,18 @@ import * as yup from 'yup';
 
 export type Browser = 'firefox' | 'chromium' | 'webkit';
 
-export interface Settings {
+export interface Configuration {
   browser: Browser;
 }
 
-const validator = yup.object<Settings>({
+const validator = yup.object<Configuration>({
   browser: yup
     .string()
     .required()
     .oneOf(['firefox', 'chromium', 'webkit']) as yup.StringSchema<Browser>,
 });
 
-export async function getSettings(error: Print): Promise<Settings | null> {
+export async function getConfig(error: Print): Promise<Configuration | null> {
   const configPath = join(ROOT, 'boj.config.json');
   if (await notExists(configPath)) {
     error('Config file does not exists, have you created `boj.config.json`?');
@@ -28,10 +28,7 @@ export async function getSettings(error: Print): Promise<Settings | null> {
   try {
     jsonContent = JSON.parse(content);
   } catch (e) {
-    error(
-      'Config file is not valid json format:' +
-        e.toString().replace('SyntaxError: JSON.parse: ', ''),
-    );
+    error('Config file is not valid json format: ' + e.message);
     return null;
   }
   try {

@@ -1,6 +1,6 @@
 {
     "name": "boj",
-    "version": "0.2.2",
+    "version": "0.2.5",
     "description": "script set for boj",
     "repository": "https://github.com/RanolP/boj",
     "author": "RanolP <public.ranolp@gmail.com>",
@@ -21,6 +21,7 @@
         "@oclif/plugin-autocomplete": "^0.1.5",
         "@oclif/plugin-help": "^2.2.3",
         "@oclif/plugin-not-found": "^1.2.3",
+        "boxen": "^4.2.0",
         "chalk": "^4.0.0",
         "dedent": "^0.7.0",
         "fuzzy": "^0.1.3",
@@ -62,7 +63,7 @@
     ],
     "oclif": {
         "bin": "boj",
-        "commands": "./dist/src/commands",
+        "commands": "./src/commands",
         "plugins": [
             "@oclif/plugin-help",
             "@oclif/plugin-not-found",

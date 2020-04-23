@@ -25,5 +25,6 @@ function combineRuleset(...ruleset) {
     }), { block: {}, inline: {} });
 }
 exports.combineRuleset = combineRuleset;
-__export(require("./root/"));
-__export(require("./note/"));
+__export(require("./root"));
+__export(require("./note"));
+__export(require("./any"));

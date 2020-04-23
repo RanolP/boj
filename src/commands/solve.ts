@@ -3,7 +3,7 @@ import { prompt } from '../vendors/inquirer';
 import { Logger, chalk } from '../util/console';
 import { Command, flags } from '@oclif/command';
 import playwright, { JSHandle } from 'playwright';
-import { getSettings } from '../config';
+import { getConfig } from '../config';
 import { getProblemList, Problem } from '../lib/problem';
 import { ROOT } from '../constants';
 import { join, parse } from 'path';
@@ -129,7 +129,8 @@ type Answer =
     });
 
 export default class SolveCommand extends Command {
-  public static description = 'Initialize problem';
+  public static description =
+    'Submit to baekjoon, and marks as solved if accepted.';
 
   public static flags = {
     head: flags.boolean({
@@ -143,7 +144,7 @@ export default class SolveCommand extends Command {
       info: chalk.blue,
     });
 
-    const settings = await getSettings(error);
+    const settings = await getConfig(error);
     if (!settings) {
       return;
     }

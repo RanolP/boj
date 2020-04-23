@@ -17,7 +17,7 @@ const validator = yup.object({
         .required()
         .oneOf(['firefox', 'chromium', 'webkit']),
 });
-async function getSettings(error) {
+async function getConfig(error) {
     const configPath = path_1.join(constants_1.ROOT, 'boj.config.json');
     if (await better_fs_1.notExists(configPath)) {
         error('Config file does not exists, have you created `boj.config.json`?');
@@ -29,8 +29,7 @@ async function getSettings(error) {
         jsonContent = JSON.parse(content);
     }
     catch (e) {
-        error('Config file is not valid json format:' +
-            e.toString().replace('SyntaxError: JSON.parse: ', ''));
+        error('Config file is not valid json format: ' + e.message);
         return null;
     }
     try {
@@ -41,4 +40,4 @@ async function getSettings(error) {
         return null;
     }
 }
-exports.getSettings = getSettings;
+exports.getConfig = getConfig;

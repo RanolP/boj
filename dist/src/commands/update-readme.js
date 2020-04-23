@@ -45,7 +45,7 @@ class UpdateReadmeCommand extends command_1.Command {
             const noteTemplate = await better_fs_1.readFile(problem.noteFile, {
                 encoding: 'utf-8',
             });
-            const result = await pgfm_1.preprocess(noteTemplate, { problem }, pgfm_1.NoteRuleset);
+            const result = await pgfm_1.preprocess(noteTemplate, { problem }, pgfm_1.combineRuleset(pgfm_1.NoteRuleset, pgfm_1.AnyRuleset));
             const target = path_1.join(constants_1.ROOT, problem.id.toString(), 'README.md');
             better_fs_1.writeFile(target, result);
             log(console_1.chalk.green, 'Success.');
@@ -69,7 +69,7 @@ class UpdateReadmeCommand extends command_1.Command {
         const template = await better_fs_1.readFile(templateFile, {
             encoding: 'utf-8',
         });
-        const result = await pgfm_1.preprocess(template, {}, pgfm_1.RootRuleset);
+        const result = await pgfm_1.preprocess(template, {}, pgfm_1.combineRuleset(pgfm_1.RootRuleset, pgfm_1.AnyRuleset));
         const target = path_1.join(constants_1.ROOT, 'README.md');
         better_fs_1.writeFile(target, result);
         success('All done!');

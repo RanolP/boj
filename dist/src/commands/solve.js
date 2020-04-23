@@ -89,7 +89,7 @@ class SolveCommand extends command_1.Command {
             error: console_1.chalk.red,
             info: console_1.chalk.blue,
         });
-        const settings = await config_1.getSettings(error);
+        const settings = await config_1.getConfig(error);
         if (!settings) {
             return;
         }
@@ -275,7 +275,7 @@ class SolveCommand extends command_1.Command {
     }
 }
 exports.default = SolveCommand;
-SolveCommand.description = 'Initialize problem';
+SolveCommand.description = 'Submit to baekjoon, and marks as solved if accepted.';
 SolveCommand.flags = {
     head: command_1.flags.boolean({
         description: 'Wheater not to launch headless browser or not',

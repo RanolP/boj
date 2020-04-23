@@ -7,7 +7,13 @@ import {
 } from '../lib/better-fs';
 import { ROOT } from '../constants';
 import { join } from 'path';
-import { preprocess, RootRuleset, NoteRuleset } from '../pgfm';
+import {
+  preprocess,
+  RootRuleset,
+  NoteRuleset,
+  AnyRuleset,
+  combineRuleset,
+} from '../pgfm';
 import { chalk, Logger } from '../util/console';
 import { getProblemList, Problem } from '../lib/problem';
 import { cached, Duration, permastate } from '../cache';
@@ -91,7 +97,11 @@ export default class UpdateReadmeCommand extends Command {
         encoding: 'utf-8',
       });
 
-      const result = await preprocess(noteTemplate, { problem }, NoteRuleset);
+      const result = await preprocess(
+        noteTemplate,
+        { problem },
+        combineRuleset(NoteRuleset, AnyRuleset),
+      );
 
       const target = join(ROOT, problem.id.toString(), 'README.md');
 
@@ -127,7 +137,11 @@ export default class UpdateReadmeCommand extends Command {
       encoding: 'utf-8',
     });
 
-    const result = await preprocess(template, {}, RootRuleset);
+    const result = await preprocess(
+      template,
+      {},
+      combineRuleset(RootRuleset, AnyRuleset),
+    );
 
     const target = join(ROOT, 'README.md');
 
