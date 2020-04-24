@@ -17,6 +17,7 @@ const better_fs_1 = require("../lib/better-fs");
 const progress_1 = __importDefault(require("progress"));
 const terminal_link_1 = __importDefault(require("terminal-link"));
 const date_1 = require("../util/date");
+const node_fetch_1 = __importDefault(require("node-fetch"));
 var AnswerResultType;
 (function (AnswerResultType) {
     AnswerResultType[AnswerResultType["Waiting"] = 0] = "Waiting";
@@ -229,15 +230,6 @@ class SolveCommand extends command_1.Command {
                 await found[0].click();
             }
         });
-        const input = (await page.$('.CodeMirror'));
-        await input.click();
-        await input.focus();
-        await page.keyboard.insertText(solutionSource);
-        await page.click('#submit_button');
-        await page.waitForNavigation({
-            waitUntil: 'load',
-            timeout: 0,
-        });
         let isFirstPacket = true;
         let toContinue = true;
         let accepted = false;
@@ -247,16 +239,54 @@ class SolveCommand extends command_1.Command {
             width: 40,
             total: 100,
         });
-        await page.exposeFunction('display_solution', (solutionId, ans) => {
-            const renderResult = render(solutionId, ans, progressBar);
-            toContinue = toContinue && (isFirstPacket || renderResult[0]);
+        const acceptSolution = (solutionId, answer) => {
+            if (!toContinue) {
+                return;
+            }
+            const renderResult = render(solutionId, answer, progressBar);
+            toContinue = toContinue && renderResult[0];
             accepted = accepted || renderResult[1];
             if (isFirstPacket) {
                 isFirstPacket = false;
             }
+        };
+        info(`Code size: ${solutionSource.length}B, Submitting...`);
+        const input = (await page.$('.CodeMirror'));
+        await input.click();
+        await input.focus();
+        await page.keyboard.insertText(solutionSource);
+        await page.click('#submit_button');
+        info(`Code submitted.`);
+        await page.waitForNavigation({
+            waitUntil: 'load',
+            timeout: 0,
         });
+        await page.exposeFunction('display_solution', (solutionId, answer) => acceptSolution(solutionId, answer));
+        page
+            .waitForSelector('#status-table tbody tr', {
+            timeout: 0,
+        })
+            .then((element) => element.evaluate((jsHandle) => jsHandle.id.substring(9)))
+            .then((solutionId) => node_fetch_1.default('https://www.acmicpc.net/status/ajax', {
+            headers: {
+                Accept: '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: `solution_id=${solutionId}`,
+            method: 'POST',
+        })
+            .then((response) => response.json())
+            .then((answer) => {
+            if (isFirstPacket) {
+                acceptSolution(Number(solutionId), answer);
+            }
+        }));
         while (toContinue) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
+            if (toContinue) {
+                progressBar.render();
+            }
         }
         await browser.close();
         if (accepted && !problem.isSolved) {
@@ -283,13 +313,14 @@ SolveCommand.flags = {
 };
 function render(solutionId, answer, progressBar) {
     var _a;
-    const color = AnswerResultColorSet[answer.result];
-    const label = AnswerResultLabelSet[answer.result];
+    const result = Number(answer.result);
+    const color = AnswerResultColorSet[result];
+    const label = AnswerResultLabelSet[result];
     let to_print = [label];
-    if (answer.result === AnswerResultType.WrongAnswer && answer.feedback) {
+    if (result === AnswerResultType.WrongAnswer && answer.feedback) {
         to_print.push(`[${answer.feedback}]`);
     }
-    if (answer.result === AnswerResultType.JudgeDelaying) {
+    if (result === AnswerResultType.JudgeDelaying) {
         const remain = (_a = answer.remain) !== null && _a !== void 0 ? _a : 0;
         to_print[0] = to_print[0].replace('%(remain)', remain.toString());
     }
@@ -309,11 +340,11 @@ function render(solutionId, answer, progressBar) {
             toRender += ` (${answer.ac}/${answer.tot})`;
         }
     }
-    if (answer.result === AnswerResultType.CompileError) {
+    if (result === AnswerResultType.CompileError) {
         toRender = terminal_link_1.default(toRender, `https://acmicpc.net/ceinfo/${solutionId}`);
     }
     if (answer.progress) {
-        progressBar.tick(answer.progress - progressBar.curr, {
+        progressBar.update(answer.progress / 100, {
             label: color(toRender),
         });
     }
@@ -326,7 +357,7 @@ function render(solutionId, answer, progressBar) {
     if (answer.time) {
         console.log(`${console_1.chalk.underline(console_1.chalk.yellow('Time'))}    ${answer.time}ms`);
     }
-    switch (answer.result) {
+    switch (result) {
         case AnswerResultType.Waiting:
         case AnswerResultType.RejudgeWaiting:
         case AnswerResultType.Compiling:
@@ -336,8 +367,8 @@ function render(solutionId, answer, progressBar) {
         default:
             return [
                 false,
-                answer.result === AnswerResultType.Accepted ||
-                    answer.result === AnswerResultType.PartiallyAccepted,
+                result === AnswerResultType.Accepted ||
+                    result === AnswerResultType.PartiallyAccepted,
             ];
     }
 }
