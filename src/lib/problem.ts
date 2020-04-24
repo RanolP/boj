@@ -53,11 +53,15 @@ export async function getProblemList({
   return sorted ? fetchStatus.arraySorted : fetchStatus.array;
 }
 
-export async function getProblem(id: number): Promise<Problem> {
-  const problem = new Problem(id);
-  await problem.initialize();
-  problems[id] = problem;
-  return problem;
+export async function getProblem(id: number): Promise<Problem | null> {
+  try {
+    const problem = new Problem(id);
+    await problem.initialize();
+    problems[id] = problem;
+    return problem;
+  } catch {
+    return null;
+  }
 }
 
 export interface ProblemMeta {

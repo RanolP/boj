@@ -45,10 +45,15 @@ async function getProblemList({ sorted = false, } = {}) {
 }
 exports.getProblemList = getProblemList;
 async function getProblem(id) {
-    const problem = new Problem(id);
-    await problem.initialize();
-    problems[id] = problem;
-    return problem;
+    try {
+        const problem = new Problem(id);
+        await problem.initialize();
+        problems[id] = problem;
+        return problem;
+    }
+    catch (_a) {
+        return null;
+    }
 }
 exports.getProblem = getProblem;
 class Problem {

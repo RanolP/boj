@@ -75,7 +75,7 @@ export default class InitCommand extends Command {
 
       await setOrder((await order()) + 1);
     }
-    const problem = await getProblem(id);
+    const problem = (await getProblem(id))!;
     const solutions = await problem.getSolutionList();
     if (solutions.length === 0) {
       const { language } = await prompt<{ language?: Language }>({

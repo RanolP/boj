@@ -45,7 +45,7 @@ class InitCommand extends command_1.Command {
             await better_fs_1.writeFile(path_1.join(problemPath, 'meta.json'), JSON.stringify(meta, null, '  '));
             await setOrder((await order()) + 1);
         }
-        const problem = await problem_1.getProblem(id);
+        const problem = (await problem_1.getProblem(id));
         const solutions = await problem.getSolutionList();
         if (solutions.length === 0) {
             const { language } = await inquirer_1.prompt({
