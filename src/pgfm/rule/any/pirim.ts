@@ -34,10 +34,6 @@ enum Pirim {
   CodeForces1Minute = 'cf-1m',
 }
 
-interface Configuration {
-  id: Pirim;
-}
-
 interface Tweet {
   id: string;
   content: string;
@@ -194,19 +190,17 @@ const PirimMap: Record<Pirim, Tweet> = {
 };
 const PirimValues = Object.keys(PirimMap) as Pirim[];
 
-export const PirimRule: Rule<Configuration> = {
+export const PirimRule: Rule<Pirim> = {
   name: 'pirim',
   type: 'any',
   isBlock: true,
-  schema: yup.object<Configuration>({
-    id: yup.string().required().oneOf(PirimValues) as yup.StringSchema<Pirim>,
-  }),
-  async execute({ id }: Configuration): Promise<string> {
+  schema: yup.string().required().oneOf(PirimValues) as yup.StringSchema<Pirim>,
+  async execute(id: Pirim): Promise<string> {
     const tweet = PirimMap[id];
     return dedent`
     <a href="https://twitter.com/PSing_Pirim/status/${tweet.id}">
     
-    > <table><tr><td valign="center"><img src="https://pbs.twimg.com/profile_images/1227442623327150080/QYE5fpZ2_normal.png" alt="PSing_Pirim"></td> <td> <b>PS하는 피림이</b><br>@PSing_Pirim</td></tr></table>
+    > <table><tr><td><img src="https://pbs.twimg.com/profile_images/1227442623327150080/QYE5fpZ2_normal.png" alt="PSing_Pirim"></td><td><b>PS하는 피림이</b><br>@PSing_Pirim</td></tr></table>
     > 
     > ${tweet.content}
     >

@@ -59,13 +59,14 @@ export default class UpdateReadmeCommand extends Command {
 
     const problemLoggers = base.labeled(
       problemList.map((it) => it.id),
-      ['info', 'error', 'success'],
+      ['info', 'error', 'success', 'warning'],
     );
-    const { info, error, success } = base.labeled(
+    const { info, error, success, warning } = base.labeled(
       {
         info: chalk.blue,
         error: chalk.red,
         success: chalk.green,
+        warning: chalk.yellow,
       },
       problemList.map((it) => it.id),
     );
@@ -98,6 +99,8 @@ export default class UpdateReadmeCommand extends Command {
       });
 
       const result = await preprocess(
+        problem.noteFile,
+        log.colored(chalk.yellow),
         noteTemplate,
         { problem },
         combineRuleset(NoteRuleset, AnyRuleset),
@@ -138,6 +141,8 @@ export default class UpdateReadmeCommand extends Command {
     });
 
     const result = await preprocess(
+      templateFile,
+      warning,
       template,
       {},
       combineRuleset(RootRuleset, AnyRuleset),

@@ -17,13 +17,13 @@ const [order, setOrder] = cache_1.permastate(() => 1, () => 'order', cache_1.Dur
 });
 class InitCommand extends command_1.Command {
     async run() {
-        let id = this.parse(InitCommand).flags.id ||
-            (await inquirer_1.prompt({
-                type: 'autocomplete',
-                name: 'id',
-                message: 'Search BOJ Problem',
-                source: (_, query) => baekjoon_1.searchProblem(query || ''),
-            })).id;
+        var _a;
+        let id = (_a = this.parse(InitCommand).flags.id) !== null && _a !== void 0 ? _a : (await inquirer_1.prompt({
+            type: 'autocomplete',
+            name: 'id',
+            message: 'Search BOJ Problem',
+            source: (_, query) => baekjoon_1.searchProblem(query !== null && query !== void 0 ? query : ''),
+        })).id;
         const base = new console_1.Logger('init');
         const { create, warning } = base.labeled({
             create: console_1.chalk.green,
@@ -57,7 +57,7 @@ class InitCommand extends command_1.Command {
                         name: 'Select it later',
                         value: undefined,
                     },
-                ].concat(language_1.searchLanguage(query || '')),
+                ].concat(language_1.searchLanguage(query !== null && query !== void 0 ? query : '')),
             });
             if (language) {
                 let source = '';
@@ -73,7 +73,7 @@ class InitCommand extends command_1.Command {
                         name: 'templateToUse',
                         message: 'Templates',
                         default: files.some((it) => it.base === main) ? [main] : [],
-                        source: async (_, query) => fuzzy_1.filter(query || '', files, {
+                        source: async (_, query) => fuzzy_1.filter(query !== null && query !== void 0 ? query : '', files, {
                             extract: ({ base }) => base,
                         }).map(({ original }) => ({
                             name: original.name,

@@ -20,30 +20,27 @@ export const SolvedTableRule: Rule = {
   async execute(): Promise<string> {
     const problemList = await getProblemList({ sorted: true });
     const problemListClassified = Object.entries(
-      problemList.reduce((acc, curr) => {
-        const currDate = curr.meta.solvedDate || curr.meta.createDate;
+      problemList.reduce((acc, problem) => {
+        const date = problem.meta.solvedDate ?? problem.meta.createDate;
         let update: ProblemProps[];
-        if (currDate in acc) {
-          const origin = acc[currDate];
-          origin.push({ problem: curr, dateRowspan: 0 });
-          /*
-          origin.sort(
-            ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order,
-          );
-          */
+        if (date in acc) {
+          const origin = acc[date];
+          origin.push({ problem: problem, dateRowspan: 0 });
           origin[0].dateRowspan = origin.length;
           update = origin;
         } else {
-          update = [{ problem: curr, dateRowspan: 1 }];
+          update = [{ problem, dateRowspan: 1 }];
         }
         return {
           ...acc,
-          [currDate]: update,
+          [date]: update,
         };
       }, {} as Record<string, ProblemProps[]>),
     )
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map((tuple) => tuple[1])
+      .sort(({ 0: leftDate }, { 0: rightDate }) =>
+        leftDate.localeCompare(rightDate),
+      )
+      .map(({ 1: problemProps }) => problemProps)
       .flat();
     async function renderProblemLine({
       problem,
@@ -80,7 +77,7 @@ export const SolvedTableRule: Rule = {
       return [
         '<tr>',
         shouldAddDate > 0
-          ? `<td rowspan="${shouldAddDate}">${solvedDate || createDate}</td>`
+          ? `<td rowspan="${shouldAddDate}">${solvedDate ?? createDate}</td>`
           : '',
         dedent`
           <td>

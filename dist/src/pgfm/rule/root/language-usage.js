@@ -26,10 +26,13 @@ exports.LanguageUsageRule = {
         | ---- | --------- |
       `,
         ]
-            .concat(Object.entries(ratio).map(([ext, count]) => dedent_1.default `
-        | ${ExtensionLanguageNameMap[ext] || 'Unknown'} (${ext}) | ${count} of ${solutions.length} (${((count / solutions.length) *
-            100).toFixed(2)}%) |
-      `))
+            .concat(Object.entries(ratio).map(([ext, count]) => {
+            var _a;
+            return dedent_1.default `
+        | ${(_a = ExtensionLanguageNameMap[ext]) !== null && _a !== void 0 ? _a : 'Unknown'} (${ext}) | ${count} of ${solutions.length} (${((count / solutions.length) *
+                100).toFixed(2)}%) |
+      `;
+        }))
             .join('\n');
     },
 };

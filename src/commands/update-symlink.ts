@@ -2,13 +2,13 @@ import { symlink, exists, unlink, lstat, readlink } from '../lib/better-fs';
 import { getProblemList } from '../lib/problem';
 import { ROOT } from '../constants';
 import { join, parse } from 'path';
-import { blue } from 'chalk';
 import { prompt } from '../vendors/inquirer';
 import { chalk, Logger } from '../util/console';
 import { Command } from '@oclif/command';
 
 export default class InitCommand extends Command {
-  public static description = 'Initialize sezong.config.json';
+  public static description =
+    'Update symlink files to ensure daily-boj standard';
   async run() {
     const problemList = await getProblemList();
 
@@ -62,7 +62,7 @@ export default class InitCommand extends Command {
         }
       }
       await symlink(source, target, 'file');
-      log(blue, 'Updated.');
+      log(chalk.blue, 'Updated.');
     }
   }
 }

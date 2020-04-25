@@ -19,11 +19,12 @@ class UpdateReadmeCommand extends command_1.Command {
         let force = this.parse(UpdateReadmeCommand).flags.force;
         const base = new console_1.Logger('update-readme');
         const problemList = await problem_1.getProblemList();
-        const problemLoggers = base.labeled(problemList.map((it) => it.id), ['info', 'error', 'success']);
-        const { info, error, success } = base.labeled({
+        const problemLoggers = base.labeled(problemList.map((it) => it.id), ['info', 'error', 'success', 'warning']);
+        const { info, error, success, warning } = base.labeled({
             info: console_1.chalk.blue,
             error: console_1.chalk.red,
             success: console_1.chalk.green,
+            warning: console_1.chalk.yellow,
         }, problemList.map((it) => it.id));
         let problemUpdated = problemList.map((it) => it.id) != (await fetchLastProblemList());
         for (const problem of problemList) {
@@ -45,7 +46,7 @@ class UpdateReadmeCommand extends command_1.Command {
             const noteTemplate = await better_fs_1.readFile(problem.noteFile, {
                 encoding: 'utf-8',
             });
-            const result = await pgfm_1.preprocess(noteTemplate, { problem }, pgfm_1.combineRuleset(pgfm_1.NoteRuleset, pgfm_1.AnyRuleset));
+            const result = await pgfm_1.preprocess(problem.noteFile, log.colored(console_1.chalk.yellow), noteTemplate, { problem }, pgfm_1.combineRuleset(pgfm_1.NoteRuleset, pgfm_1.AnyRuleset));
             const target = path_1.join(constants_1.ROOT, problem.id.toString(), 'README.md');
             better_fs_1.writeFile(target, result);
             log(console_1.chalk.green, 'Success.');
@@ -69,7 +70,7 @@ class UpdateReadmeCommand extends command_1.Command {
         const template = await better_fs_1.readFile(templateFile, {
             encoding: 'utf-8',
         });
-        const result = await pgfm_1.preprocess(template, {}, pgfm_1.combineRuleset(pgfm_1.RootRuleset, pgfm_1.AnyRuleset));
+        const result = await pgfm_1.preprocess(templateFile, warning, template, {}, pgfm_1.combineRuleset(pgfm_1.RootRuleset, pgfm_1.AnyRuleset));
         const target = path_1.join(constants_1.ROOT, 'README.md');
         better_fs_1.writeFile(target, result);
         success('All done!');

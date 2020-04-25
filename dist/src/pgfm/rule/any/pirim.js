@@ -196,15 +196,13 @@ exports.PirimRule = {
     name: 'pirim',
     type: 'any',
     isBlock: true,
-    schema: yup.object({
-        id: yup.string().required().oneOf(PirimValues),
-    }),
-    async execute({ id }) {
+    schema: yup.string().required().oneOf(PirimValues),
+    async execute(id) {
         const tweet = PirimMap[id];
         return dedent_1.default `
     <a href="https://twitter.com/PSing_Pirim/status/${tweet.id}">
     
-    > <table><tr><td valign="center"><img src="https://pbs.twimg.com/profile_images/1227442623327150080/QYE5fpZ2_normal.png" alt="PSing_Pirim"></td> <td> <b>PS하는 피림이</b><br>@PSing_Pirim</td></tr></table>
+    > <table><tr><td><img src="https://pbs.twimg.com/profile_images/1227442623327150080/QYE5fpZ2_normal.png" alt="PSing_Pirim"></td><td><b>PS하는 피림이</b><br>@PSing_Pirim</td></tr></table>
     > 
     > ${tweet.content}
     >

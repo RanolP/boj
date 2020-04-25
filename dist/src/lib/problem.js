@@ -28,13 +28,14 @@ async function getProblemList({ sorted = false, } = {}) {
         fetchStatus.allFetched = true;
         fetchStatus.array = Object.values(problems);
         fetchStatus.arraySorted = Object.values(problems).sort((a, b) => {
+            var _a, _b;
             if (a.meta.solvedDate && b.meta.solvedDate) {
                 const date = a.meta.createDate.localeCompare(b.meta.createDate);
                 if (date !== 0) {
                     return date;
                 }
             }
-            const date = (a.meta.solvedDate || a.meta.createDate).localeCompare(b.meta.solvedDate || b.meta.createDate);
+            const date = ((_a = a.meta.solvedDate) !== null && _a !== void 0 ? _a : a.meta.createDate).localeCompare((_b = b.meta.solvedDate) !== null && _b !== void 0 ? _b : b.meta.createDate);
             if (date !== 0) {
                 return date;
             }

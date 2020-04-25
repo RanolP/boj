@@ -6,18 +6,19 @@ PGFM은 마크다운 전처리기 및 그 규격으로, Preprocessor for Github 
 
 ### 블록 문법
 
-물결표 세 개로 시작해, 명령 이름을 붙이고, 필요하다면 JSON 규격에 맞는 추가 설정을 넘긴 후, 물결표 세 개로 끝마칩니다.
+물결표 세 개로 시작해, 명령 이름을 붙이고, 필요하다면 JavaScript 규격에 맞는 추가 설정을 넘긴 후, 물결표 세 개로 끝마칩니다. JavaScript는 매번 샌드박스 안에서 실행됩니다. 가장 마지막에 오는 표현식을 우선하며, 그런 표현식이 없을 경우 `module.exports` 값을 사용합니다.
 
 예시:
 
 ```markdown
-~~~solved-table
+~~~pirim
+module.exports = "db"
 ~~~
 ```
 
 ### 인라인 변수
 
-중괄호와 골뱅이 기호로 감쌉니다.
+중괄호와 골뱅이 기호로 감쌉니다. 만약 콜론이 있다면 그 이후는 문자열로 전달됩니다.
 
 예시:
 
@@ -69,9 +70,7 @@ daily-boj로 푼 문제 테이블을 생성합니다.
 설정 규격:
 
 ```json
-{
-  "id": "string"
-}
+"string"
 ```
 
 피림이 트윗을 임베드합니다. 사용 가능한 트윗은 [여기](./Pirim.md)에 등재되어 있습니다.
@@ -90,3 +89,7 @@ daily-boj로 푼 문제 테이블을 생성합니다.
 
 각 문제의 제목입니다.
 `{@ problem-number @} {@ problem-name @}` 과 동치입니다.
+
+### math `[any]`
+
+[GitHub의 Jupyter Notebook 지원을 통한 트릭](https://gist.github.com/a-rodin/fef3f543412d6e1ec5b6cf55bf197d7b)을 사용해 수식을 이미지로 변환해줍니다.

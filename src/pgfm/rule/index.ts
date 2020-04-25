@@ -1,15 +1,15 @@
 import { Problem } from '../../lib/problem';
 import * as yup from 'yup';
 
-export interface Rule<T extends object = {}, Context = {}> {
+export interface Rule<T = null, Context = {}> {
   name: string;
   type: 'root' | 'note' | 'any';
   isBlock: boolean;
-  schema?: yup.ObjectSchema<T>;
+  schema?: yup.Schema<T>;
   execute(data: T, context: Context): PromiseLike<string> | string;
 }
 
-export type UnknownRule = Rule<{}>;
+export type UnknownRule = Rule<unknown>;
 export type Ruleset = Record<string, UnknownRule>;
 
 export type ClassifiedRuleset = {

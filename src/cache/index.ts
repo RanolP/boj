@@ -33,10 +33,10 @@ export function permastate<Params extends any[], T>(
   initial: (...params: Params) => Promise<NoFetchKind<T>> | NoFetchKind<T>,
   key: (...params: Params) => string,
   duration: Duration,
-  options: CacheOptions = {}
+  options: CacheOptions = {},
 ): [
   (...params: Params) => Promise<Fetched<T>>,
-  (...params: ShiftArray<NoFetchKind<T>, Params>) => Promise<Fetched<T>>
+  (...params: ShiftArray<NoFetchKind<T>, Params>) => Promise<Fetched<T>>,
 ] {
   return [
     cached(initial, key, duration, options),
@@ -44,7 +44,7 @@ export function permastate<Params extends any[], T>(
       (...[v]: ShiftArray<NoFetchKind<T>, Params>) => v,
       (...[_, ...params]: ShiftArray<NoFetchKind<T>, Params>) =>
         key(...(params as Params)),
-      Duration.of({})
+      Duration.of({}),
     ),
   ];
 }
@@ -55,7 +55,7 @@ export function cached<Params extends Array<any>, Result>(
   ) => Promise<NoFetchKind<Result>> | NoFetchKind<Result>,
   key: string | ((...params: Params) => string),
   duration: Duration,
-  { useFileCache = true, useAbsoluteDate = false }: Partial<CacheOptions> = {}
+  { useFileCache = true, useAbsoluteDate = false }: Partial<CacheOptions> = {},
 ): ((...params: Params) => Promise<Fetched<Result>>) & {
   force: (...params: Params) => Promise<Fetched<Result>>;
 } {
@@ -69,9 +69,6 @@ export function cached<Params extends Array<any>, Result>(
       const now = new Date();
       const cacheFile = join(ROOT, '.boj-cache', currentKey + '.json');
       const parsed = parse(cacheFile);
-      if (await notExists(parsed.dir)) {
-        await mkdirs(parsed.dir);
-      }
       let fetchKind: FetchKind = 'fetch' as const;
       if (useFileCache && (await exists(cacheFile))) {
         const content = await readFile(cacheFile, { encoding: 'utf-8' });
@@ -96,6 +93,9 @@ export function cached<Params extends Array<any>, Result>(
       });
       memCache[currentKey] = fetched;
       if (useFileCache) {
+        if (await notExists(parsed.dir)) {
+          await mkdirs(parsed.dir);
+        }
         await writeFile(
           cacheFile,
           JSON.stringify(
@@ -104,8 +104,8 @@ export function cached<Params extends Array<any>, Result>(
               data: fetched,
             },
             null,
-            '  '
-          )
+            '  ',
+          ),
         );
       }
       return memCache[currentKey];
@@ -115,11 +115,15 @@ export function cached<Params extends Array<any>, Result>(
         const currentKey = typeof key === 'function' ? key(...params) : key;
         const now = new Date();
         const cacheFile = join(ROOT, '.boj-cache', currentKey + '.json');
+        const parsed = parse(cacheFile);
         const fetched = Object.assign(await body.apply(null, params), {
           fetchKind: 'force-fetch' as const,
         });
         memCache[currentKey] = fetched;
         if (useFileCache) {
+          if (await notExists(parsed.dir)) {
+            await mkdirs(parsed.dir);
+          }
           await writeFile(
             cacheFile,
             JSON.stringify(
@@ -128,12 +132,12 @@ export function cached<Params extends Array<any>, Result>(
                 data: fetched,
               },
               null,
-              '  '
-            )
+              '  ',
+            ),
           );
         }
         return memCache[currentKey];
       },
-    }
+    },
   );
 }

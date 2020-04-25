@@ -38,10 +38,10 @@
 
 <a href="https://twitter.com/PSing_Pirim/status/1227449216013946880">
 
-> <table><tr><td valign="center"><img src="https://pbs.twimg.com/profile_images/1227442623327150080/QYE5fpZ2_normal.png" alt="PSing_Pirim"></td> <td> <b>PS하는 피림이</b><br>@PSing_Pirim</td></tr></table>
+> <table><tr><td><img src="https://pbs.twimg.com/profile_images/1227442623327150080/QYE5fpZ2_normal.png" alt="PSing_Pirim"></td><td><b>PS하는 피림이</b><br>@PSing_Pirim</td></tr></table>
 > 
 > DB를 용납 못하는 피림이
-> 
+>
 > ![Image](https://pbs.twimg.com/media/EQjGjIdWoAAE5SO?format=png&name=small)
 
 </a>

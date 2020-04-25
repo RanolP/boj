@@ -9,7 +9,7 @@ exports.symlink = util_1.promisify(fs_1.symlink);
 exports.access = util_1.promisify(fs_1.access);
 exports.exists = async (path, mode) => {
     try {
-        await exports.access(path_1.resolve(path.toString()), mode || fs_1.constants.F_OK);
+        await exports.access(path_1.resolve(path.toString()), mode !== null && mode !== void 0 ? mode : fs_1.constants.F_OK);
         return true;
     }
     catch (error) {

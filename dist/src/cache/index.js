@@ -25,9 +25,6 @@ function cached(body, key, duration, { useFileCache = true, useAbsoluteDate = fa
         const now = new Date();
         const cacheFile = path_1.join(constants_1.ROOT, '.boj-cache', currentKey + '.json');
         const parsed = path_1.parse(cacheFile);
-        if (await better_fs_1.notExists(parsed.dir)) {
-            await better_fs_1.mkdirs(parsed.dir);
-        }
         let fetchKind = 'fetch';
         if (useFileCache && (await better_fs_1.exists(cacheFile))) {
             const content = await better_fs_1.readFile(cacheFile, { encoding: 'utf-8' });
@@ -53,6 +50,9 @@ function cached(body, key, duration, { useFileCache = true, useAbsoluteDate = fa
         });
         memCache[currentKey] = fetched;
         if (useFileCache) {
+            if (await better_fs_1.notExists(parsed.dir)) {
+                await better_fs_1.mkdirs(parsed.dir);
+            }
             await better_fs_1.writeFile(cacheFile, JSON.stringify({
                 lastUpdate: now.toISOString(),
                 data: fetched,
@@ -64,11 +64,15 @@ function cached(body, key, duration, { useFileCache = true, useAbsoluteDate = fa
             const currentKey = typeof key === 'function' ? key(...params) : key;
             const now = new Date();
             const cacheFile = path_1.join(constants_1.ROOT, '.boj-cache', currentKey + '.json');
+            const parsed = path_1.parse(cacheFile);
             const fetched = Object.assign(await body.apply(null, params), {
                 fetchKind: 'force-fetch',
             });
             memCache[currentKey] = fetched;
             if (useFileCache) {
+                if (await better_fs_1.notExists(parsed.dir)) {
+                    await better_fs_1.mkdirs(parsed.dir);
+                }
                 await better_fs_1.writeFile(cacheFile, JSON.stringify({
                     lastUpdate: now.toISOString(),
                     data: fetched,

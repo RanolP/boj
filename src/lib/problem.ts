@@ -41,8 +41,8 @@ export async function getProblemList({
           return date;
         }
       }
-      const date = (a.meta.solvedDate || a.meta.createDate).localeCompare(
-        b.meta.solvedDate || b.meta.createDate,
+      const date = (a.meta.solvedDate ?? a.meta.createDate).localeCompare(
+        b.meta.solvedDate ?? b.meta.createDate,
       );
       if (date !== 0) {
         return date;

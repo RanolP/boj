@@ -16,27 +16,23 @@ exports.SolvedTableRule = {
     isBlock: true,
     async execute() {
         const problemList = await problem_1.getProblemList({ sorted: true });
-        const problemListClassified = Object.entries(problemList.reduce((acc, curr) => {
-            const currDate = curr.meta.solvedDate || curr.meta.createDate;
+        const problemListClassified = Object.entries(problemList.reduce((acc, problem) => {
+            var _a;
+            const date = (_a = problem.meta.solvedDate) !== null && _a !== void 0 ? _a : problem.meta.createDate;
             let update;
-            if (currDate in acc) {
-                const origin = acc[currDate];
-                origin.push({ problem: curr, dateRowspan: 0 });
-                /*
-                origin.sort(
-                  ({ problem: a }, { problem: b }) => a.meta.order - b.meta.order,
-                );
-                */
+            if (date in acc) {
+                const origin = acc[date];
+                origin.push({ problem: problem, dateRowspan: 0 });
                 origin[0].dateRowspan = origin.length;
                 update = origin;
             }
             else {
-                update = [{ problem: curr, dateRowspan: 1 }];
+                update = [{ problem, dateRowspan: 1 }];
             }
-            return Object.assign(Object.assign({}, acc), { [currDate]: update });
+            return Object.assign(Object.assign({}, acc), { [date]: update });
         }, {}))
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .map((tuple) => tuple[1])
+            .sort(({ 0: leftDate }, { 0: rightDate }) => leftDate.localeCompare(rightDate))
+            .map(({ 1: problemProps }) => problemProps)
             .flat();
         async function renderProblemLine({ problem, dateRowspan: shouldAddDate, }) {
             const { createDate, solvedDate } = problem.meta;
@@ -66,7 +62,7 @@ exports.SolvedTableRule = {
             return [
                 '<tr>',
                 shouldAddDate > 0
-                    ? `<td rowspan="${shouldAddDate}">${solvedDate || createDate}</td>`
+                    ? `<td rowspan="${shouldAddDate}">${solvedDate !== null && solvedDate !== void 0 ? solvedDate : createDate}</td>`
                     : '',
                 dedent_1.default `
           <td>

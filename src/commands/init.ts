@@ -38,13 +38,13 @@ export default class InitCommand extends Command {
   };
   async run() {
     let id =
-      this.parse(InitCommand).flags.id ||
+      this.parse(InitCommand).flags.id ??
       (
         await prompt({
           type: 'autocomplete',
           name: 'id',
           message: 'Search BOJ Problem',
-          source: (_, query) => searchProblem(query || ''),
+          source: (_, query) => searchProblem(query ?? ''),
         })
       ).id;
 
@@ -88,7 +88,7 @@ export default class InitCommand extends Command {
               name: 'Select it later',
               value: undefined,
             },
-          ].concat(searchLanguage(query || '')),
+          ].concat(searchLanguage(query ?? '')),
       });
       if (language) {
         let source = '';
@@ -105,7 +105,7 @@ export default class InitCommand extends Command {
             message: 'Templates',
             default: files.some((it) => it.base === main) ? [main] : [],
             source: async (_, query) =>
-              filter(query || '', files, {
+              filter(query ?? '', files, {
                 extract: ({ base }) => base,
               }).map(({ original }) => ({
                 name: original.name,

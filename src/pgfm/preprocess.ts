@@ -1,15 +1,42 @@
-import { ClassifiedRuleset } from './rule';
+import { ClassifiedRuleset, UnknownRule } from './rule';
 import { parsePgfm } from './parse';
-import boxen from 'boxen';
-import chalk from 'chalk';
+import { SyntaxNode } from './node';
+import { Print } from '../util/console';
+import highlight from 'cli-highlight';
+
+async function processRule(
+  file: string,
+  warning: Print,
+  rule: UnknownRule | undefined,
+  context: any,
+  node: SyntaxNode,
+): Promise<string> {
+  try {
+    const data = node.data ?? {};
+    if (!rule) {
+      throw new Error(`Unknown rule: ${node.name}`);
+    }
+    rule.schema && (await rule.schema.validate(data));
+    return await rule.execute(data, context);
+  } catch (e) {
+    warning(
+      `${e.message} on preprocessing ${file}\n${highlight(node.origin.trim(), {
+        language: 'js',
+      })}`,
+    );
+    return node.origin;
+  }
+}
 
 export async function preprocess(
+  file: string,
+  warning: Print,
   source: string,
   context: object,
   ruleset: ClassifiedRuleset,
 ): Promise<string> {
   const result = [];
-  for (const node of parsePgfm(source)) {
+  for (const node of parsePgfm(file, warning, source)) {
     switch (node.type) {
       case 'string': {
         result.push(node.data);
@@ -17,46 +44,16 @@ export async function preprocess(
       }
       case 'pgfm-block': {
         const rule = ruleset.block[node.name];
-        let text: string;
-        try {
-          const data = node.data ?? {};
-          if (!rule) {
-            throw new Error(`Unknown rule: ${node.name}`);
-          }
-          rule.schema && (await rule.schema.validate(data));
-          text = await rule.execute(data, context);
-        } catch (e) {
-          if (!('noMessage' in e)) {
-            console.log(
-              boxen(node.origin, { borderColor: 'gray', padding: 1 }),
-            );
-            console.log(chalk.red('error') + ' ' + e.message);
-          }
-          text = node.origin;
-        }
-        result.push('\n\n' + text + '\n\n');
+        result.push(
+          '\n\n' +
+            (await processRule(file, warning, rule, context, node)) +
+            '\n\n',
+        );
         break;
       }
       case 'pgfm-inline': {
         const rule = ruleset.inline[node.name];
-        let text: string;
-        try {
-          const data = node.data ?? {};
-          if (!rule) {
-            throw new Error(`Unknown rule: ${node.name}`);
-          }
-          rule.schema && (await rule.schema.validate(data));
-          text = await rule.execute(data, context);
-        } catch (e) {
-          if (!('noMessage' in e)) {
-            console.log(
-              boxen(node.origin, { borderColor: 'gray', padding: 1 }),
-            );
-            console.log(chalk.red('error') + ' ' + e.message);
-          }
-          text = node.origin;
-        }
-        result.push(text);
+        result.push(await processRule(file, warning, rule, context, node));
         break;
       }
     }

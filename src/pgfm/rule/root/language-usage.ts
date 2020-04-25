@@ -41,7 +41,7 @@ export const LanguageUsageRule: Rule = {
         Object.entries(ratio).map(
           ([ext, count]) => dedent`
         | ${
-          ExtensionLanguageNameMap[ext] || 'Unknown'
+          ExtensionLanguageNameMap[ext] ?? 'Unknown'
         } (${ext}) | ${count} of ${solutions.length} (${(
             (count / solutions.length) *
             100

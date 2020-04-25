@@ -4,7 +4,6 @@ const better_fs_1 = require("../lib/better-fs");
 const problem_1 = require("../lib/problem");
 const constants_1 = require("../constants");
 const path_1 = require("path");
-const chalk_1 = require("chalk");
 const inquirer_1 = require("../vendors/inquirer");
 const console_1 = require("../util/console");
 const command_1 = require("@oclif/command");
@@ -56,9 +55,9 @@ class InitCommand extends command_1.Command {
                 }
             }
             await better_fs_1.symlink(source, target, 'file');
-            log(chalk_1.blue, 'Updated.');
+            log(console_1.chalk.blue, 'Updated.');
         }
     }
 }
 exports.default = InitCommand;
-InitCommand.description = 'Initialize sezong.config.json';
+InitCommand.description = 'Update symlink files to ensure daily-boj standard';
