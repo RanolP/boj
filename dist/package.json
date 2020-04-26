@@ -1,6 +1,6 @@
 {
     "name": "boj",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "script set for boj",
     "repository": "https://github.com/RanolP/boj",
     "author": "RanolP <public.ranolp@gmail.com>",
@@ -35,6 +35,7 @@
         "string-width": "^4.2.0",
         "terminal-link": "^2.1.1",
         "update-notifier": "^4.1.0",
+        "viz.js": "^2.1.2",
         "yup": "^0.28.4"
     },
     "devDependencies": {
