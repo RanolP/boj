@@ -23,8 +23,14 @@ exports.DotRule = {
     type: 'any',
     isBlock: true,
     schema: yup.string().required(),
+    initialize(context) {
+        const fragment = 'problem' in context ? context.problem.id.toString() : 'readme';
+        const dir = path_1.join(constants_1.ROOT, 'boj-public', 'graphviz', 'dot', fragment);
+        return better_fs_1.rimraf(dir);
+    },
     async execute(source, context) {
-        const dir = path_1.join(constants_1.ROOT, 'boj-public', 'graphviz', 'dot');
+        const fragment = 'problem' in context ? context.problem.id.toString() : 'readme';
+        const dir = path_1.join(constants_1.ROOT, 'boj-public', 'graphviz', 'dot', fragment);
         if (await better_fs_1.notExists(dir)) {
             await better_fs_1.mkdirs(dir);
         }
@@ -34,11 +40,6 @@ exports.DotRule = {
         });
         const filename = crypto_1.createHash('md5').update(source).digest('hex') + '.svg';
         await better_fs_1.writeFile(path_1.join(dir, filename), graph, { encoding: 'utf-8' });
-        if ('problem' in context) {
-            return `![dot graph](../boj-public/graphviz/dot/${filename})`;
-        }
-        else {
-            return `![dot graph](./boj-public/graphviz/dot/${filename})`;
-        }
+        return `![dot graph](${'problem' in context ? '..' : '.'}/boj-public/graphviz/dot/${fragment}/${filename})`;
     },
 };

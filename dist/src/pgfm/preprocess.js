@@ -23,6 +23,14 @@ async function processRule(file, warning, rule, context, node) {
     }
 }
 async function preprocess(file, warning, source, context, ruleset) {
+    for (const rule of [
+        ...Object.values(ruleset.block),
+        ...Object.values(ruleset.inline),
+    ]) {
+        if (rule.initialize) {
+            await rule.initialize(context);
+        }
+    }
     const result = [];
     for (const node of parse_1.parsePgfm(file, warning, source)) {
         switch (node.type) {

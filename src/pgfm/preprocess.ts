@@ -1,4 +1,4 @@
-import { ClassifiedRuleset, UnknownRule } from './rule';
+import { ClassifiedRuleset, UnknownRule, NoteContext } from './rule';
 import { parsePgfm } from './parse';
 import { SyntaxNode } from './node';
 import { Print } from '../util/console';
@@ -32,9 +32,17 @@ export async function preprocess(
   file: string,
   warning: Print,
   source: string,
-  context: object,
+  context: NoteContext | {},
   ruleset: ClassifiedRuleset,
 ): Promise<string> {
+  for (const rule of [
+    ...Object.values(ruleset.block),
+    ...Object.values(ruleset.inline),
+  ]) {
+    if (rule.initialize) {
+      await rule.initialize(context);
+    }
+  }
   const result = [];
   for (const node of parsePgfm(file, warning, source)) {
     switch (node.type) {
