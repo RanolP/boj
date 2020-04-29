@@ -13,7 +13,7 @@ import { prompt } from '../vendors/inquirer';
 import { Logger, chalk } from '../util/console';
 import { getProblem, ProblemMeta } from '../lib/problem';
 import { Duration, permastate } from '../cache';
-import { searchLanguage, Language } from '../util/language';
+import { searchLanguage, Language } from '../lib/language';
 import { filter } from 'fuzzy';
 import { Command, flags } from '@oclif/command';
 import { formatDate } from '../util/date';

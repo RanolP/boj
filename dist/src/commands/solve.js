@@ -12,7 +12,7 @@ const config_1 = require("../config");
 const problem_1 = require("../lib/problem");
 const constants_1 = require("../constants");
 const path_1 = require("path");
-const language_1 = require("../util/language");
+const language_1 = require("../lib/language");
 const better_fs_1 = require("../lib/better-fs");
 const progress_1 = __importDefault(require("progress"));
 const terminal_link_1 = __importDefault(require("terminal-link"));
@@ -92,7 +92,7 @@ class SolveCommand extends command_1.Command {
         });
         const settings = await config_1.getConfig(error);
         if (!settings) {
-            return;
+            this.exit(1);
         }
         const problems = await problem_1.getProblemList().then((it) => Promise.all(it.map(async (problem) => [
             problem,
@@ -133,9 +133,9 @@ class SolveCommand extends command_1.Command {
             });
         }
         catch (_b) {
-            error(`Timeout. You can try with ${console_1.chalk.yellow('--head')} flag to show the browser.`);
+            error(`Timeout. You can retry with ${console_1.chalk.yellow('--head')} flag to show the browser.`);
             await browser.close();
-            return;
+            this.exit(1);
         }
         const id = await page.$eval('.loginbar > :first-child > a', (element) => element.innerHTML);
         info(`It looks like you've completed login. You are "${id}".`);
@@ -150,27 +150,21 @@ class SolveCommand extends command_1.Command {
             });
         }
         catch (_c) {
-            error('Button fetch failed.');
+            error('Button fetch failed. Please retry.');
             await browser.close();
+            this.exit(1);
             return;
         }
         await page.waitFor(1000);
-        let tries = 0;
-        while (tries < 5) {
-            try {
-                await ((_a = element === null || element === void 0 ? void 0 : element.asElement()) === null || _a === void 0 ? void 0 : _a.click({
-                    timeout: 10 * 1000,
-                }));
-                break;
-            }
-            catch (_d) { }
-            tries += 1;
-            info(`Tried ${tries} times...`);
+        try {
+            await ((_a = element === null || element === void 0 ? void 0 : element.asElement()) === null || _a === void 0 ? void 0 : _a.click({
+                timeout: 10 * 1000,
+            }));
         }
-        if (tries === 5) {
-            error('Runtime fetch failed.');
+        catch (_d) {
+            error('Runtime fetch failed. Please retry.');
             await browser.close();
-            return;
+            this.exit(1);
         }
         await page.waitFor('.chosen-drop > .chosen-results > li', {
             timeout: 0,
@@ -185,7 +179,7 @@ class SolveCommand extends command_1.Command {
         if (usableRuntimes.length === 0) {
             error(`There are no selectable runtime found. Found solution file(s): ${solutionList.join(', ')}`);
             await browser.close();
-            return;
+            this.exit(1);
         }
         let runtime;
         if (usableRuntimes.length > 1) {

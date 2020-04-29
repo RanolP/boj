@@ -2,7 +2,7 @@ import { Rule } from '..';
 import { getProblemList } from '../../../lib/problem';
 import dedent from 'dedent';
 import { parse } from 'path';
-import { Languages } from '../../../util/language';
+import { Languages } from '../../../lib/language';
 
 const ExtensionLanguageNameMap: Record<string, string> = Object.fromEntries(
   Languages.map(({ name, fileExtension }) => [fileExtension, name]),

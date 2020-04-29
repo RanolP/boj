@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const problem_1 = require("../../../lib/problem");
 const dedent_1 = __importDefault(require("dedent"));
 const path_1 = require("path");
-const language_1 = require("../../../util/language");
+const language_1 = require("../../../lib/language");
 const ExtensionLanguageNameMap = Object.fromEntries(language_1.Languages.map(({ name, fileExtension }) => [fileExtension, name]));
 exports.LanguageUsageRule = {
     name: 'language-usage',

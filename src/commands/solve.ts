@@ -11,7 +11,7 @@ import {
   ExtensionLanguagesMap,
   Runtime,
   RuntimeBelongsToMap,
-} from '../util/language';
+} from '../lib/language';
 import { readFile, mkdirs, notExists } from '../lib/better-fs';
 import ProgressBar from 'progress';
 import { Chalk } from 'chalk';
@@ -147,7 +147,7 @@ export default class SolveCommand extends Command {
 
     const settings = await getConfig(error);
     if (!settings) {
-      return;
+      this.exit(1);
     }
 
     const problems = await getProblemList().then((it) =>
@@ -211,12 +211,12 @@ export default class SolveCommand extends Command {
       });
     } catch {
       error(
-        `Timeout. You can try with ${chalk.yellow(
+        `Timeout. You can retry with ${chalk.yellow(
           '--head',
         )} flag to show the browser.`,
       );
       await browser.close();
-      return;
+      this.exit(1);
     }
     const id = await page.$eval(
       '.loginbar > :first-child > a',
@@ -233,26 +233,20 @@ export default class SolveCommand extends Command {
         timeout: 30 * 1000,
       });
     } catch {
-      error('Button fetch failed.');
+      error('Button fetch failed. Please retry.');
       await browser.close();
+      this.exit(1);
       return;
     }
     await page.waitFor(1000);
-    let tries = 0;
-    while (tries < 5) {
-      try {
-        await element?.asElement()?.click({
-          timeout: 10 * 1000,
-        });
-        break;
-      } catch {}
-      tries += 1;
-      info(`Tried ${tries} times...`);
-    }
-    if (tries === 5) {
-      error('Runtime fetch failed.');
+    try {
+      await element?.asElement()?.click({
+        timeout: 10 * 1000,
+      });
+    } catch {
+      error('Runtime fetch failed. Please retry.');
       await browser.close();
-      return;
+      this.exit(1);
     }
     await page.waitFor('.chosen-drop > .chosen-results > li', {
       timeout: 0,
@@ -277,7 +271,7 @@ export default class SolveCommand extends Command {
         )}`,
       );
       await browser.close();
-      return;
+      this.exit(1);
     }
     let runtime: Runtime;
 
@@ -349,7 +343,7 @@ export default class SolveCommand extends Command {
     );
 
     const acceptSolution = (solutionId: number, answer: any) => {
-      if(!toContinue) {
+      if (!toContinue) {
         return;
       }
       const renderResult = render(solutionId, answer, progressBar);
