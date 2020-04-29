@@ -1,5 +1,14 @@
 import { DistinctChoice, ChoiceOptions } from 'inquirer';
 import { filter } from 'fuzzy';
+import CppLanguage from './cpp';
+import PythonLanguage from './python';
+import KotlinLanguage from './kotlin';
+import RustLanguage from './rust';
+import TextLanguage from './text';
+import JavaLanguage from './java';
+import CLanguage from './c';
+import RubyLanguage from './ruby';
+import { NativeRun, time, memory, limitModifier } from './util';
 
 export enum LanguageId {
   CPP = 'cpp',
@@ -75,20 +84,8 @@ export interface LimitModification<Unit> {
   evaluate(base: number): number;
 }
 
-const limitModifier = <Unit extends string>(unit: Unit) => ({
-  multiply = 1,
-  add = 0,
-}: Partial<Record<'multiply' | 'add', number>>): LimitModification<Unit> => {
-  return {
-    stringified: [multiply != 1 && `×${multiply}`, add !== 0 && `+${add}`, unit]
-      .filter(Boolean)
-      .join(''),
-    evaluate: (base) => base * multiply + add,
-  };
-};
-
-const time = limitModifier('초');
-const memory = limitModifier('MB');
+type TimeLimitModification = LimitModification<'초'>;
+type MemoryLimitModification = LimitModification<'MB'>;
 
 export interface Runtime {
   name: string;
@@ -97,19 +94,10 @@ export interface Runtime {
   fetchVersion?: VersionFetcher;
   version?: string;
   limitModifications?:
-    | []
-    | [LimitModification<'초'>]
-    | [LimitModification<'MB'>]
-    | [LimitModification<'초'>, LimitModification<'MB'>]
-    | [LimitModification<'MB'>, LimitModification<'초'>];
-  /**
-   * Time limit modifier
-   */
-  timeLimit?: LimitModification<'초'> | ((base: number) => number);
-  /**
-   * Memory limit modifier
-   */
-  memoryLimit?: LimitModification<'MB'> | ((base: number) => number);
+    | [TimeLimitModification]
+    | [MemoryLimitModification]
+    | [TimeLimitModification, MemoryLimitModification]
+    | [MemoryLimitModification, TimeLimitModification];
 }
 
 export interface Language {
@@ -119,269 +107,15 @@ export interface Language {
   bojRuntimes: Runtime[];
 }
 
-const NativeRun = {
-  executeCommand: './Main',
-};
-
 export const Languages: Language[] = [
-  {
-    id: LanguageId.CPP,
-    name: 'C++',
-    fileExtension: '.cc',
-    bojRuntimes: [
-      {
-        name: 'C++2a',
-        compileCommand: `g++ Main.cc -o Main -O2 -Wall -lm -static -std=gnu++2a -DONLINE_JUDGE -DBOJ`,
-        ...NativeRun,
-        version: `g++ (GCC) 8.3.0`,
-        limitModifications: [],
-      },
-      {
-        name: 'C++17',
-        compileCommand: `g++ Main.cc -o Main -O2 -Wall -lm -static -std=gnu++17 -DONLINE_JUDGE -DBOJ`,
-        ...NativeRun,
-        version: `g++ (GCC) 8.3.0`,
-        limitModifications: [],
-      },
-      {
-        name: 'C++14',
-        compileCommand: `g++ Main.cc -o Main -O2 -Wall -lm -static -std=gnu++14 -DONLINE_JUDGE -DBOJ`,
-        ...NativeRun,
-        version: `g++ (GCC) 8.3.0`,
-        limitModifications: [],
-      },
-      {
-        name: 'C++11',
-        compileCommand: `g++ Main.cc -o Main -O2 -Wall -lm -static -std=gnu++11 -DONLINE_JUDGE -DBOJ`,
-        ...NativeRun,
-        version: `g++ (GCC) 8.3.0`,
-        limitModifications: [],
-      },
-      {
-        name: 'C++',
-        compileCommand: `g++ Main.cc -o Main -O2 -Wall -lm -static -std=gnu++98 -DONLINE_JUDGE -DBOJ`,
-        ...NativeRun,
-        version: `gcc (GCC) 8.3.0`,
-        limitModifications: [],
-      },
-      {
-        name: 'C++ (Clang)',
-        compileCommand:
-          'clang++ Main.cc -o Main -O2 -Wall -lm -static -std=c++98 -DONLINE_JUDGE -DBOJ',
-        ...NativeRun,
-        version:
-          'clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104',
-      },
-      {
-        name: 'C++11 (Clang)',
-        compileCommand:
-          'clang++ Main.cc -o Main -O2 -Wall -lm -static -std=c++11 -DONLINE_JUDGE -DBOJ',
-        ...NativeRun,
-        version:
-          'clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104',
-      },
-      {
-        name: 'C++14 (Clang)',
-        compileCommand:
-          'clang++ Main.cc -o Main -O2 -Wall -lm -static -std=c++14 -DONLINE_JUDGE -DBOJ',
-        ...NativeRun,
-        version:
-          'clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104',
-      },
-      {
-        name: 'C++17 (Clang)',
-        compileCommand:
-          'clang++ Main.cc -o Main -O2 -Wall -lm -static -std=c++17 -DONLINE_JUDGE -DBOJ',
-        ...NativeRun,
-        version:
-          'clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104',
-      },
-      {
-        name: 'C++2a (Clang)',
-        compileCommand:
-          'clang++ Main.cc -o Main -O2 -Wall -lm -static -std=c++2a -DONLINE_JUDGE -DBOJ',
-        ...NativeRun,
-        version:
-          'clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104',
-      },
-    ],
-  },
-  {
-    id: LanguageId.Python,
-    name: 'Python',
-    fileExtension: '.py',
-    bojRuntimes: [
-      {
-        name: 'Python 3',
-        compileCommand: `python3 -c "import py_compile; py_compile.compile(r'Main.py')"`,
-        executeCommand: `python3 Main.py`,
-        version: `Python 3.8.2`,
-        limitModifications: [
-          time({ multiply: 3, add: 2 }),
-          memory({ multiply: 2, add: 32 }),
-        ],
-      },
-      {
-        name: 'PyPy3',
-        compileCommand: `python3 -c "import py_compile; py_compile.compile(r'Main.py')"`,
-        executeCommand: `pypy3 Main.py`,
-        version: `PyPy 7.3.0 with GCC 7.3.1 20180303 (Python 3.6.9)`,
-        timeLimit: (base) => base * 3 + 2,
-        memoryLimit: (base) => base * 2 + 128,
-      },
-      {
-        name: 'Python 2',
-        compileCommand: `python -c "import py_compile; py_compile.compile(r'Main.py')"`,
-        executeCommand: `python Main.py`,
-        version: `Python 2.7.17`,
-        timeLimit: (base) => base * 3 + 2,
-        memoryLimit: (base) => base * 2 + 32,
-      },
-      {
-        name: 'PyPy2',
-        compileCommand: `python -c "import py_compile; py_compile.compile(r'Main.py')"`,
-        executeCommand: `pypy Main.py`,
-        version: `PyPy 7.3.0 with GCC 7.3.1 20180303 (Python 2.7.13)`,
-        timeLimit: (base) => base * 3 + 2,
-        memoryLimit: (base) => base * 2 + 128,
-      },
-    ],
-  },
-  {
-    id: LanguageId.Kotlin,
-    name: 'Kotlin',
-    fileExtension: '.kt',
-    bojRuntimes: [
-      {
-        name: 'Kotlin (JVM)',
-        compileCommand: `kotlinc-jvm -J-Xms1024m -J-Xmx1024m -J-Xss512m -include-runtime -d Main.jar Main.kt`,
-        executeCommand: `java -Xms1024m -Xmx1024m -Xss512m -jar Main.jar`,
-        version: `kotlinc-jvm 1.3.71 (JRE 1.8.0_201-b09)`,
-        timeLimit: (base) => base * 2 + 1,
-        memoryLimit: (base) => base * 2 + 16,
-      },
-      {
-        name: 'Kotlin (Native)',
-        compileCommand: `kotlinc-native -o Main -opt Main.kt`,
-        executeCommand: `./Main.kexe`,
-        version: `kotlinc-native 1.3.71-release-424 (JRE 1.8.0_201-b09)`,
-        memoryLimit: (base) => base + 16,
-      },
-    ],
-  },
-  {
-    id: LanguageId.Rust,
-    name: 'Rust',
-    fileExtension: '.rs',
-    bojRuntimes: [
-      {
-        name: 'Rust 2018',
-        compileCommand: `rustc --edition 2018 -O -o Main Main.rs`,
-        executeCommand: `./Main`,
-        version: `rustc 1.42.0 (b8cedc004 2020-03-09)`,
-        memoryLimit: (base) => base + 16,
-      },
-      {
-        name: 'Rust',
-        compileCommand: `rustc --edition 2015 -O -o Main Main.rs`,
-        executeCommand: `./Main`,
-        version: `rustc 1.42.0 (b8cedc004 2020-03-09)`,
-        memoryLimit: (base) => base + 16,
-      },
-    ],
-  },
-  {
-    id: LanguageId.Text,
-    name: 'Text',
-    fileExtension: '.txt',
-    bojRuntimes: [
-      {
-        name: 'Text',
-        compileCommand: `fromdos Main.txt`,
-        executeCommand: `cat Main.txt`,
-        version: `cat (GNU coreutils) 8.25`,
-      },
-    ],
-  },
-  {
-    id: LanguageId.Java,
-    name: 'Java',
-    fileExtension: '.java',
-    bojRuntimes: [
-      {
-        name: 'Java',
-        compileCommand: `javac -J-Xms1024m -J-Xmx1024m -J-Xss512m -encoding UTF-8 Main.java`,
-        executeCommand: `java -Xms1024m -Xmx1024m -Xss512m -Dfile.encoding=UTF-8 Main`,
-        version: `Java(TM) SE Runtime Environment (build 1.8.0_201-b09)`,
-        timeLimit: (base) => base * 2 + 1,
-        memoryLimit: (base) => base * 2 + 16,
-      },
-      {
-        name: 'Java (OpenJDK)',
-        compileCommand: `javac -J-Xms1024m -J-Xmx1024m -J-Xss512m -encoding UTF-8 Main.java`,
-        executeCommand: `java -Xms1024m -Xmx1024m -Xss512m -Dfile.encoding=UTF-8 Main`,
-        version: `OpenJDK Runtime Environment (build 1.8.0_242-8u242-b08-0ubuntu3~16.04-b08)`,
-        timeLimit: (base) => base * 2 + 1,
-        memoryLimit: (base) => base * 2 + 16,
-      },
-      {
-        name: 'Java 11',
-        compileCommand: `javac -J-Xms1024m -J-Xmx1024m -J-Xss512m -encoding UTF-8 Main.java`,
-        executeCommand: `java -Xms1024m -Xmx1024m -Xss512m -Dfile.encoding=UTF-8 Main`,
-        version: `OpenJDK Runtime Environment (build 13+33)`,
-        timeLimit: (base) => base * 2 + 1,
-        memoryLimit: (base) => base * 2 + 16,
-      },
-    ],
-  },
-  {
-    id: LanguageId.C,
-    name: 'C',
-    fileExtension: '.c',
-    bojRuntimes: [
-      {
-        name: 'C11',
-        compileCommand: `gcc Main.c -o Main -O2 -Wall -lm -static -std=c11 -DONLINE_JUDGE -DBOJ`,
-        executeCommand: `./Main`,
-        version: `gcc (GCC) 8.3.0`,
-      },
-      {
-        name: 'C',
-        compileCommand: `gcc Main.c -o Main -O2 -Wall -lm -static -std=c99 -DONLINE_JUDGE -DBOJ`,
-        executeCommand: `./Main`,
-        version: `gcc (GCC) 8.3.0`,
-      },
-      {
-        name: 'C (Clang)',
-        compileCommand: `clang Main.c -o Main -O2 -Wall -lm -static -std=c99 -DONLINE_JUDGE -DBOJ`,
-        executeCommand: `./Main`,
-        version: `clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104`,
-      },
-      {
-        name: 'C11 (Clang)',
-        compileCommand:
-          'clang Main.c -o Main -O2 -Wall -lm -static -std=c11 -DONLINE_JUDGE -DBOJ',
-        ...NativeRun,
-        version:
-          'clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104',
-      },
-    ],
-  },
-  {
-    id: LanguageId.Ruby,
-    name: 'Ruby',
-    fileExtension: '.rb',
-    bojRuntimes: [
-      {
-        name: 'Ruby 2.7',
-        compileCommand: `ruby -c Main.rb`,
-        executeCommand: `ruby Main.rb`,
-        version: `ruby 2.7.1p83 (2020-03-31 revision a0c7c23c9c) [x86_64-linux]`,
-        timeLimit: (base) => base + 5,
-        memoryLimit: (base) => base + 512,
-      },
-    ],
-  },
+  CppLanguage,
+  PythonLanguage,
+  KotlinLanguage,
+  RustLanguage,
+  TextLanguage,
+  JavaLanguage,
+  CLanguage,
+  RubyLanguage,
   {
     id: LanguageId.Swift,
     name: 'Swift',
@@ -392,7 +126,7 @@ export const Languages: Language[] = [
         compileCommand: `swiftc Main.swift`,
         executeCommand: `./Main`,
         version: `Swift version 5.2.1 (swift-5.2.1-RELEASE)`,
-        memoryLimit: (base) => base + 512,
+        limitModifications: [memory({ add: 512 })],
       },
     ],
   },
@@ -406,8 +140,10 @@ export const Languages: Language[] = [
         compileCommand: `mcs -codepage:utf8 -warn:0 -optimize+ -checked+ -clscheck- -reference:System.Numerics.dll -out:Main.exe Main.cs`,
         executeCommand: `mono --optimize=all Main.exe`,
         version: `Mono C# compiler version 6.8.0.105`,
-        timeLimit: (base) => base + 5,
-        memoryLimit: (base) => base * 2 + 16,
+        limitModifications: [
+          time({ add: 5 }),
+          memory({ multiply: 2, add: 16 }),
+        ],
       },
     ],
   },
@@ -420,8 +156,10 @@ export const Languages: Language[] = [
         name: 'node.js',
         executeCommand: `node Main.js`,
         version: `v12.16.1`,
-        timeLimit: (base) => base * 3 + 2,
-        memoryLimit: (base) => base * 2,
+        limitModifications: [
+          time({ multiply: 3, add: 2 }),
+          memory({ multiply: 2 }),
+        ],
       },
       {
         name: 'Rhino',
@@ -445,8 +183,7 @@ export const Languages: Language[] = [
         compileCommand: `go build Main.go`,
         executeCommand: `./Main`,
         version: `go version go1.14.1 linux/amd64`,
-        timeLimit: (base) => base + 2,
-        memoryLimit: (base) => base + 512,
+        limitModifications: [time({ add: 2 }), memory({ add: 512 })],
       },
     ],
   },
@@ -460,7 +197,7 @@ export const Languages: Language[] = [
         compileCommand: `dmd -boundscheck=off -O -of=Main -fPIC -inline -release Main.d`,
         executeCommand: `./Main`,
         version: `DMD64 D Compiler v2.088.0`,
-        memoryLimit: (base) => base + 16,
+        limitModifications: [memory({ add: 16 })],
       },
     ],
   },
@@ -474,8 +211,7 @@ export const Languages: Language[] = [
         compileCommand: `fsharpc Main.fs`,
         executeCommand: `mono --optimize=all Main.exe`,
         version: `Microsoft (R) F# Compiler version 10.2.3 for F# 4.5`,
-        timeLimit: (base) => base + 5,
-        memoryLimit: (base) => base + 512,
+        limitModifications: [time({ add: 5 }), memory({ add: 512 })],
       },
     ],
   },
@@ -489,7 +225,7 @@ export const Languages: Language[] = [
         compileCommand: `php -l Main.php`,
         executeCommand: `php Main.php`,
         version: `PHP 7.4.4`,
-        memoryLimit: (base) => base + 512,
+        limitModifications: [memory({ add: 512 })],
       },
     ],
   },
@@ -516,8 +252,7 @@ export const Languages: Language[] = [
         compileCommand: `luac -p Main.lua`,
         executeCommand: `lua Main.lua`,
         version: `Lua 5.3.5 Copyright (C) 1994-2018 Lua.org, PUC-Rio`,
-        timeLimit: (base) => base + 5,
-        memoryLimit: (base) => base + 512,
+        limitModifications: [time({ add: 5 }), memory({ add: 512 })],
       },
     ],
   },
@@ -531,7 +266,7 @@ export const Languages: Language[] = [
         compileCommand: `perl -c Main.pl`,
         executeCommand: `perl Main.pl`,
         version: `Perl v5.30.0`,
-        memoryLimit: (base) => base + 512,
+        limitModifications: [memory({ add: 512 })],
       },
     ],
   },
@@ -544,8 +279,7 @@ export const Languages: Language[] = [
         name: 'R',
         executeCommand: `Rscript Main.R`,
         version: `R scripting front-end version 3.6.1 (2019-07-05)`,
-        timeLimit: (base) => base + 2,
-        memoryLimit: (base) => base + 128,
+        limitModifications: [time({ add: 2 }), memory({ add: 128 })],
       },
     ],
   },
@@ -586,8 +320,7 @@ export const Languages: Language[] = [
         name: 'Golfscript',
         executeCommand: `ruby golfscript.rb Main.gs`,
         version: `Golfscript (April 30, 2013)`,
-        timeLimit: time({ add: 2 }),
-        memoryLimit: memory({ add: 64 }),
+        limitModifications: [time({ add: 2 }), memory({ add: 64 })],
       },
     ],
   },
@@ -620,8 +353,7 @@ export const Languages: Language[] = [
         compileCommand: 'vbnc -out:Main.exe Main.vb',
         executeCommand: 'mono --optimize=all Main.exe',
         version: `Visual Basic.Net Compiler version 0.0.0.5943 (Mono 4.7 - tarball)`,
-        timeLimit: time({ add: 5 }),
-        memoryLimit: memory({ add: 512 }),
+        limitModifications: [time({ add: 5 }), memory({ add: 512 })],
       },
     ],
   },
