@@ -61,3 +61,4 @@ exports.rimraf = async (path, { file = () => true, folder = () => true, } = {}) 
     }
     await exports.rmdir(realPath);
 };
+exports.copyFile = util_1.promisify(fs_1.copyFile);

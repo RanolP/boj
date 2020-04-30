@@ -6,7 +6,6 @@ import { fetchProblemTitle } from '../../../api/baekjoon';
 import { join, parse } from 'path';
 import { exists } from '../../../lib/better-fs';
 import { ROOT } from '../../../constants';
-import { Duration } from '../../../cache';
 
 interface ProblemProps {
   problem: Problem;

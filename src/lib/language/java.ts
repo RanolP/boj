@@ -1,4 +1,5 @@
-import { Language, LanguageId } from '.';
+import { Language } from '.';
+import { LanguageId } from './id';
 import { time, memory } from './util';
 
 const JavaLanguage: Language = {

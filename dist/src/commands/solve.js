@@ -299,7 +299,7 @@ class SolveCommand extends command_1.Command {
     }
 }
 exports.default = SolveCommand;
-SolveCommand.description = 'Submit to baekjoon, and marks as solved if accepted.';
+SolveCommand.description = 'Submit to baekjoon, and marks as solved if accepted';
 SolveCommand.flags = {
     head: command_1.flags.boolean({
         description: 'Wheater not to launch headless browser or not',

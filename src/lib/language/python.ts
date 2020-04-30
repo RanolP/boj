@@ -1,4 +1,5 @@
-import { LanguageId, Language } from '.';
+import { Language } from '.';
+import { LanguageId } from './id';
 import { time, memory } from './util';
 
 const PythonLanguage: Language = {

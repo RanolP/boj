@@ -5,10 +5,6 @@ declare module 'viz.js' {
      */
     workerURL: string;
     /**
-     * A Worker instance.
-     */
-    worker: Worker;
-    /**
      * The Emscripten module function.
      */
     Module: Function;
@@ -71,24 +67,6 @@ declare module 'viz.js' {
      * @param options See Render Options.
      */
     renderString(src: string, options?: RenderOptions): Promise<string>;
-
-    /**
-     * Renders the graph as an SVG element, suitable for inserting into the document. For example:
-     * ```
-     * viz.renderSVGElement('digraph { a -> b }')
-     * .then(function(element) {
-     *   document.body.appendChild(element);
-     * });
-     * When using this function, the format option is ignored.
-     * If the graph is invalid, or if Graphviz encounters an error,
-     * an error will be thrown.
-     * @param src The graph to render, as DOT.
-     * @param options See Render Options.
-     */
-    renderSVGElement(
-      src: string,
-      options?: RenderOptions,
-    ): Promise<SVGSVGElement>;
   }
 
   export default Viz;

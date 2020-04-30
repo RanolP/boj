@@ -1,4 +1,5 @@
-import { Language, LanguageId } from '.';
+import { Language } from '.';
+import { LanguageId } from './id';
 
 const TextLanguage: Language = {
   id: LanguageId.Text,

@@ -17,5 +17,5 @@ async function fetchProblemTitleLogic(id: number): Promise<string> {
 export const fetchProblemTitle = cached(
   fetchProblemTitleLogic,
   (id) => `${id}/boj/problem-title`,
-  Duration.of({ year: 1 })
+  Duration.of({ year: 1 }),
 );

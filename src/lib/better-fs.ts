@@ -12,6 +12,7 @@ import {
   mkdir as mkdirCallback,
   rmdir as rmdirCallback,
   Stats,
+  copyFile as copyFileCallback,
 } from 'fs';
 import { promisify } from 'util';
 import { resolve, parse, join } from 'path';
@@ -101,3 +102,4 @@ export const rimraf = async (
   }
   await rmdir(realPath);
 };
+export const copyFile = promisify(copyFileCallback);

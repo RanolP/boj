@@ -131,7 +131,7 @@ type Answer =
 
 export default class SolveCommand extends Command {
   public static description =
-    'Submit to baekjoon, and marks as solved if accepted.';
+    'Submit to baekjoon, and marks as solved if accepted';
 
   public static flags = {
     head: flags.boolean({

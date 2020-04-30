@@ -8,74 +8,11 @@ import TextLanguage from './text';
 import JavaLanguage from './java';
 import CLanguage from './c';
 import RubyLanguage from './ruby';
-import { NativeRun, time, memory, limitModifier } from './util';
-
-export enum LanguageId {
-  CPP = 'cpp',
-  Python = 'python',
-  Kotlin = 'kotlin',
-  Rust = 'rust',
-  Text = 'text',
-  Java = 'java',
-  C = 'c',
-  Ruby = 'ruby',
-  Swift = 'swift',
-  CSharp = 'csharp',
-  Nodejs = 'nodejs',
-  Go = 'go',
-  D = 'd',
-  FSharp = 'fsharp',
-  PHP = 'php',
-  Pascal = 'pascal',
-  Lua = 'lua',
-  Perl = 'perl',
-  R = 'r',
-  ObjectiveC = 'objectivec',
-  ObjectiveCpp = 'objectivecpp',
-  GolfScript = 'golfscript',
-  Assembly = 'assembly',
-  VBNet = 'vbnet',
-  Bash = 'bash',
-  Fortran = 'fortran',
-  Scheme = 'scheme',
-  Ada = 'ada',
-  Awk = 'awk',
-  OCaml = 'ocaml',
-  BrainFuck = 'brainfuck',
-  Whitespace = 'whitespace',
-  Tcl = 'tcl',
-  Cobol = 'cobol',
-  Pike = 'pike',
-  sed = 'sed',
-  Boo = 'boo',
-  Intercal = 'intercal',
-  bc = 'bc',
-  Nemerle = 'nemerle',
-  Cobra = 'cobra',
-  Algol68 = 'algol68',
-  Befunge = 'befunge',
-  Haxe = 'haxe',
-  LolCode = 'lolcode',
-  Aheui = 'aheui',
-}
-
-export interface Command {
-  origin: string;
-  base: string;
-  args: string[];
-}
-
-function parseCommand(source: string): Command {
-  const [base, ...args] = source.split(' ');
-  return {
-    origin: source,
-    base,
-    args,
-  };
-}
+import { NativeRun, time, memory } from './util';
+import { LanguageId } from './id';
 
 export interface VersionFetcher {
-  command: Command;
+  command: string;
   parse: (output: string) => string;
 }
 
