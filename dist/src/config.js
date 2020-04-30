@@ -13,23 +13,34 @@ const path_1 = require("path");
 const yup = __importStar(require("yup"));
 const yup_1 = require("./vendors/yup");
 const id_1 = require("./lib/language/id");
-const validator = yup.object({
-    browser: yup
-        .string()
-        .required()
-        .oneOf(['firefox', 'chromium', 'webkit']),
+const browser = yup
+    .string()
+    .oneOf(['firefox', 'chromium', 'webkit']);
+exports.FullOptionalMode = yup
+    .object({
+    browser: browser.clone().notRequired(),
     runtimeOverrides: new yup_1.MapSchema(yup.string().oneOf(Object.values(id_1.LanguageId)), yup.object({
         compile: yup.array(yup.string()).ensure().notRequired(),
         execute: yup.array(yup.string()).ensure().notRequired(),
-    })),
-});
-async function getConfig(printError) {
+    })).notRequired(),
+})
+    .default({});
+exports.BrowserMode = yup
+    .object({
+    browser: browser.clone().required(),
+    runtimeOverrides: new yup_1.MapSchema(yup.string().oneOf(Object.values(id_1.LanguageId)), yup.object({
+        compile: yup.array(yup.string()).ensure().notRequired(),
+        execute: yup.array(yup.string()).ensure().notRequired(),
+    })).notRequired(),
+})
+    .default({});
+async function getConfig(validator, printError) {
     const configPath = path_1.join(constants_1.ROOT, 'boj.config.json');
     if (await better_fs_1.notExists(configPath)) {
         if (printError) {
             printError('Config file does not exists, have you created `boj.config.json`?');
         }
-        return null;
+        return undefined;
     }
     const content = await better_fs_1.readFile(configPath, { encoding: 'utf-8' });
     let jsonContent;
@@ -40,16 +51,17 @@ async function getConfig(printError) {
         if (printError) {
             printError('Config file is not valid json format: ' + e.message);
         }
-        return null;
+        return undefined;
     }
     try {
-        return await validator.validate(jsonContent);
+        return (await validator.validate(jsonContent));
     }
     catch (e) {
         if (printError) {
-            printError(e.message + ' in a config file.');
+            console.log(e);
+            printError(`${e.message} in a config file. (key=${e.key})`);
         }
-        return null;
+        return undefined;
     }
 }
 exports.getConfig = getConfig;

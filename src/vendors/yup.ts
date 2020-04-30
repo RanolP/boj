@@ -1,19 +1,8 @@
-import {
-  mixed,
-  string,
-  Ref,
-  Schema,
-  InferType,
-  TestOptions,
-  ValidateOptions,
-  StringSchema,
-} from 'yup';
+import { mixed, string, InferType, StringSchema, MixedSchema } from 'yup';
 import { inherits } from 'util';
 import runValidations from 'yup/lib/util/runValidations';
 
-const MixedSchema = mixed;
-
-type Result<K extends string, V> = Schema<Record<K, InferType<V>>> | Ref;
+type Result<K extends string, V> = MixedSchema<Record<K, InferType<V>>>;
 
 export const MapSchema = (function <K extends string, V>(
   this: Result<K, V>,
@@ -24,7 +13,7 @@ export const MapSchema = (function <K extends string, V>(
     return new (MapSchema as any)(keySchema, valueSchema);
   }
 
-  (MixedSchema as any).call(this, { type: 'map' });
+  (mixed as any).call(this, { type: 'map' });
 
   (this as any).key = keySchema || string();
   (this as any).value = valueSchema || mixed();
@@ -37,7 +26,7 @@ export const MapSchema = (function <K extends string, V>(
   >;
 };
 
-inherits(MapSchema, MixedSchema);
+inherits(MapSchema, mixed);
 
 Object.assign(MapSchema.prototype, {
   _typeCheck(value: any) {
@@ -45,7 +34,10 @@ Object.assign(MapSchema.prototype, {
   },
 
   _cast(_value: any, options: any) {
-    const value = MixedSchema.prototype._cast.call(this, _value, options);
+    if (!_value) {
+      return _value;
+    }
+    const value = mixed.prototype._cast.call(this, _value, options);
 
     const result: any = {};
     Object.entries(value).forEach(([key, aValue]) => {
@@ -62,7 +54,7 @@ Object.assign(MapSchema.prototype, {
     let originalValue =
       options.originalValue != null ? options.originalValue : _value;
 
-    let promise = MixedSchema.prototype._validate.call(this, _value, options);
+    let promise = mixed.prototype._validate.call(this, _value, options);
 
     if (!abortEarly)
       promise = promise.catch((err: any) => {

@@ -6,23 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const yup_1 = require("yup");
 const util_1 = require("util");
 const runValidations_1 = __importDefault(require("yup/lib/util/runValidations"));
-const MixedSchema = yup_1.mixed;
 exports.MapSchema = function (keySchema, valueSchema) {
     if (!(this instanceof exports.MapSchema)) {
         return new exports.MapSchema(keySchema, valueSchema);
     }
-    MixedSchema.call(this, { type: 'map' });
+    yup_1.mixed.call(this, { type: 'map' });
     this.key = keySchema || yup_1.string();
     this.value = valueSchema || yup_1.mixed();
     return this;
 };
-util_1.inherits(exports.MapSchema, MixedSchema);
+util_1.inherits(exports.MapSchema, yup_1.mixed);
 Object.assign(exports.MapSchema.prototype, {
     _typeCheck(value) {
         return value && typeof value === 'object';
     },
     _cast(_value, options) {
-        const value = MixedSchema.prototype._cast.call(this, _value, options);
+        if (!_value) {
+            return _value;
+        }
+        const value = yup_1.mixed.prototype._cast.call(this, _value, options);
         const result = {};
         Object.entries(value).forEach(([key, aValue]) => {
             result[this.key.cast(key)] = this.value.cast(aValue);
@@ -33,7 +35,7 @@ Object.assign(exports.MapSchema.prototype, {
         const errors = [];
         const { abortEarly, sync, path = '' } = options;
         let originalValue = options.originalValue != null ? options.originalValue : _value;
-        let promise = MixedSchema.prototype._validate.call(this, _value, options);
+        let promise = yup_1.mixed.prototype._validate.call(this, _value, options);
         if (!abortEarly)
             promise = promise.catch((err) => {
                 errors.push(err);

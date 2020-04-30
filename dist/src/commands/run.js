@@ -13,7 +13,7 @@ const shell_command_1 = require("../util/shell-command");
 const config_1 = require("../config");
 class RunCommand extends command_1.Command {
     async run() {
-        var _a, _b;
+        var _a, _b, _c;
         const base = new console_1.Logger('run');
         const { info } = base.labeled({
             info: console_1.chalk.blue,
@@ -34,7 +34,7 @@ class RunCommand extends command_1.Command {
                 value: [problem, title, solution],
             })),
         })).select;
-        const { name, ext } = path_1.parse(solution);
+        const { ext } = path_1.parse(solution);
         const languageList = language_1.ExtensionLanguagesMap[ext];
         const language = languageList.length === 1
             ? languageList[0]
@@ -47,8 +47,8 @@ class RunCommand extends command_1.Command {
                     value: language,
                 })),
             })).select;
-        const config = await config_1.getConfig();
-        const override = config === null || config === void 0 ? void 0 : config.runtimeOverrides[language.id];
+        const config = await config_1.getConfig(config_1.FullOptionalMode);
+        const override = (_a = config === null || config === void 0 ? void 0 : config.runtimeOverrides) === null || _a === void 0 ? void 0 : _a[language.id];
         const runtime = !(override === null || override === void 0 ? void 0 : override.compile) || !(override === null || override === void 0 ? void 0 : override.execute)
             ? language.bojRuntimes.length === 1
                 ? language.bojRuntimes[0]
@@ -70,7 +70,7 @@ class RunCommand extends command_1.Command {
         }
         await better_fs_1.copyFile(solutionFile, path_1.join(cwd, 'Main' + ext));
         info('Start compiling...');
-        const compile = (_a = override === null || override === void 0 ? void 0 : override.compile) !== null && _a !== void 0 ? _a : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand) === 'string'
+        const compile = (_b = override === null || override === void 0 ? void 0 : override.compile) !== null && _b !== void 0 ? _b : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand) === 'string'
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand);
         if (compile === null || compile === void 0 ? void 0 : compile.filter(Boolean)) {
@@ -80,7 +80,7 @@ class RunCommand extends command_1.Command {
             }
         }
         info('Start executing...');
-        const execute = ((_b = override === null || override === void 0 ? void 0 : override.execute) !== null && _b !== void 0 ? _b : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand) === 'string'
+        const execute = ((_c = override === null || override === void 0 ? void 0 : override.execute) !== null && _c !== void 0 ? _c : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand) === 'string'
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand));
         for (const [index, command] of Object.entries(execute)) {

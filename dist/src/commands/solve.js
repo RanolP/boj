@@ -90,7 +90,7 @@ class SolveCommand extends command_1.Command {
             error: console_1.chalk.red,
             info: console_1.chalk.blue,
         });
-        const settings = await config_1.getConfig(error);
+        const settings = await config_1.getConfig(config_1.BrowserMode, error);
         if (!settings) {
             this.exit(1);
         }

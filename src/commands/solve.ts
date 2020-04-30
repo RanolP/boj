@@ -3,7 +3,7 @@ import { prompt } from '../vendors/inquirer';
 import { Logger, chalk } from '../util/console';
 import { Command, flags } from '@oclif/command';
 import playwright, { JSHandle } from 'playwright';
-import { getConfig } from '../config';
+import { getConfig, BrowserMode } from '../config';
 import { getProblemList, Problem } from '../lib/problem';
 import { ROOT } from '../constants';
 import { join, parse } from 'path';
@@ -145,7 +145,7 @@ export default class SolveCommand extends Command {
       info: chalk.blue,
     });
 
-    const settings = await getConfig(error);
+    const settings = await getConfig(BrowserMode, error);
     if (!settings) {
       this.exit(1);
     }

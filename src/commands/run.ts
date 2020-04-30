@@ -1,4 +1,4 @@
-import { rimraf, copyFile, notExists, mkdirs } from '../lib/better-fs';
+import { copyFile, notExists, mkdirs } from '../lib/better-fs';
 import { chalk, Logger } from '../util/console';
 import { ROOT } from '../constants';
 import { join, parse } from 'path';
@@ -8,7 +8,7 @@ import { prompt } from '../vendors/inquirer';
 import { fetchProblemTitle } from '../api/baekjoon';
 import { ExtensionLanguagesMap, Language, Runtime } from '../lib/language';
 import { ShellCommand } from '../util/shell-command';
-import { getConfig } from '../config';
+import { getConfig, FullOptionalMode } from '../config';
 
 export default class RunCommand extends Command {
   public static description = 'Run solution file with like-oj environment';
@@ -62,8 +62,8 @@ export default class RunCommand extends Command {
               })),
             })
           ).select;
-    const config = await getConfig();
-    const override = config?.runtimeOverrides[language.id];
+    const config = await getConfig(FullOptionalMode);
+    const override = config?.runtimeOverrides?.[language.id];
     const runtime =
       !override?.compile || !override?.execute
         ? language.bojRuntimes.length === 1

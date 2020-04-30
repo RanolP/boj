@@ -9,24 +9,30 @@ class ShellCommand {
     }
     static parse(source) {
         const [base, ...args] = source.split(' ');
-        return new ShellCommand(source, base, args);
+        return new ShellCommand(source, base, args.join(' '));
     }
     executeInherit(where) {
-        return new Promise((resolve) => {
-            child_process_1.spawn(this.base, this.args, {
+        return new Promise((resolve, reject) => {
+            child_process_1.spawn(this.origin, {
                 cwd: where,
                 windowsHide: true,
+                shell: true,
                 stdio: 'inherit',
-            }).on('exit', (id) => resolve(id));
+            })
+                .on('exit', (id) => resolve(id))
+                .on('error', reject);
         });
     }
     executeControl(where, input, output) {
-        return new Promise((resolve) => {
-            child_process_1.spawn(this.base, this.args, {
+        return new Promise((resolve, reject) => {
+            child_process_1.spawn(this.origin, {
                 cwd: where,
                 windowsHide: true,
+                shell: true,
                 stdio: [input, output, output],
-            }).on('exit', (id) => resolve(id));
+            })
+                .on('exit', (id) => resolve(id))
+                .on('error', reject);
         });
     }
 }
