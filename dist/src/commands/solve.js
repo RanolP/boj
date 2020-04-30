@@ -188,7 +188,7 @@ class SolveCommand extends command_1.Command {
                 name: 'runtime',
                 message: 'Select runtime',
                 choices: usableRuntimes.map((it) => ({
-                    name: `${it.name} ${it.version ? ` ${it.version}` : ''}`,
+                    name: it.name,
                     value: it,
                     short: it.name,
                 })),
