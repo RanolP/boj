@@ -15,20 +15,6 @@ class AnalyzeCommand extends command_1.Command {
         });
         const problemList = await problem_1.getProblemList();
         const shouldHide = (await Promise.all(problemList.map(async (it) => it.isSolved && (await better_fs_1.exists(it.noteFile)) ? [it] : []))).flat();
-        const trie = { children: {} };
-        for (const { id } of shouldHide) {
-            let current = trie;
-            [...id.toString()].forEach((c, i, a) => {
-                if (!(c in current.children)) {
-                    current.children[c] = {
-                        value: c,
-                        children: {},
-                        end: i + 1 === a.length,
-                    };
-                }
-                current = current.children[c];
-            });
-        }
         if (await better_fs_1.notExists('.vscode')) {
             await better_fs_1.mkdirs('.vscode');
         }
@@ -42,8 +28,8 @@ class AnalyzeCommand extends command_1.Command {
                 delete exclude[key];
             }
         }
-        for (const child of Object.values(trie.children)) {
-            exclude[`{${MAGIC},${bakeGlob(child)}}`] = true;
+        for (const { id } of shouldHide) {
+            exclude[`{${MAGIC},${id}/**}`] = true;
         }
         exclude[`{${MAGIC},P*.*}`] = true;
         const result = await node_json_edit_1.writeJsonFileIfChanged('.vscode/settings.json', file, 'utf-8');
@@ -58,22 +44,3 @@ class AnalyzeCommand extends command_1.Command {
 }
 exports.default = AnalyzeCommand;
 AnalyzeCommand.description = 'Hide a problem which is not only solved but also had note (vscode only)';
-function bakeGlob(trie) {
-    if (!trie) {
-        return '';
-    }
-    if (Array.isArray(trie)) {
-        if (trie.length === 1) {
-            return bakeGlob(trie[0]);
-        }
-        return `{${trie.map(bakeGlob).join(',')}}`;
-    }
-    const children = Object.values(trie.children);
-    if (children.length === 0) {
-        return `${trie.value}/**/*`;
-    }
-    if (trie.end) {
-        return `{${trie.value}/**/*,${trie.value}${bakeGlob(children)}}`;
-    }
-    return `${trie.value}${bakeGlob(children)}`;
-}

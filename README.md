@@ -33,7 +33,7 @@ npm install -g boj             # for npm
 Playwright를 통해 백준에 제출합니다.
 `맞았습니다!!`가 뜨면 meta.json의 `status` 항목을 `solved`로 바꿀지 물어봅니다.
 
-### (TODO) boj hide-solved
+### boj hide-solved
 
 이미 풀었고, 노트가 완성되어 더 이상 업데이트가 없을 문제를 숨깁니다.
 VS Code에서만 지원합니다.
