@@ -400,7 +400,7 @@ export default class SolveCommand extends Command {
 
     while (toContinue) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (toContinue) {
+      if (toContinue && progressBar.curr > 0 && !progressBar.complete) {
         progressBar.render();
       }
     }
