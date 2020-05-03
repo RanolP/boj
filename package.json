@@ -1,6 +1,6 @@
 {
   "name": "boj",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "description": "script set for boj",
   "repository": "https://github.com/RanolP/boj",
   "author": "RanolP <public.ranolp@gmail.com>",
@@ -49,13 +49,13 @@
     "@types/progress": "^2.0.3",
     "@types/update-notifier": "^4.1.0",
     "@types/yup": "^0.28.0",
-    "@typescript-eslint/eslint-plugin": "^2.29.0",
-    "@typescript-eslint/parser": "^2.29.0",
+    "@typescript-eslint/eslint-plugin": "^2.30.0",
+    "@typescript-eslint/parser": "^2.30.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
     "prettier": "^2.0.5",
-    "ts-node": "^8.9.0",
+    "ts-node": "^8.10.1",
     "typescript": "^3.8.3"
   },
   "files": [
