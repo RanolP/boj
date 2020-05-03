@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "bstart": "tsc && cd local && node ../bin/run",
+    "bstart": "tsc && cd ../RanolP && node ../boj-toolchain/bin/run",
     "start": "cd local && node ../bin/run"
   },
   "dependencies": {

@@ -99,8 +99,9 @@ class InitCommand extends command_1.Command {
                             .join('\n\n') + '\n';
                     sourceType = 'template';
                 }
-                await better_fs_1.writeFile(path_1.join(problemPath, 'solution' + language.fileExtension), source);
-                create(`Solution file for ${id} (${sourceType})`);
+                const filePath = path_1.join(problemPath, 'solution' + language.fileExtension);
+                await better_fs_1.writeFile(filePath, source.trim());
+                create(`Solution file for ${id} (${sourceType}) -- ${filePath}`);
             }
         }
         if (await better_fs_1.notExists(problem.noteFile)) {
@@ -120,7 +121,7 @@ class InitCommand extends command_1.Command {
                 if (template.length === 0) {
                     warning('Note.md generated as an empty file.');
                 }
-                create(`Note.md file for ${id}`);
+                create(`Note.md file for ${id} -- ${problem.noteFile}`);
             }
         }
     }

@@ -130,6 +130,6 @@ export class Duration {
         DurationType.Second,
         to.getSeconds() - from.getSeconds(),
       ),
-    );
+    ).normalize();
   }
 }

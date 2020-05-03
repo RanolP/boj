@@ -1,6 +1,6 @@
 {
     "name": "boj",
-    "version": "0.4.2",
+    "version": "0.4.4",
     "description": "script set for boj",
     "repository": "https://github.com/RanolP/boj",
     "author": "RanolP <public.ranolp@gmail.com>",
@@ -11,7 +11,7 @@
     },
     "scripts": {
         "build": "tsc",
-        "bstart": "tsc && cd local && node ../bin/run",
+        "bstart": "tsc && cd ../RanolP && node ../boj-toolchain/bin/run",
         "start": "cd local && node ../bin/run"
     },
     "dependencies": {

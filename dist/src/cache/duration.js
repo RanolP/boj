@@ -87,7 +87,7 @@ class Duration {
         return new Duration(new DurationPart(DurationType.Year, year), new DurationPart(DurationType.Month, month), new DurationPart(DurationType.Day, day), new DurationPart(DurationType.Hour, hour), new DurationPart(DurationType.Minute, minute), new DurationPart(DurationType.Second, second));
     }
     static fromDateRange(from, to) {
-        return new Duration(new DurationPart(DurationType.Year, to.getFullYear() - from.getFullYear()), new DurationPart(DurationType.Month, to.getMonth() - from.getMonth()), new DurationPart(DurationType.Day, to.getDate() - from.getDate()), new DurationPart(DurationType.Hour, to.getHours() - from.getHours()), new DurationPart(DurationType.Minute, to.getMinutes() - from.getMinutes()), new DurationPart(DurationType.Second, to.getSeconds() - from.getSeconds()));
+        return new Duration(new DurationPart(DurationType.Year, to.getFullYear() - from.getFullYear()), new DurationPart(DurationType.Month, to.getMonth() - from.getMonth()), new DurationPart(DurationType.Day, to.getDate() - from.getDate()), new DurationPart(DurationType.Hour, to.getHours() - from.getHours()), new DurationPart(DurationType.Minute, to.getMinutes() - from.getMinutes()), new DurationPart(DurationType.Second, to.getSeconds() - from.getSeconds())).normalize();
     }
 }
 exports.Duration = Duration;
