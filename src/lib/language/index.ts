@@ -8,6 +8,7 @@ import TextLanguage from './text';
 import JavaLanguage from './java';
 import CLanguage from './c';
 import RubyLanguage from './ruby';
+import SwiftLanguage from './swift';
 import { NativeRun, time, memory } from './util';
 import { LanguageId } from './id';
 
@@ -53,20 +54,7 @@ export const Languages: Language[] = [
   JavaLanguage,
   CLanguage,
   RubyLanguage,
-  {
-    id: LanguageId.Swift,
-    name: 'Swift',
-    fileExtension: '.swift',
-    bojRuntimes: [
-      {
-        name: 'Swift',
-        compileCommand: `swiftc Main.swift`,
-        executeCommand: `./Main`,
-        version: `Swift version 5.2.1 (swift-5.2.1-RELEASE)`,
-        limitModifications: [memory({ add: 512 })],
-      },
-    ],
-  },
+  SwiftLanguage,
   {
     id: LanguageId.CSharp,
     name: 'C#',

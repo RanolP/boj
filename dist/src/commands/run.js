@@ -13,10 +13,12 @@ const shell_command_1 = require("../util/shell-command");
 const config_1 = require("../config");
 class RunCommand extends command_1.Command {
     async run() {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const base = new console_1.Logger('run');
-        const { info } = base.labeled({
+        const { info, compile, execute } = base.labeled({
             info: console_1.chalk.blue,
+            compile: console_1.chalk.cyan,
+            execute: console_1.chalk.yellow,
         });
         const solutionList = (await problem_1.getProblemList().then((it) => Promise.all(it.map(async (problem) => {
             const title = await baekjoon_1.fetchProblemTitle(problem.id);
@@ -52,7 +54,8 @@ class RunCommand extends command_1.Command {
         const runtime = !(override === null || override === void 0 ? void 0 : override.compile) || !(override === null || override === void 0 ? void 0 : override.execute)
             ? language.bojRuntimes.length === 1
                 ? language.bojRuntimes[0]
-                : (await inquirer_1.prompt({
+                : (_b = ((override === null || override === void 0 ? void 0 : override.forceRuntime) ? language.bojRuntimes.find((it) => it.name === override.forceRuntime)
+                    : undefined)) !== null && _b !== void 0 ? _b : (await inquirer_1.prompt({
                     type: 'list',
                     name: 'select',
                     message: 'Select a Runtime',
@@ -69,23 +72,39 @@ class RunCommand extends command_1.Command {
             await better_fs_1.mkdirs(cwd);
         }
         await better_fs_1.copyFile(solutionFile, path_1.join(cwd, 'Main' + ext));
-        info('Start compiling...');
-        const compile = (_b = override === null || override === void 0 ? void 0 : override.compile) !== null && _b !== void 0 ? _b : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand) === 'string'
+        compile('Start compiling...');
+        const compileCommands = (_c = override === null || override === void 0 ? void 0 : override.compile) !== null && _c !== void 0 ? _c : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand) === 'string'
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand);
-        if (compile === null || compile === void 0 ? void 0 : compile.filter(Boolean)) {
+        if (compileCommands === null || compileCommands === void 0 ? void 0 : compileCommands.filter(Boolean)) {
             for (const [index, command] of Object.entries(compile)) {
-                info(`Running ${Number(index) + 1}/${compile.length}: ${console_1.chalk.yellow(command)}`);
-                await shell_command_1.ShellCommand.parse(command).executeInherit(cwd);
+                compile(`Running ${Number(index) + 1}/${compile.length}: ${console_1.chalk.yellow(command)}`);
+                try {
+                    await shell_command_1.ShellCommand.parse(command).executeInherit(cwd);
+                }
+                catch (e) {
+                    if (typeof e === 'number') {
+                        this.exit(e);
+                    }
+                    throw e;
+                }
             }
         }
-        info('Start executing...');
-        const execute = ((_c = override === null || override === void 0 ? void 0 : override.execute) !== null && _c !== void 0 ? _c : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand) === 'string'
+        execute('Start executing...');
+        const executeCommands = ((_d = override === null || override === void 0 ? void 0 : override.execute) !== null && _d !== void 0 ? _d : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand) === 'string'
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand));
-        for (const [index, command] of Object.entries(execute)) {
-            info(`Running ${Number(index) + 1}/${execute.length}: ${console_1.chalk.yellow(command)}`);
-            await shell_command_1.ShellCommand.parse(command).executeInherit(cwd);
+        for (const [index, command] of Object.entries(executeCommands)) {
+            execute(`Running ${Number(index) + 1}/${execute.length}: ${console_1.chalk.yellow(command)}`);
+            try {
+                await shell_command_1.ShellCommand.parse(command).executeInherit(cwd);
+            }
+            catch (e) {
+                if (typeof e === 'number') {
+                    this.exit(e);
+                }
+                throw e;
+            }
         }
     }
 }

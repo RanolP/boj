@@ -11,6 +11,7 @@ export type Browser = 'firefox' | 'chromium' | 'webkit';
 export type RuntimeOverride = Partial<{
   compile: string[];
   execute: string[];
+  forceRuntime: string;
 }>;
 
 type RequireFilter<T, Keys extends keyof T = never> = {
@@ -45,6 +46,7 @@ export const FullOptionalMode: yup.ObjectSchema<RequireFilter<
       yup.object<RuntimeOverride>({
         compile: yup.array(yup.string()).ensure().notRequired(),
         execute: yup.array(yup.string()).ensure().notRequired(),
+        forceRuntime: yup.string().notRequired(),
       }),
     ).notRequired(),
   })
@@ -63,6 +65,7 @@ export const BrowserMode: yup.ObjectSchema<RequireFilter<
       yup.object<RuntimeOverride>({
         compile: yup.array(yup.string()).ensure().notRequired(),
         execute: yup.array(yup.string()).ensure().notRequired(),
+        forceRuntime: yup.string().notRequired(),
       }),
     ).notRequired(),
   })

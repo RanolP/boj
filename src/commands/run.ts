@@ -5,7 +5,11 @@ import { join, parse } from 'path';
 import { Command } from '@oclif/command';
 import { getProblemList, Problem } from '../lib/problem';
 import { prompt } from '../vendors/inquirer';
-import { fetchProblemTitle } from '../api/baekjoon';
+import {
+  fetchProblemTitle,
+  AnswerResultColorSet,
+  AnswerResultType,
+} from '../api/baekjoon';
 import { ExtensionLanguagesMap, Language, Runtime } from '../lib/language';
 import { ShellCommand } from '../util/shell-command';
 import { getConfig, FullOptionalMode } from '../config';
@@ -15,8 +19,10 @@ export default class RunCommand extends Command {
 
   async run() {
     const base = new Logger('run');
-    const { info } = base.labeled({
+    const { info, compile, execute } = base.labeled({
       info: chalk.blue,
+      compile: chalk.cyan,
+      execute: chalk.yellow,
     });
 
     const solutionList = (
@@ -68,7 +74,12 @@ export default class RunCommand extends Command {
       !override?.compile || !override?.execute
         ? language.bojRuntimes.length === 1
           ? language.bojRuntimes[0]
-          : (
+          : (override?.forceRuntime
+              ? language.bojRuntimes.find(
+                  (it) => it.name === override.forceRuntime,
+                )
+              : undefined) ??
+            (
               await prompt<{ select: Runtime }>({
                 type: 'list',
                 name: 'select',
@@ -92,36 +103,50 @@ export default class RunCommand extends Command {
       await mkdirs(cwd);
     }
     await copyFile(solutionFile, join(cwd, 'Main' + ext));
-    info('Start compiling...');
+    compile('Start compiling...');
 
-    const compile =
+    const compileCommands =
       override?.compile ??
       (typeof runtime?.compileCommand === 'string'
         ? [runtime?.compileCommand]
         : runtime?.compileCommand);
-    if (compile?.filter(Boolean)) {
+    if (compileCommands?.filter(Boolean)) {
       for (const [index, command] of Object.entries(compile)) {
-        info(
+        compile(
           `Running ${Number(index) + 1}/${compile.length}: ${chalk.yellow(
             command,
           )}`,
         );
-        await ShellCommand.parse(command).executeInherit(cwd);
+        try {
+          await ShellCommand.parse(command).executeInherit(cwd);
+        } catch (e) {
+          if (typeof e === 'number') {
+            this.exit(e);
+          }
+          throw e;
+        }
       }
     }
-    info('Start executing...');
+    execute('Start executing...');
 
-    const execute = (override?.execute ??
+    const executeCommands = (override?.execute ??
       (typeof runtime?.executeCommand === 'string'
         ? [runtime?.executeCommand]
         : runtime?.executeCommand)) as string[];
-    for (const [index, command] of Object.entries(execute)) {
-      info(
+    for (const [index, command] of Object.entries(executeCommands)) {
+      execute(
         `Running ${Number(index) + 1}/${execute.length}: ${chalk.yellow(
           command,
         )}`,
       );
-      await ShellCommand.parse(command).executeInherit(cwd);
+      try {
+        await ShellCommand.parse(command).executeInherit(cwd);
+      } catch (e) {
+        if (typeof e === 'number') {
+          this.exit(e);
+        }
+        throw e;
+      }
     }
   }
 }

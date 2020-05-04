@@ -21,7 +21,13 @@ export class ShellCommand {
         shell: true,
         stdio: 'inherit',
       })
-        .on('exit', (id) => resolve(id))
+        .on('exit', (id) => {
+          if (id === 0) {
+            resolve();
+          } else {
+            reject(id);
+          }
+        })
         .on('error', reject);
     });
   }

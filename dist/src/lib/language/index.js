@@ -12,6 +12,7 @@ const text_1 = __importDefault(require("./text"));
 const java_1 = __importDefault(require("./java"));
 const c_1 = __importDefault(require("./c"));
 const ruby_1 = __importDefault(require("./ruby"));
+const swift_1 = __importDefault(require("./swift"));
 const util_1 = require("./util");
 const id_1 = require("./id");
 exports.Languages = [
@@ -23,20 +24,7 @@ exports.Languages = [
     java_1.default,
     c_1.default,
     ruby_1.default,
-    {
-        id: id_1.LanguageId.Swift,
-        name: 'Swift',
-        fileExtension: '.swift',
-        bojRuntimes: [
-            {
-                name: 'Swift',
-                compileCommand: `swiftc Main.swift`,
-                executeCommand: `./Main`,
-                version: `Swift version 5.2.1 (swift-5.2.1-RELEASE)`,
-                limitModifications: [util_1.memory({ add: 512 })],
-            },
-        ],
-    },
+    swift_1.default,
     {
         id: id_1.LanguageId.CSharp,
         name: 'C#',

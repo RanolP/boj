@@ -18,65 +18,10 @@ const progress_1 = __importDefault(require("progress"));
 const terminal_link_1 = __importDefault(require("terminal-link"));
 const date_1 = require("../util/date");
 const node_fetch_1 = __importDefault(require("node-fetch"));
-var AnswerResultType;
-(function (AnswerResultType) {
-    AnswerResultType[AnswerResultType["Waiting"] = 0] = "Waiting";
-    AnswerResultType[AnswerResultType["RejudgeWaiting"] = 1] = "RejudgeWaiting";
-    AnswerResultType[AnswerResultType["Compiling"] = 2] = "Compiling";
-    AnswerResultType[AnswerResultType["Judging"] = 3] = "Judging";
-    AnswerResultType[AnswerResultType["Accepted"] = 4] = "Accepted";
-    AnswerResultType[AnswerResultType["PE"] = 5] = "PE";
-    AnswerResultType[AnswerResultType["WrongAnswer"] = 6] = "WrongAnswer";
-    AnswerResultType[AnswerResultType["TimeLimitExceeded"] = 7] = "TimeLimitExceeded";
-    AnswerResultType[AnswerResultType["MemoryLimitExceeded"] = 8] = "MemoryLimitExceeded";
-    AnswerResultType[AnswerResultType["OutputLimitExceeded"] = 9] = "OutputLimitExceeded";
-    AnswerResultType[AnswerResultType["RuntimeError"] = 10] = "RuntimeError";
-    AnswerResultType[AnswerResultType["CompileError"] = 11] = "CompileError";
-    AnswerResultType[AnswerResultType["CannotJudge"] = 12] = "CannotJudge";
-    AnswerResultType[AnswerResultType["Deleted"] = 13] = "Deleted";
-    AnswerResultType[AnswerResultType["JudgeDelaying"] = 14] = "JudgeDelaying";
-    AnswerResultType[AnswerResultType["PartiallyAccepted"] = 15] = "PartiallyAccepted";
-})(AnswerResultType || (AnswerResultType = {}));
-const AnswerResultColorSet = {
-    [AnswerResultType.Waiting]: console_1.chalk.hex('#a49e9e'),
-    [AnswerResultType.RejudgeWaiting]: console_1.chalk.hex('#a49e9e'),
-    [AnswerResultType.Compiling]: console_1.chalk.hex('#e67e22'),
-    [AnswerResultType.Judging]: console_1.chalk.hex('#e67e22'),
-    [AnswerResultType.Accepted]: console_1.chalk.hex('#009874').bold,
-    [AnswerResultType.PE]: console_1.chalk.hex('#fa7268'),
-    [AnswerResultType.WrongAnswer]: console_1.chalk.hex('#dd4124'),
-    [AnswerResultType.TimeLimitExceeded]: console_1.chalk.hex('#fa7268'),
-    [AnswerResultType.MemoryLimitExceeded]: console_1.chalk.hex('#fa7268'),
-    [AnswerResultType.OutputLimitExceeded]: console_1.chalk.hex('#fa7268'),
-    [AnswerResultType.RuntimeError]: console_1.chalk.hex('#5f4b8b'),
-    [AnswerResultType.CompileError]: console_1.chalk.hex('#0f4c81'),
-    [AnswerResultType.CannotJudge]: console_1.chalk.black.strikethrough,
-    [AnswerResultType.Deleted]: console_1.chalk.black.strikethrough,
-    [AnswerResultType.JudgeDelaying]: console_1.chalk.hex('#e67e22'),
-    [AnswerResultType.PartiallyAccepted]: console_1.chalk.hex('#efc050').bold,
-};
-const AnswerResultLabelSet = {
-    [AnswerResultType.Waiting]: '기다리는 중',
-    [AnswerResultType.RejudgeWaiting]: '재채점을 기다리는 중',
-    [AnswerResultType.Compiling]: '채점 준비 중',
-    [AnswerResultType.Judging]: '채점 중',
-    [AnswerResultType.Accepted]: '맞았습니다!!',
-    [AnswerResultType.PE]: '출력 형식이 잘못되었습니다',
-    [AnswerResultType.WrongAnswer]: '틀렸습니다',
-    [AnswerResultType.TimeLimitExceeded]: '시간 초과',
-    [AnswerResultType.MemoryLimitExceeded]: '메모리 초과',
-    [AnswerResultType.OutputLimitExceeded]: '출력 초과',
-    [AnswerResultType.RuntimeError]: '런타임 에러',
-    [AnswerResultType.CompileError]: '컴파일 에러',
-    [AnswerResultType.CannotJudge]: '채점 불가',
-    [AnswerResultType.Deleted]: '삭제된 제출',
-    [AnswerResultType.JudgeDelaying]: '%(remain)초 후 채점 시작',
-    [AnswerResultType.PartiallyAccepted]: '맞았습니다!!',
-};
 function hasProgressbar(result) {
     switch (result) {
-        case AnswerResultType.Compiling:
-        case AnswerResultType.Judging:
+        case baekjoon_1.AnswerResultType.Compiling:
+        case baekjoon_1.AnswerResultType.Judging:
             return true;
         default:
             return false;
@@ -177,7 +122,7 @@ class SolveCommand extends command_1.Command {
             .flatMap((it) => it.bojRuntimes)
             .filter((it) => availableRuntimes.has(it.name));
         if (usableRuntimes.length === 0) {
-            error(`There are no selectable runtime found. Found solution file(s): ${solutionList.join(', ')}`);
+            error(`There are no selectable runtime found.\nFound solution file(s): ${solutionList.join(', ')}\nAvailable runtimes: ${[...availableRuntimes].join(', ')}`);
             await browser.close();
             this.exit(1);
         }
@@ -308,13 +253,13 @@ SolveCommand.flags = {
 function render(solutionId, answer, progressBar) {
     var _a;
     const result = Number(answer.result);
-    const color = AnswerResultColorSet[result];
-    const label = AnswerResultLabelSet[result];
+    const color = baekjoon_1.AnswerResultColorSet[result];
+    const label = baekjoon_1.AnswerResultLabelSet[result];
     let to_print = [label];
-    if (result === AnswerResultType.WrongAnswer && answer.feedback) {
+    if (result === baekjoon_1.AnswerResultType.WrongAnswer && answer.feedback) {
         to_print.push(`[${answer.feedback}]`);
     }
-    if (result === AnswerResultType.JudgeDelaying) {
+    if (result === baekjoon_1.AnswerResultType.JudgeDelaying) {
         const remain = (_a = answer.remain) !== null && _a !== void 0 ? _a : 0;
         to_print[0] = to_print[0].replace('%(remain)', remain.toString());
     }
@@ -334,7 +279,7 @@ function render(solutionId, answer, progressBar) {
             toRender += ` (${answer.ac}/${answer.tot})`;
         }
     }
-    if (result === AnswerResultType.CompileError) {
+    if (result === baekjoon_1.AnswerResultType.CompileError) {
         toRender = terminal_link_1.default(toRender, `https://acmicpc.net/ceinfo/${solutionId}`);
     }
     if (answer.progress) {
@@ -352,17 +297,17 @@ function render(solutionId, answer, progressBar) {
         console.log(`${console_1.chalk.underline(console_1.chalk.yellow('Time'))}    ${answer.time}ms`);
     }
     switch (result) {
-        case AnswerResultType.Waiting:
-        case AnswerResultType.RejudgeWaiting:
-        case AnswerResultType.Compiling:
-        case AnswerResultType.Judging:
-        case AnswerResultType.JudgeDelaying:
+        case baekjoon_1.AnswerResultType.Waiting:
+        case baekjoon_1.AnswerResultType.RejudgeWaiting:
+        case baekjoon_1.AnswerResultType.Compiling:
+        case baekjoon_1.AnswerResultType.Judging:
+        case baekjoon_1.AnswerResultType.JudgeDelaying:
             return [true, false];
         default:
             return [
                 false,
-                result === AnswerResultType.Accepted ||
-                    result === AnswerResultType.PartiallyAccepted,
+                result === baekjoon_1.AnswerResultType.Accepted ||
+                    result === baekjoon_1.AnswerResultType.PartiallyAccepted,
             ];
     }
 }

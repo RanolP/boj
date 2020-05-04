@@ -22,6 +22,7 @@ exports.FullOptionalMode = yup
     runtimeOverrides: new yup_1.MapSchema(yup.string().oneOf(Object.values(id_1.LanguageId)), yup.object({
         compile: yup.array(yup.string()).ensure().notRequired(),
         execute: yup.array(yup.string()).ensure().notRequired(),
+        forceRuntime: yup.string().notRequired(),
     })).notRequired(),
 })
     .default({});
@@ -31,6 +32,7 @@ exports.BrowserMode = yup
     runtimeOverrides: new yup_1.MapSchema(yup.string().oneOf(Object.values(id_1.LanguageId)), yup.object({
         compile: yup.array(yup.string()).ensure().notRequired(),
         execute: yup.array(yup.string()).ensure().notRequired(),
+        forceRuntime: yup.string().notRequired(),
     })).notRequired(),
 })
     .default({});

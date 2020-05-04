@@ -42,10 +42,12 @@ export default class AnalyzeCommand extends Command {
       file['files.exclude'] = {};
     }
     const exclude = file['files.exclude'];
+    let deleted = 0;
 
     for (const key of Object.keys(exclude)) {
       if (key.startsWith(`{${MAGIC},`)) {
         delete exclude[key];
+        deleted += 1;
       }
     }
 
@@ -62,7 +64,12 @@ export default class AnalyzeCommand extends Command {
     );
 
     if (result) {
-      success(`Successfully hid ${shouldHide.length} problem(s).`);
+      success(
+        `Successfully hid ${shouldHide.length} problem(s). (${
+          // one for P*.*
+          shouldHide.length - deleted - 1
+        } new)`,
+      );
       info(`Restart VS code to apply changes.`);
     } else {
       info(`Nothing updated. ${shouldHide.length} problem(s) hid.`);
