@@ -16,12 +16,18 @@ const id_1 = require("./lib/language/id");
 const browser = yup
     .string()
     .oneOf(['firefox', 'chromium', 'webkit']);
+const ArrayTreater = (val, original) => {
+    if (Array.isArray(val)) {
+        return val;
+    }
+    return original === null ? original : [].concat(original);
+};
 exports.FullOptionalMode = yup
     .object({
     browser: browser.clone().notRequired(),
     runtimeOverrides: new yup_1.MapSchema(yup.string().oneOf(Object.values(id_1.LanguageId)), yup.object({
-        compile: yup.array(yup.string()).ensure().notRequired(),
-        execute: yup.array(yup.string()).ensure().notRequired(),
+        compile: yup.array(yup.string()).transform(ArrayTreater).notRequired(),
+        execute: yup.array(yup.string()).transform(ArrayTreater).notRequired(),
         forceRuntime: yup.string().notRequired(),
     })).notRequired(),
 })

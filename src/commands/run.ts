@@ -71,7 +71,7 @@ export default class RunCommand extends Command {
     const config = await getConfig(FullOptionalMode);
     const override = config?.runtimeOverrides?.[language.id];
     const runtime =
-      override?.compile?.length && override?.execute?.length
+      override?.compile && override?.execute
         ? undefined
         : language.bojRuntimes.length === 1
         ? language.bojRuntimes[0]

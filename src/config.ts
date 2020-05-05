@@ -30,6 +30,16 @@ export type Configuration = {
   runtimeOverrides: Record<LanguageId, RuntimeOverride>;
 };
 
+const ArrayTreater: yup.TransformFunction<yup.ArraySchema<string>> = (
+  val: any,
+  original: any,
+): any[] => {
+  if (Array.isArray(val)) {
+    return val;
+  }
+  return original === null ? original : [].concat(original);
+};
+
 export const FullOptionalMode: yup.ObjectSchema<RequireFilter<
   Configuration
 >> = yup
@@ -40,8 +50,8 @@ export const FullOptionalMode: yup.ObjectSchema<RequireFilter<
         LanguageId
       >,
       yup.object<RuntimeOverride>({
-        compile: yup.array(yup.string()).ensure().notRequired(),
-        execute: yup.array(yup.string()).ensure().notRequired(),
+        compile: yup.array(yup.string()).transform(ArrayTreater).notRequired(),
+        execute: yup.array(yup.string()).transform(ArrayTreater).notRequired(),
         forceRuntime: yup.string().notRequired(),
       }),
     ).notRequired(),
