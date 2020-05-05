@@ -13,7 +13,7 @@ const shell_command_1 = require("../util/shell-command");
 const config_1 = require("../config");
 class RunCommand extends command_1.Command {
     async run() {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         const base = new console_1.Logger('run');
         const { info, compile, execute } = base.labeled({
             info: console_1.chalk.blue,
@@ -51,11 +51,12 @@ class RunCommand extends command_1.Command {
             })).select;
         const config = await config_1.getConfig(config_1.FullOptionalMode);
         const override = (_a = config === null || config === void 0 ? void 0 : config.runtimeOverrides) === null || _a === void 0 ? void 0 : _a[language.id];
-        const runtime = !(override === null || override === void 0 ? void 0 : override.compile) || !(override === null || override === void 0 ? void 0 : override.execute)
-            ? language.bojRuntimes.length === 1
+        const runtime = ((_b = override === null || override === void 0 ? void 0 : override.compile) === null || _b === void 0 ? void 0 : _b.length) && ((_c = override === null || override === void 0 ? void 0 : override.execute) === null || _c === void 0 ? void 0 : _c.length)
+            ? undefined
+            : language.bojRuntimes.length === 1
                 ? language.bojRuntimes[0]
-                : (_b = ((override === null || override === void 0 ? void 0 : override.forceRuntime) ? language.bojRuntimes.find((it) => it.name === override.forceRuntime)
-                    : undefined)) !== null && _b !== void 0 ? _b : (await inquirer_1.prompt({
+                : (_d = ((override === null || override === void 0 ? void 0 : override.forceRuntime) ? language.bojRuntimes.find((it) => it.name === override.forceRuntime)
+                    : undefined)) !== null && _d !== void 0 ? _d : (await inquirer_1.prompt({
                     type: 'list',
                     name: 'select',
                     message: 'Select a Runtime',
@@ -63,8 +64,7 @@ class RunCommand extends command_1.Command {
                         name: runtime.name,
                         value: runtime,
                     })),
-                })).select
-            : undefined;
+                })).select;
         info(`Run ${problem.id}/${solution} (for ${title}, on ${runtime ? runtime.name : 'Custom Runtime'})`);
         const solutionFile = path_1.join(constants_1.ROOT, problem.id.toString(), solution);
         const cwd = path_1.join(constants_1.ROOT, '.boj-cache', 'run');
@@ -73,7 +73,7 @@ class RunCommand extends command_1.Command {
         }
         await better_fs_1.copyFile(solutionFile, path_1.join(cwd, 'Main' + ext));
         compile('Start compiling...');
-        const compileCommands = (_c = override === null || override === void 0 ? void 0 : override.compile) !== null && _c !== void 0 ? _c : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand) === 'string'
+        const compileCommands = (_e = override === null || override === void 0 ? void 0 : override.compile) !== null && _e !== void 0 ? _e : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand) === 'string'
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand);
         if (compileCommands === null || compileCommands === void 0 ? void 0 : compileCommands.filter(Boolean)) {
@@ -91,7 +91,7 @@ class RunCommand extends command_1.Command {
             }
         }
         execute('Start executing...');
-        const executeCommands = ((_d = override === null || override === void 0 ? void 0 : override.execute) !== null && _d !== void 0 ? _d : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand) === 'string'
+        const executeCommands = ((_f = override === null || override === void 0 ? void 0 : override.execute) !== null && _f !== void 0 ? _f : (typeof (runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand) === 'string'
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.executeCommand));
         for (const [index, command] of Object.entries(executeCommands)) {

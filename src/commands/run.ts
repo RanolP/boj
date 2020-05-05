@@ -71,26 +71,26 @@ export default class RunCommand extends Command {
     const config = await getConfig(FullOptionalMode);
     const override = config?.runtimeOverrides?.[language.id];
     const runtime =
-      !override?.compile || !override?.execute
-        ? language.bojRuntimes.length === 1
-          ? language.bojRuntimes[0]
-          : (override?.forceRuntime
-              ? language.bojRuntimes.find(
-                  (it) => it.name === override.forceRuntime,
-                )
-              : undefined) ??
-            (
-              await prompt<{ select: Runtime }>({
-                type: 'list',
-                name: 'select',
-                message: 'Select a Runtime',
-                choices: language.bojRuntimes.map((runtime) => ({
-                  name: runtime.name,
-                  value: runtime,
-                })),
-              })
-            ).select
-        : undefined;
+      override?.compile?.length && override?.execute?.length
+        ? undefined
+        : language.bojRuntimes.length === 1
+        ? language.bojRuntimes[0]
+        : (override?.forceRuntime
+            ? language.bojRuntimes.find(
+                (it) => it.name === override.forceRuntime,
+              )
+            : undefined) ??
+          (
+            await prompt<{ select: Runtime }>({
+              type: 'list',
+              name: 'select',
+              message: 'Select a Runtime',
+              choices: language.bojRuntimes.map((runtime) => ({
+                name: runtime.name,
+                value: runtime,
+              })),
+            })
+          ).select;
 
     info(
       `Run ${problem.id}/${solution} (for ${title}, on ${

@@ -25,10 +25,6 @@ const browser = yup
   .string()
   .oneOf(['firefox', 'chromium', 'webkit']) as yup.StringSchema<Browser>;
 
-type Test = RequireFilter<Configuration, 'browser'>;
-
-type Wat = Test extends Configuration ? true : false;
-
 export type Configuration = {
   browser: Browser;
   runtimeOverrides: Record<LanguageId, RuntimeOverride>;
