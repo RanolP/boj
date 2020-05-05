@@ -111,7 +111,7 @@ export default class RunCommand extends Command {
         ? [runtime?.compileCommand]
         : runtime?.compileCommand);
     if (compileCommands?.filter(Boolean)) {
-      for (const [index, command] of Object.entries(compile)) {
+      for (const [index, command] of Object.entries(compileCommands)) {
         compile(
           `Running ${Number(index) + 1}/${compile.length}: ${chalk.yellow(
             command,

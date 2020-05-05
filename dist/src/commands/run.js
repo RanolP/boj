@@ -77,7 +77,7 @@ class RunCommand extends command_1.Command {
             ? [runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand]
             : runtime === null || runtime === void 0 ? void 0 : runtime.compileCommand);
         if (compileCommands === null || compileCommands === void 0 ? void 0 : compileCommands.filter(Boolean)) {
-            for (const [index, command] of Object.entries(compile)) {
+            for (const [index, command] of Object.entries(compileCommands)) {
                 compile(`Running ${Number(index) + 1}/${compile.length}: ${console_1.chalk.yellow(command)}`);
                 try {
                     await shell_command_1.ShellCommand.parse(command).executeInherit(cwd);
