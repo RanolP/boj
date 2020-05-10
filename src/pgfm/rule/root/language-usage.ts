@@ -74,7 +74,7 @@ export const LanguageUsageRule: Rule = {
         | 언어 | 사용 비율 |
         | ---- | --------- |
       `,
-      ...ratio.map(
+      ...[...ratio].reverse().map(
         ([ext, count]) => dedent`
         | ${
           ExtensionLanguageNameMap[ext] ?? 'Unknown'
