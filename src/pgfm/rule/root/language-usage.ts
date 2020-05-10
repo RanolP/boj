@@ -84,6 +84,7 @@ export const LanguageUsageRule: Rule = {
         ).toFixed(2)}%) |
       `,
       ),
+      '',
       `![pie-chart](${'.'}/boj-public/language-usage/${filename})`,
     ].join('\n');
   },
