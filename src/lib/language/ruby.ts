@@ -6,6 +6,7 @@ const RubyLanguage: Language = {
   id: LanguageId.Ruby,
   name: 'Ruby',
   fileExtension: '.rb',
+  color: '#701516',
   bojRuntimes: [
     {
       name: 'Ruby 2.7',

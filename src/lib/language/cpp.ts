@@ -18,6 +18,7 @@ const CppLanguage: Language = {
   id: LanguageId.CPP,
   name: 'C++',
   fileExtension: '.cc',
+  color: '#f34b7d',
   bojRuntimes: [
     { name: 'C++2a', ...gpp('gnu++2a') },
     { name: 'C++17', ...gpp('gnu++17') },

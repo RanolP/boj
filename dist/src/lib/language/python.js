@@ -6,6 +6,7 @@ const PythonLanguage = {
     id: id_1.LanguageId.Python,
     name: 'Python',
     fileExtension: '.py',
+    color: '#3572A5',
     bojRuntimes: [
         {
             name: 'Python 3',

@@ -6,6 +6,7 @@ const JavaLanguage: Language = {
   id: LanguageId.Java,
   name: 'Java',
   fileExtension: '.java',
+  color: '#b07219',
   bojRuntimes: [
     {
       name: 'Java',

@@ -5,6 +5,7 @@ const TextLanguage = {
     id: id_1.LanguageId.Text,
     name: 'Text',
     fileExtension: '.txt',
+    color: '#88aaee',
     bojRuntimes: [
         {
             name: 'Text',

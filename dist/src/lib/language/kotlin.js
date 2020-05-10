@@ -6,6 +6,7 @@ const KotlinLanguage = {
     id: id_1.LanguageId.Kotlin,
     name: 'Kotlin',
     fileExtension: '.kt',
+    color: '#F18E33',
     bojRuntimes: [
         {
             name: 'Kotlin (JVM)',

@@ -6,6 +6,7 @@ const RustLanguage = {
     id: id_1.LanguageId.Rust,
     name: 'Rust',
     fileExtension: '.rs',
+    color: '#dea584',
     bojRuntimes: [
         {
             name: 'Rust 2018',

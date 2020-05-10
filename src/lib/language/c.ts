@@ -14,10 +14,11 @@ const clang = (std: string) => ({
   version: `clang version 9.0.1-+20191211110317+c1a0a213378-1~exp1~20191211221711.104`,
 });
 
-export const CLanguage: Language = {
+const CLanguage: Language = {
   id: LanguageId.C,
   name: 'C',
   fileExtension: '.c',
+  color: '#555555',
   bojRuntimes: [
     { name: 'C11', ...gcc('c11') },
     { name: 'C', ...gcc('c99') },

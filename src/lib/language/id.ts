@@ -9,7 +9,7 @@ export enum LanguageId {
   Ruby = 'ruby',
   Swift = 'swift',
   CSharp = 'csharp',
-  Nodejs = 'nodejs',
+  ECMAScript = 'ecmascript',
   Go = 'go',
   D = 'd',
   FSharp = 'fsharp',

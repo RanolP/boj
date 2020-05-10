@@ -8,6 +8,7 @@ const CppLanguage = {
     id: id_1.LanguageId.CPP,
     name: 'C++',
     fileExtension: '.cc',
+    color: '#f34b7d',
     bojRuntimes: [
         Object.assign({ name: 'C++2a' }, gpp('gnu++2a')),
         Object.assign({ name: 'C++17' }, gpp('gnu++17')),

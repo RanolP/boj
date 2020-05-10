@@ -12,7 +12,7 @@ var LanguageId;
     LanguageId["Ruby"] = "ruby";
     LanguageId["Swift"] = "swift";
     LanguageId["CSharp"] = "csharp";
-    LanguageId["Nodejs"] = "nodejs";
+    LanguageId["ECMAScript"] = "ecmascript";
     LanguageId["Go"] = "go";
     LanguageId["D"] = "d";
     LanguageId["FSharp"] = "fsharp";

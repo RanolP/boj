@@ -8,7 +8,7 @@ var AnswerResultType;
     AnswerResultType[AnswerResultType["Compiling"] = 2] = "Compiling";
     AnswerResultType[AnswerResultType["Judging"] = 3] = "Judging";
     AnswerResultType[AnswerResultType["Accepted"] = 4] = "Accepted";
-    AnswerResultType[AnswerResultType["PE"] = 5] = "PE";
+    AnswerResultType[AnswerResultType["PresentationError"] = 5] = "PresentationError";
     AnswerResultType[AnswerResultType["WrongAnswer"] = 6] = "WrongAnswer";
     AnswerResultType[AnswerResultType["TimeLimitExceeded"] = 7] = "TimeLimitExceeded";
     AnswerResultType[AnswerResultType["MemoryLimitExceeded"] = 8] = "MemoryLimitExceeded";
@@ -26,7 +26,7 @@ exports.AnswerResultColorSet = {
     [AnswerResultType.Compiling]: console_1.chalk.hex('#e67e22'),
     [AnswerResultType.Judging]: console_1.chalk.hex('#e67e22'),
     [AnswerResultType.Accepted]: console_1.chalk.hex('#009874').bold,
-    [AnswerResultType.PE]: console_1.chalk.hex('#fa7268'),
+    [AnswerResultType.PresentationError]: console_1.chalk.hex('#fa7268'),
     [AnswerResultType.WrongAnswer]: console_1.chalk.hex('#dd4124'),
     [AnswerResultType.TimeLimitExceeded]: console_1.chalk.hex('#fa7268'),
     [AnswerResultType.MemoryLimitExceeded]: console_1.chalk.hex('#fa7268'),
@@ -44,7 +44,7 @@ exports.AnswerResultLabelSet = {
     [AnswerResultType.Compiling]: '채점 준비 중',
     [AnswerResultType.Judging]: '채점 중',
     [AnswerResultType.Accepted]: '맞았습니다!!',
-    [AnswerResultType.PE]: '출력 형식이 잘못되었습니다',
+    [AnswerResultType.PresentationError]: '출력 형식이 잘못되었습니다',
     [AnswerResultType.WrongAnswer]: '틀렸습니다',
     [AnswerResultType.TimeLimitExceeded]: '시간 초과',
     [AnswerResultType.MemoryLimitExceeded]: '메모리 초과',

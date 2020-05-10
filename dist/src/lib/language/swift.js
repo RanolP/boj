@@ -6,6 +6,7 @@ const SwiftLanguage = {
     id: id_1.LanguageId.Swift,
     name: 'Swift',
     fileExtension: '.swift',
+    color: '#ffac45',
     bojRuntimes: [
         {
             name: 'Swift',

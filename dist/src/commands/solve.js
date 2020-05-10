@@ -73,7 +73,7 @@ class SolveCommand extends command_1.Command {
         // Logout button appears
         try {
             await page.waitForSelector('.loginbar>:nth-child(7)', {
-                waitFor: 'attached',
+                state: 'attached',
                 timeout: 10 * 60 * 1000,
             });
         }
@@ -90,7 +90,7 @@ class SolveCommand extends command_1.Command {
         info('Fetch selectable runtimes...');
         let element;
         try {
-            element = await page.waitFor('#language_chosen', {
+            element = await page.waitForSelector('#language_chosen', {
                 timeout: 30 * 1000,
             });
         }
@@ -100,7 +100,7 @@ class SolveCommand extends command_1.Command {
             this.exit(1);
             return;
         }
-        await page.waitFor(1000);
+        await page.waitForTimeout(1000);
         try {
             await ((_a = element === null || element === void 0 ? void 0 : element.asElement()) === null || _a === void 0 ? void 0 : _a.click({
                 timeout: 10 * 1000,
@@ -111,7 +111,7 @@ class SolveCommand extends command_1.Command {
             await browser.close();
             this.exit(1);
         }
-        await page.waitFor('.chosen-drop > .chosen-results > li', {
+        await page.waitForSelector('.chosen-drop > .chosen-results > li', {
             timeout: 0,
         });
         const buttonList = await page.$$('.chosen-drop > .chosen-results > li');
