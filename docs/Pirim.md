@@ -20,12 +20,12 @@
 | segtree-lazy        | [세그트리 레이지 짤 줄 안다고 자랑하는 피림이](https://twitter.com/PSing_Pirim/status/1227449933814534145)                             |
 | g3-1try             | [골3을 1트에 풀 수 있는 피림이](https://twitter.com/PSing_Pirim/status/1227450339160444929)                                            |
 | mod-neg             | [mod할 때 주의점을 알려주는 피림이](https://twitter.com/PSing_Pirim/status/1227450881219743747)                                        |
-| goin                | [고인물 혐오증에 걸린 피림이](https://twitter.com/PSing_Pirim/status/)                                                                 |
+| goin                | [고인물 혐오증에 걸린 피림이](https://twitter.com/PSing_Pirim/status/1227451738963238917)                                              |
 | nande               | [맞았는데 왜 맞는지 모르는 피림이](https://twitter.com/PSing_Pirim/status/1227452097202937859)                                         |
 | dia-escape          | [다이아 문제를 보고 도망가는 피림이](https://twitter.com/PSing_Pirim/status/1228646942692917248)                                       |
 | next-permuation     | [next_permutation을 접한 피림이](https://twitter.com/PSing_Pirim/status/1228647125166084096)                                           |
 | translate           | [코포 해석이 잘 안 돼서 초조한 피림이](https://twitter.com/PSing_Pirim/status/1228647393811288065)                                     |
-| choragi             | [습격자 초라기를 풀 수 있게 된 피림이](https://twitter.com/PSing_Pirim/status/)                                                        |
+| choragi             | [습격자 초라기를 풀 수 있게 된 피림이](https://twitter.com/PSing_Pirim/status/1228647599332151296)                                     |
 | counter             | [반례를 못 찾아서 화가 난 피림이](https://twitter.com/PSing_Pirim/status/1228648095837118465)                                          |
 | cf-data             | [코포의 빵빵한 데이터 맛을 보게 된 피림이](https://twitter.com/PSing_Pirim/status/1228649478652973057)                                 |
 | solved              | [한동안 풀지 못했던 문제를 해결한 피림이](https://twitter.com/PSing_Pirim/status/1228649748950708229)                                  |
