@@ -70,6 +70,11 @@ export class PieChart extends Chart<PieChartData> {
             }" y="${baseY}" dominant-baseline="middle">${
             curr.label
             }</text>`,
+            `<text style="font-size: 0.08px;" x="${
+            baseX + 0.06
+            }" y="${baseY}" dominant-baseline="middle">${
+            curr.label
+            }</text>`,
           ]
             .filter(Boolean)
             .join('\n');
