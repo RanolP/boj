@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "bstart": "tsc && cd ../RanolP && node ../boj-toolchain/bin/run",
-    "start": "cd local && node ../bin/run"
+    "start": "cd ../RanolP && node ../boj-toolchain/bin/run"
   },
   "dependencies": {
     "@idlebox/node-json-edit": "^1.0.20",
