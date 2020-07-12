@@ -7,6 +7,6 @@ export const MathRule: Rule<string> = {
   isBlock: false,
   schema: yup.string().required(),
   async execute(formula: string): Promise<string> {
-    return `<img src="https://render.githubusercontent.com/render/math?math=${encodeURIComponent(formula)}" alt="${formula}" style="max-width:100%;" >`;
+    return `<img src="https://latex.codecogs.com/svg.latex?${encodeURIComponent(formula)}" alt="${formula}" style="max-width:100%;" >`;
   },
 };
