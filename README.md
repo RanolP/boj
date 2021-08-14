@@ -5,6 +5,8 @@
 
 # boj
 
+(deprecated) see [boj-toolchain/boj-toolchain](https://github.com/boj-toolchain/boj-toolchain)
+
 > Modern problem-solvers require modern toolchains.
 
 ## 설치
